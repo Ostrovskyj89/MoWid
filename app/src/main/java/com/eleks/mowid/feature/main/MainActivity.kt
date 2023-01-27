@@ -1,7 +1,6 @@
-package com.eleks.mowid.feature
+package com.eleks.mowid.feature.main
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,12 +10,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.eleks.mowid.base.ui.BaseActivity
 import com.eleks.mowid.ui.theme.MoWidTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
-    private val viewModel: MainViewModel by viewModels()
+class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewModel>() {
+    override val viewModel: MainViewModel by viewModels()
+
+    override fun handleEffect(effect: MainEffect) {
+        //TODO:
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
