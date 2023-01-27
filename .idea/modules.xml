@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MoWid.iml" filepath="$PROJECT_DIR$/.idea/modules/MoWid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MoWid.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MoWid.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MoWid.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MoWid.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MoWid.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MoWid.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MoWid.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MoWid.app.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/data/MoWid.data.iml" filepath="$PROJECT_DIR$/.idea/modules/data/MoWid.data.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/data/MoWid.data.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/data/MoWid.data.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/data/MoWid.data.main.iml" filepath="$PROJECT_DIR$/.idea/modules/data/MoWid.data.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/data/MoWid.data.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/data/MoWid.data.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/domain/MoWid.domain.iml" filepath="$PROJECT_DIR$/.idea/modules/domain/MoWid.domain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/domain/MoWid.domain.main.iml" filepath="$PROJECT_DIR$/.idea/modules/domain/MoWid.domain.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/domain/MoWid.domain.test.iml" filepath="$PROJECT_DIR$/.idea/modules/domain/MoWid.domain.test.iml" />
+    </modules>
+  </component>
+</project>
