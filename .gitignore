@@ -1,0 +1,13 @@
+# Created by https://www.toptal.com/developers/gitignore/api/android,androidstudio
+# Edit at https://www.toptal.com/developers/gitignore?templates=android,androidstudio
+
+**/build/
+**/build/*
+/files/
+/files/*
+/reports
+**/mapping.txt
+/local.properties
+/app/release
+/app/debug
+/captures
