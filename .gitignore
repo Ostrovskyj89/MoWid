@@ -12,6 +12,6 @@
 /app/debug
 /captures
 
-.gradle\*
-.idea\*
+.gradle/*
+.idea/*
 *.impl
