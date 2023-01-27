@@ -11,3 +11,20 @@
 /app/release
 /app/debug
 /captures
+
+# IntelliJ
+*.iml
+.idea/
+
+# Gradle files
+.gradle/
+.gradle
+
+# Android Studio Navigation editor temp files
+.navigation/
+
+# Android Studio captures folder
+captures/
+
+# Version control
+vcs.xml
