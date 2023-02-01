@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "737392897175",
+    "project_id": "mowid-764f2",
+    "storage_bucket": "mowid-764f2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:737392897175:android:bceab03869cef60f9e0dd2",
+        "android_client_info": {
+          "package_name": "com.eleks.mowid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "737392897175-ovbeksk5plqrf533kcaqoerl5baje87q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxHmwfEwl2nkNVDe7Gss_SEfz8z2GVElg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "737392897175-ovbeksk5plqrf533kcaqoerl5baje87q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
