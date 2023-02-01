@@ -6,6 +6,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+const val EFFECTS_KEY = "effects_key"
+
 abstract class BaseViewModel<
     State : UiState,
     Event : UiEvent,

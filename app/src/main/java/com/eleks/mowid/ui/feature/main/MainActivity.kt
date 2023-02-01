@@ -1,4 +1,4 @@
-package com.eleks.mowid.feature.main
+package com.eleks.mowid.ui.feature.main
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -6,11 +6,9 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.eleks.mowid.base.ui.BaseActivity
+import com.eleks.mowid.ui.navigation.AppNavigation
 import com.eleks.mowid.ui.theme.MoWidTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -31,22 +29,9 @@ class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewMode
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    AppNavigation()
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MoWidTheme {
-        Greeting("Android")
     }
 }
