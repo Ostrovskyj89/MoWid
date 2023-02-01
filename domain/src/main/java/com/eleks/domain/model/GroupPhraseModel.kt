@@ -1,0 +1,8 @@
+package com.eleks.domain.model
+
+data class GroupPhraseModel(
+    val name: String,
+    val description: String,
+    val count: Int,
+    val selectedCount: Int
+)
