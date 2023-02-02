@@ -42,13 +42,13 @@ abstract class BaseViewModel<
         _uiState.value = newState
     }
 
-    protected fun sendEffect(effect: Effect) {
-        viewModelScope.launch { _effect.send(effect) }
-    }
-
     private fun subscribeOnEvent() {
         viewModelScope.launch {
             event.collect { handleEvent(it) }
         }
+    }
+
+    protected fun Effect.sendEffect() {
+        viewModelScope.launch { _effect.send(this@sendEffect) }
     }
 }

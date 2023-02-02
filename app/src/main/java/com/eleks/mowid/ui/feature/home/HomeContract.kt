@@ -10,8 +10,13 @@ data class HomeState(
     val groupPhraseList: List<GroupPhraseUIModel>
 ) : UiState
 
-sealed class HomeEvent : UiEvent
+sealed class HomeEvent : UiEvent {
+    data class GroupItemClicked(val groupPhrase: GroupPhraseUIModel) : HomeEvent()
+    object AddGroupClicked : HomeEvent()
+}
 
 sealed class HomeEffect : UiEffect {
     data class ShowError(val message: String) : HomeEffect()
+    data class OpenGroup(val groupPhrase: GroupPhraseUIModel) : HomeEffect()
+    object AddGroup: HomeEffect()
 }
