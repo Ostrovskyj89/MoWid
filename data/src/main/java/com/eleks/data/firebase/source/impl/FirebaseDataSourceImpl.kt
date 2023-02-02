@@ -6,9 +6,8 @@ import com.eleks.data.model.QuoteDataModel
 import com.eleks.data.model.ResultDataModel
 import com.eleks.data.model.SelectedGroupDataModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -17,24 +16,30 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FirebaseDataSourceImpl @Inject constructor() : FirebaseDataSource {
-
-    private val dbInstance = Firebase.firestore
-    private val userInstance = FirebaseAuth.getInstance().currentUser
+class FirebaseDataSourceImpl @Inject constructor(
+    private val dbInstance: FirebaseFirestore,
+    private val authInstance: FirebaseAuth
+) : FirebaseDataSource {
 
     private val _groupsFlow = MutableStateFlow<ResultDataModel<List<GroupDataModel?>>>(
         ResultDataModel.success(null)
     )
 
-    private val _selectedGroups = MutableStateFlow<ResultDataModel<List<SelectedGroupDataModel?>>>(
+    private val _userGroupsFlow = MutableStateFlow<ResultDataModel<List<GroupDataModel?>>>(
         ResultDataModel.success(null)
     )
 
-    val groupsFlow = _groupsFlow.filterNotNull()
+    private val _selectedGroupsFlow = MutableStateFlow<ResultDataModel<List<SelectedGroupDataModel?>>>(
+        ResultDataModel.success(null)
+    )
 
-    val selectedGroupsFlow = _selectedGroups.filterNotNull()
+    override val groupsFlow = _groupsFlow
 
-    override fun getGroups() {
+    override val userGroupsFlow = _userGroupsFlow
+
+    override val selectedGroupsFlow = _selectedGroupsFlow
+
+    override fun subscribeGroups() {
         dbInstance.collection("groups")
             .addSnapshotListener { value, error ->
                 if (error != null) {
@@ -42,41 +47,51 @@ class FirebaseDataSourceImpl @Inject constructor() : FirebaseDataSource {
                     return@addSnapshotListener
                 }
                 if (value != null && !value.isEmpty) {
-                    val groups = value.documents.map { it.toObject<GroupDataModel>() }
+                    val groups = mutableListOf<GroupDataModel>()
+                    for (doc in value) {
+                        groups.add(doc.toObject())
+                    }
                     _groupsFlow.value = ResultDataModel.success(groups)
                 }
             }
     }
 
-    override fun getUserGroups() {
-        if (userInstance != null) {
-            dbInstance.collection("group_${userInstance.uid}")
+    override fun subscribeUserGroups() {
+        if (authInstance.currentUser != null) {
+            dbInstance.collection("group_${authInstance.currentUser?.uid}")
                 .addSnapshotListener { value, error ->
                     if (error != null) {
-                        _groupsFlow.value = ResultDataModel.error(error.message ?: "")
+                        _userGroupsFlow.value = ResultDataModel.error(error.message ?: "")
                         return@addSnapshotListener
                     }
 
                     if (value != null && !value.isEmpty) {
-                        val groups = value.documents.map { it.toObject<GroupDataModel>() }
-                        _groupsFlow.value = ResultDataModel.success(groups)
+                        val groups = mutableListOf<GroupDataModel>()
+                        for (doc in value) {
+                            groups.add(doc.toObject())
+                        }
+                        _userGroupsFlow.value = ResultDataModel.success(groups)
                     }
                 }
+
         }
     }
 
-    override fun getUserSelectionGroups() {
-        if (userInstance != null) {
-            dbInstance.collection("group_${userInstance.uid}")
+    override fun subscribeSelectedGroups() {
+        if (authInstance.currentUser != null) {
+            dbInstance.collection("group_${authInstance.currentUser?.uid}")
                 .addSnapshotListener { value, error ->
                     if (error != null) {
-                        _groupsFlow.value = ResultDataModel.error(error.message ?: "")
+                        _selectedGroupsFlow.value = ResultDataModel.error(error.message ?: "")
                         return@addSnapshotListener
                     }
 
                     if (value != null && !value.isEmpty) {
-                        val groups = value.documents.map { it.toObject<SelectedGroupDataModel>() }
-                        _selectedGroups.value = ResultDataModel.success(groups)
+                        val selections = mutableListOf<SelectedGroupDataModel>()
+                        for (doc in value) {
+                            selections.add(doc.toObject())
+                        }
+                        _selectedGroupsFlow.value = ResultDataModel.success(selections)
                     }
                 }
         }
@@ -86,7 +101,7 @@ class FirebaseDataSourceImpl @Inject constructor() : FirebaseDataSource {
     override suspend fun saveNewGroup(group: GroupDataModel): ResultDataModel<GroupDataModel> =
         suspendCancellableCoroutine { continuation ->
             val uuid = UUID.randomUUID().toString()
-            userInstance?.let {
+            authInstance.currentUser?.let {
                 val listener = dbInstance.collection("group_${it.uid}").document(uuid)
                     .addSnapshotListener { _, error ->
                         if (error != null) {
@@ -110,7 +125,7 @@ class FirebaseDataSourceImpl @Inject constructor() : FirebaseDataSource {
     override suspend fun saveSelection(selectedGroup: SelectedGroupDataModel): ResultDataModel<SelectedGroupDataModel> =
         suspendCancellableCoroutine { continuation ->
             val uuid = UUID.randomUUID().toString()
-            userInstance?.let {
+            authInstance.currentUser?.let {
                 val listener = dbInstance.collection("selection_${it.uid}").document(uuid)
                     .addSnapshotListener { _, error ->
                         if (error != null) {
