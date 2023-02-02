@@ -15,11 +15,17 @@ import com.eleks.mowid.ui.theme.MoWidTheme
 
 @Composable
 fun HomeList(
-    groupPhraseList: List<GroupPhraseUIModel>
+    groupPhraseList: List<GroupPhraseUIModel>,
+    onClick: (groupPhrase: GroupPhraseUIModel) -> Unit
 ) {
     LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
         items(items = groupPhraseList) { item ->
-            HomeListItem(groupPhrase = item)
+            HomeListItem(
+                groupPhrase = item,
+                onClick = {
+                    onClick(it)
+                }
+            )
             Divider(
                 color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.alpha(0.5F)
@@ -52,7 +58,8 @@ fun HomeListPreview() {
                     count = 10,
                     selectedCount = 5
                 )
-            )
+            ),
+            onClick = {}
         )
     }
 }

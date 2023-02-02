@@ -1,5 +1,6 @@
 package com.eleks.mowid.ui.feature.home
 
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.eleks.domain.intearactor.MotivationPhraseInteractor
 import com.eleks.mowid.base.ui.BaseViewModel
@@ -32,13 +33,13 @@ class HomeViewModel @Inject constructor(
                 setState { copy(isLoading = false) }
             }
             .catch {
-                sendEffect(
-                    HomeEffect.ShowError(
-                        message = this.toString()
-                    )
-                )
+                HomeEffect.ShowError(
+                    message = this.toString()
+                ).sendEffect()
             }
             .launchIn(viewModelScope)
+
+        snapshotFlow { }
 
     }
 
@@ -48,7 +49,10 @@ class HomeViewModel @Inject constructor(
     )
 
     override fun handleEvent(event: HomeEvent) {
-        //TODO:
+        when (event) {
+            is HomeEvent.GroupItemClicked -> HomeEffect.OpenGroup(event.groupPhrase).sendEffect()
+            HomeEvent.AddGroupClicked -> HomeEffect.AddGroup.sendEffect()
+        }
     }
 
 }
