@@ -2,7 +2,9 @@ package com.eleks.mowid.base.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -12,6 +14,8 @@ abstract class BaseViewModel<
     State : UiState,
     Event : UiEvent,
     Effect : UiEffect> : ViewModel() {
+
+    private var eventJob: Job? = null
 
     protected abstract fun handleEvent(event: Event)
 
@@ -32,9 +36,14 @@ abstract class BaseViewModel<
         subscribeOnEvent()
     }
 
-    fun setEvent(event: Event) {
+    fun setEvent(event: Event, debounce: Boolean = false) {
         val newEvent = event
-        viewModelScope.launch { _event.emit(newEvent) }
+        if (eventJob?.isActive != true) {
+            eventJob = viewModelScope.launch {
+                _event.emit(newEvent)
+                delay(100)
+            }
+        }
     }
 
     protected fun setState(proceed: State.() -> State) {

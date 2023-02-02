@@ -1,15 +1,11 @@
 package com.eleks.mowid.ui.feature.home.composable
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.eleks.mowid.model.GroupPhraseUIModel
 import com.eleks.mowid.ui.theme.MoWidTheme
 
@@ -18,7 +14,7 @@ fun HomeList(
     groupPhraseList: List<GroupPhraseUIModel>,
     onClick: (groupPhrase: GroupPhraseUIModel) -> Unit
 ) {
-    LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
+    LazyColumn {
         items(items = groupPhraseList) { item ->
             HomeListItem(
                 groupPhrase = item,
@@ -27,9 +23,9 @@ fun HomeList(
                 }
             )
             Divider(
-                color = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.alpha(0.5F)
-            )
+                color = MaterialTheme.colorScheme.outlineVariant,
+
+                )
         }
     }
 }
