@@ -57,14 +57,17 @@ dependencies {
     implementation "androidx.core:core-ktx:$core_ktx_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
-    implementation "androidx.navigation:navigation-fragment-ktx:$navigation_fragment_ktx_version"
+    implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
 
     // di
     implementation "com.google.dagger:hilt-android:$hilt_version"
+    implementation "androidx.hilt:hilt-navigation-compose:$hilt_compose_version"
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
 
     // coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_core_version"
+
+    // navigation
 
     // compose
     implementation "androidx.compose.material3:material3:$compose_material3_version"
@@ -76,6 +79,11 @@ dependencies {
     implementation "androidx.activity:activity-compose:$activity_compose_version"
     // compose - Integration with ViewModels
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
+    // compose - Integration with Lifecycle
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_compose_version"
+    // compose - Integration with Navigation
+    implementation "androidx.navigation:navigation-compose:$navigation_version"
+
 
     // tests
     testImplementation 'junit:junit:4.13.2'

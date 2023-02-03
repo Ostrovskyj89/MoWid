@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MoWid</string>
+
+    <string name="title_home">Mowid</string>
 </resources>

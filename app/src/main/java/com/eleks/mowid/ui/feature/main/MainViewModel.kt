@@ -1,4 +1,4 @@
-package com.eleks.mowid.feature.home
+package com.eleks.mowid.ui.feature.main
 
 import com.eleks.domain.intearactor.MotivationPhraseInteractor
 import com.eleks.mowid.base.ui.BaseViewModel
@@ -6,13 +6,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     private val motivationPhraseInteractor: MotivationPhraseInteractor
-) : BaseViewModel<HomeState, HomeEvent, HomeEffect>() {
+) : BaseViewModel<MainState, MainEvent, MainEffect>() {
 
-    override fun createInitialState(): HomeState = HomeState.Loading(state = true)
+    override fun createInitialState(): MainState = MainState.Loading(state = false)
 
-    override fun handleEvent(event: HomeEvent) {
+    override fun handleEvent(event: MainEvent) {
         //TODO:
     }
 
