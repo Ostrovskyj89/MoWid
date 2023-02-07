@@ -7,31 +7,36 @@ import com.eleks.data.model.ResultDataModel
 import com.eleks.data.model.SelectedGroupDataModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.ktx.toObject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 @Singleton
 class FirebaseDataSourceImpl @Inject constructor(
     private val dbInstance: FirebaseFirestore,
     private val authInstance: FirebaseAuth
-) : FirebaseDataSource {
+) : FirebaseDataSource, CoroutineScope {
 
-    private val _groupsFlow = MutableStateFlow<ResultDataModel<List<GroupDataModel?>>>(
-        ResultDataModel.success(null)
+    override val coroutineContext: CoroutineContext = Dispatchers.Default
+
+    private val _groupsFlow = MutableSharedFlow<ResultDataModel<List<GroupDataModel?>>>(
+        replay = 1
     )
 
-    private val _userGroupsFlow = MutableStateFlow<ResultDataModel<List<GroupDataModel?>>>(
-        ResultDataModel.success(null)
+    private val _userGroupsFlow = MutableSharedFlow<ResultDataModel<List<GroupDataModel?>>>(
+        replay = 1
     )
 
-    private val _selectedGroupsFlow = MutableStateFlow<ResultDataModel<List<SelectedGroupDataModel?>>>(
-        ResultDataModel.success(null)
-    )
+    private val _selectedGroupsFlow =
+        MutableSharedFlow<ResultDataModel<List<SelectedGroupDataModel?>>>(
+            replay = 1
+        )
 
     override val groupsFlow = _groupsFlow
 
@@ -39,61 +44,93 @@ class FirebaseDataSourceImpl @Inject constructor(
 
     override val selectedGroupsFlow = _selectedGroupsFlow
 
-    override fun subscribeGroups() {
-        dbInstance.collection("groups")
-            .addSnapshotListener { value, error ->
-                if (error != null) {
-                    _groupsFlow.value = ResultDataModel.error(error.message ?: "")
-                    return@addSnapshotListener
-                }
-                if (value != null && !value.isEmpty) {
-                    val groups = mutableListOf<GroupDataModel>()
-                    for (doc in value) {
-                        groups.add(doc.toObject())
-                    }
-                    _groupsFlow.value = ResultDataModel.success(groups)
-                }
-            }
+    init {
+        launch { subscribeGroups() }
+        launch { subscribeUserGroups() }
+        launch { subscribeSelectedGroups() }
     }
 
-    override fun subscribeUserGroups() {
-        if (authInstance.currentUser != null) {
-            dbInstance.collection("group_${authInstance.currentUser?.uid}")
-                .addSnapshotListener { value, error ->
-                    if (error != null) {
-                        _userGroupsFlow.value = ResultDataModel.error(error.message ?: "")
-                        return@addSnapshotListener
-                    }
-
-                    if (value != null && !value.isEmpty) {
-                        val groups = mutableListOf<GroupDataModel>()
-                        for (doc in value) {
-                            groups.add(doc.toObject())
+    private suspend fun subscribeGroups() {
+        var subscription: ListenerRegistration? = null
+        _groupsFlow.subscriptionCount.collect {
+            if (it > 0) {
+                subscription = dbInstance.collection("groups")
+                    .addSnapshotListener(MetadataChanges.INCLUDE) { value, error ->
+                        if (error != null) {
+                            _groupsFlow.tryEmit(ResultDataModel.error(error.message ?: ""))
+                            return@addSnapshotListener
                         }
-                        _userGroupsFlow.value = ResultDataModel.success(groups)
+                        if (value?.isEmpty == false) {
+                            val groups = mutableListOf<GroupDataModel>()
+                            for (doc in value) {
+                                groups.add(doc.toObject())
+                            }
+                            groupsFlow.tryEmit(ResultDataModel.success(groups))
+                        }
                     }
-                }
-
+            } else {
+                subscription?.remove()
+            }
         }
     }
 
-    override fun subscribeSelectedGroups() {
-        if (authInstance.currentUser != null) {
-            dbInstance.collection("group_${authInstance.currentUser?.uid}")
-                .addSnapshotListener { value, error ->
-                    if (error != null) {
-                        _selectedGroupsFlow.value = ResultDataModel.error(error.message ?: "")
-                        return@addSnapshotListener
-                    }
-
-                    if (value != null && !value.isEmpty) {
-                        val selections = mutableListOf<SelectedGroupDataModel>()
-                        for (doc in value) {
-                            selections.add(doc.toObject())
+    private suspend fun subscribeUserGroups() {
+        var subscription: ListenerRegistration? = null
+        _userGroupsFlow.subscriptionCount.collect {
+            if (authInstance.currentUser == null) return@collect
+            if (it > 0) {
+                subscription = dbInstance.collection("personal")
+                    .document(authInstance.currentUser?.uid ?: "").collection("groups")
+                    .addSnapshotListener { value, error ->
+                        if (error != null) {
+                            _userGroupsFlow.tryEmit(ResultDataModel.error(error.message ?: ""))
+                            return@addSnapshotListener
                         }
-                        _selectedGroupsFlow.value = ResultDataModel.success(selections)
+
+                        if (value?.isEmpty == false) {
+                            val groups = mutableListOf<GroupDataModel>()
+                            for (doc in value) {
+                                groups.add(doc.toObject())
+                            }
+                            _userGroupsFlow.tryEmit(ResultDataModel.success(groups))
+                        }
                     }
-                }
+            } else {
+                subscription?.remove()
+            }
+        }
+    }
+
+    private suspend fun subscribeSelectedGroups() {
+        var subscription: ListenerRegistration? = null
+        _selectedGroupsFlow.subscriptionCount.collect {
+            if (authInstance.currentUser == null) return@collect
+            if (it > 0) {
+                subscription =
+                    dbInstance.collection("personal")
+                        .document(authInstance.currentUser?.uid ?: "")
+                        .collection("selection")
+                        .addSnapshotListener { value, error ->
+                            if (error != null) {
+                                _selectedGroupsFlow.tryEmit(
+                                    ResultDataModel.error(
+                                        error.message ?: ""
+                                    )
+                                )
+                                return@addSnapshotListener
+                            }
+
+                            if (value?.isEmpty == false) {
+                                val selections = mutableListOf<SelectedGroupDataModel>()
+                                for (doc in value) {
+                                    selections.add(doc.toObject())
+                                }
+                                _selectedGroupsFlow.tryEmit(ResultDataModel.success(selections))
+                            }
+                        }
+            } else {
+                subscription?.remove()
+            }
         }
     }
 
@@ -102,21 +139,21 @@ class FirebaseDataSourceImpl @Inject constructor(
         suspendCancellableCoroutine { continuation ->
             val uuid = UUID.randomUUID().toString()
             authInstance.currentUser?.let {
-                val listener = dbInstance.collection("group_${it.uid}").document(uuid)
-                    .addSnapshotListener { _, error ->
-                        if (error != null) {
-                            continuation.resume(ResultDataModel.error(error.message ?: "")) {}
-                            return@addSnapshotListener
-                        }
+                dbInstance.collection("personal").document(it.uid)
+                    .collection("groups")
+                    .document(uuid)
+                    .set(group.apply { id = uuid })
+                    .addOnSuccessListener {
                         continuation.resume(ResultDataModel.success(group)) {}
                     }
-                continuation.invokeOnCancellation { listener.remove() }
+                    .addOnFailureListener { exception ->
+                        continuation.resume(ResultDataModel.error(exception.message ?: "")) {}
+                    }
             }
         }
 
     override suspend fun saveNewQuote(
-        groupId: String,
-        quote: QuoteDataModel
+        groupId: String, quote: QuoteDataModel
     ): ResultDataModel<QuoteDataModel> {
         TODO("Not yet implemented")
     }
@@ -124,17 +161,17 @@ class FirebaseDataSourceImpl @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun saveSelection(selectedGroup: SelectedGroupDataModel): ResultDataModel<SelectedGroupDataModel> =
         suspendCancellableCoroutine { continuation ->
-            val uuid = UUID.randomUUID().toString()
             authInstance.currentUser?.let {
-                val listener = dbInstance.collection("selection_${it.uid}").document(uuid)
-                    .addSnapshotListener { _, error ->
-                        if (error != null) {
-                            continuation.resume(ResultDataModel.error(error.message ?: "")) {}
-                            return@addSnapshotListener
-                        }
+                dbInstance.collection("personal").document(it.uid)
+                    .collection("selection")
+                    .document(selectedGroup.groupId ?: "")
+                    .set(selectedGroup)
+                    .addOnSuccessListener {
                         continuation.resume(ResultDataModel.success(selectedGroup)) {}
                     }
-                continuation.invokeOnCancellation { listener.remove() }
+                    .addOnFailureListener { exception ->
+                        continuation.resume(ResultDataModel.error(exception.message ?: "")) {}
+                    }
             }
         }
 }
