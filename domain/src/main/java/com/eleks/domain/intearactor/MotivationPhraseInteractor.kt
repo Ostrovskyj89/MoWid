@@ -34,4 +34,8 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
             emit(tempResult)
         }
     }
+
+    suspend fun addGroup(name: String, description: String) {
+
+    }
 }

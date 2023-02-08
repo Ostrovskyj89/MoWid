@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 const val EFFECTS_KEY = "effects_key"
+const val EVENTS_KEY = "event_key"
 
 abstract class BaseViewModel<
     State : UiState,
@@ -36,7 +37,7 @@ abstract class BaseViewModel<
         subscribeOnEvent()
     }
 
-    fun setEvent(event: Event, debounce: Boolean = false) {
+    fun setEvent(event: Event) {
         val newEvent = event
         if (eventJob?.isActive != true) {
             eventJob = viewModelScope.launch {

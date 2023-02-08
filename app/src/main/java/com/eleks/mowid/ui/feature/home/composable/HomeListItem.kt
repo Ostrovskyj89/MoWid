@@ -1,11 +1,9 @@
 package com.eleks.mowid.ui.feature.home.composable
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,24 +20,31 @@ fun HomeListItem(
     groupPhrase: GroupPhraseUIModel,
     onClick: (groupPhrase: GroupPhraseUIModel) -> Unit
 ) {
-    Surface(onClick = { onClick(groupPhrase) }) {
-        Row(modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .height(64.dp)) {
+    Box(modifier = Modifier.clickable {
+        onClick(groupPhrase)
+    }) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .height(64.dp)
+        ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = groupPhrase.name,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
                     text = groupPhrase.description,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
             Column {
                 Text(
                     text = "${groupPhrase.selectedCount}/${groupPhrase.count}",
-                    fontSize = 12.sp
+                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
         }

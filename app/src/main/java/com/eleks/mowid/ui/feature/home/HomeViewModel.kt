@@ -8,6 +8,7 @@ import com.eleks.mowid.model.toUIModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,8 +51,23 @@ class HomeViewModel @Inject constructor(
 
     override fun handleEvent(event: HomeEvent) {
         when (event) {
-            is HomeEvent.GroupItemClicked -> HomeEffect.OpenGroup(event.groupPhrase).sendEffect()
-            HomeEvent.AddGroupClicked -> HomeEffect.AddGroup.sendEffect()
+            is HomeEvent.GroupItemClicked -> {
+                // handle directly on UI
+            }
+            HomeEvent.ShowAddGroupModal -> {
+                // handle directly on UI
+            }
+            HomeEvent.HideAddGroupModal -> {
+                // handle directly on UI
+            }
+            is HomeEvent.AddGroupClicked -> {
+                viewModelScope.launch {
+                    motivationPhraseInteractor.addGroup(
+                        name = event.name,
+                        description = event.description
+                    )
+                }
+            }
         }
     }
 

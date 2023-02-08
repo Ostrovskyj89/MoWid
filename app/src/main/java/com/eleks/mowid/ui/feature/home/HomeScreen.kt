@@ -1,13 +1,17 @@
 package com.eleks.mowid.ui.feature.home
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -15,11 +19,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.EFFECTS_KEY
+import com.eleks.mowid.base.ui.EVENTS_KEY
 import com.eleks.mowid.model.GroupPhraseUIModel
-import com.eleks.mowid.ui.composable.Progress
+import com.eleks.mowid.ui.composable.AppCenterAlignedTopAppBar
+import com.eleks.mowid.ui.composable.AppFloatingActionButton
+import com.eleks.mowid.ui.composable.AppProgress
+import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffold
+import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
+import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
+import com.eleks.mowid.ui.feature.home.composable.HomeBottomSheet
 import com.eleks.mowid.ui.feature.home.composable.HomeList
 import com.eleks.mowid.ui.theme.MoWidTheme
 import kotlinx.coroutines.flow.collect
@@ -29,7 +41,16 @@ import kotlinx.coroutines.flow.onEach
 fun HomeScreen(viewModel: HomeViewModel) {
     val state: HomeState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
     val context = LocalContext.current
+
+    BackHandler(
+        enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded
+    ) {
+        if (bottomSheetScaffoldState.bottomSheetState.isExpanded) {
+            viewModel.setEvent(HomeEvent.HideAddGroupModal)
+        }
+    }
 
     LaunchedEffect(EFFECTS_KEY) {
         viewModel.effect.onEach { effect ->
@@ -39,76 +60,127 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     effect.message,
                     Toast.LENGTH_SHORT
                 ).show()
-                is HomeEffect.OpenGroup -> Toast.makeText(
-                    context,
-                    "TODO: Open group ${effect.groupPhrase.name}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                HomeEffect.AddGroup -> Toast.makeText(
-                    context,
-                    "TODO: Add new group",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
         }.collect()
     }
+
+    LaunchedEffect(EVENTS_KEY) {
+        viewModel.event.onEach { event ->
+            when (event) {
+                HomeEvent.ShowAddGroupModal -> {
+                    if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
+                        bottomSheetScaffoldState.bottomSheetState.expand()
+                    } else {
+                        bottomSheetScaffoldState.bottomSheetState.collapse()
+                    }
+                }
+                is HomeEvent.GroupItemClicked -> Toast.makeText(
+                    context,
+                    "TODO: Open group ${event.groupPhrase.name}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                HomeEvent.HideAddGroupModal -> {
+                    bottomSheetScaffoldState.bottomSheetState.collapse()
+                }
+                is HomeEvent.AddGroupClicked -> {
+                    bottomSheetScaffoldState.bottomSheetState.collapse()
+                }
+            }
+        }.collect()
+    }
+
+
     ScreenContent(
         state = state,
-        sendEvent = viewModel::setEvent
+        sendEvent = viewModel::setEvent,
+        bottomSheetState = bottomSheetScaffoldState
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenContent(state: HomeState, sendEvent: (HomeEvent) -> Unit) {
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(text = stringResource(id = R.string.title_home))
+fun ScreenContent(
+    state: HomeState,
+    sendEvent: (HomeEvent) -> Unit,
+    bottomSheetState: BottomSheetScaffoldState
+) {
+    BottomSheetScaffold(
+        sheetContent = {
+            HomeBottomSheet(
+                onAddClick = { group, author ->
+                    sendEvent(
+                        HomeEvent.AddGroupClicked(
+                            name = group,
+                            description = author
+                        )
+                    )
                 },
-                colors = centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                ),
-                actions = {
-                    IconButton(onClick = {
-
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "TODO: description"
+                clearSavedStates = bottomSheetState.bottomSheetState.isCollapsed
+            )
+        },
+        scaffoldState = bottomSheetState,
+        sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        sheetBackgroundColor = MaterialTheme.colorScheme.secondaryContainer,
+        sheetPeekHeight = 0.dp,
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            Scaffold(
+                topBar = {
+                    AppCenterAlignedTopAppBar(
+                        title = stringResource(id = R.string.title_home),
+                        actions = {
+                            IconButton(onClick = {
+                                //TODO:
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.MoreVert,
+                                    contentDescription = "TODO: description"
+                                )
+                            }
+                        }
+                    )
+                },
+                floatingActionButton = {
+                    if (state.isLoading.not()) AppFloatingActionButton(
+                        onClick = {
+                            sendEvent(HomeEvent.ShowAddGroupModal)
+                        }
+                    ) else Unit
+                }
+            ) { padding ->
+                Column(
+                    modifier = Modifier.padding(padding)
+                ) {
+                    when {
+                        state.isLoading -> AppProgress()
+                        else -> HomeList(
+                            groupPhraseList = state.groupPhraseList,
+                            onClick = {
+                                sendEvent(HomeEvent.GroupItemClicked(it))
+                            }
                         )
                     }
                 }
-            )
-        },
-        floatingActionButton = {
-            if (state.isLoading.not()) FloatingActionButton(
-                onClick = {
-                    sendEvent(HomeEvent.AddGroupClicked)
-                },
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                shape = MaterialTheme.shapes.extraLarge
-            ) {
-                Icon(Icons.Filled.Add, "TODO: description")
             }
-            else Unit
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier.padding(padding)
-        ) {
-            when {
-                state.isLoading -> Progress()
-                else -> HomeList(
-                    groupPhraseList = state.groupPhraseList,
-                    onClick = {
-                        sendEvent(HomeEvent.GroupItemClicked(it))
-                    }
-                )
+            if (bottomSheetState.bottomSheetState.isExpanded) {
+                Box(
+                    modifier = Modifier
+                        .clickable {
+                            sendEvent(HomeEvent.HideAddGroupModal)
+                        }
+                        .background(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.20F))
+                        .fillMaxSize(),
+                ) {
+
+                }
             }
         }
+
     }
+
 }
 
 @Preview(showBackground = true)
@@ -141,7 +213,8 @@ fun ScreenContentPreview() {
                 isLoading = false,
                 groupPhraseList = list
             ),
-            sendEvent = {}
+            sendEvent = {},
+            bottomSheetState = rememberBottomSheetScaffoldState()
         )
     }
 }
