@@ -10,7 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.eleks.mowid.ui.theme.MoWidTheme
 
 @Composable
-fun Progress() {
+fun AppProgress() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -21,8 +21,8 @@ fun Progress() {
 
 @Preview(showBackground = true)
 @Composable
-fun ProgressPreview() {
+fun AppProgressPreview() {
     MoWidTheme {
-        Progress()
+        AppProgress()
     }
 }
