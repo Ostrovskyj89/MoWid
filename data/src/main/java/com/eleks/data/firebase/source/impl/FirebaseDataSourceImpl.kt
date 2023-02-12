@@ -25,24 +25,24 @@ class FirebaseDataSourceImpl @Inject constructor(
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default
 
-    private val _groupsFlow = MutableSharedFlow<ResultDataModel<List<GroupDataModel?>>>(
+    private val _groupsFlow = MutableSharedFlow<ResultDataModel<List<GroupDataModel>>>(
         replay = 1
     )
 
-    private val _userGroupsFlow = MutableSharedFlow<ResultDataModel<List<GroupDataModel?>>>(
+    private val _userGroupsFlow = MutableSharedFlow<ResultDataModel<List<GroupDataModel>>>(
         replay = 1
     )
 
     private val _selectedGroupsFlow =
-        MutableSharedFlow<ResultDataModel<List<SelectedGroupDataModel?>>>(
+        MutableSharedFlow<ResultDataModel<List<SelectedGroupDataModel>>>(
             replay = 1
         )
 
-    override val groupsFlow = _groupsFlow
+    override val groupsFlow = _groupsFlow.asSharedFlow()
 
-    override val userGroupsFlow = _userGroupsFlow
+    override val userGroupsFlow = _userGroupsFlow.asSharedFlow()
 
-    override val selectedGroupsFlow = _selectedGroupsFlow
+    override val selectedGroupsFlow = _selectedGroupsFlow.asSharedFlow()
 
     init {
         launch { subscribeGroups() }
@@ -54,7 +54,7 @@ class FirebaseDataSourceImpl @Inject constructor(
         var subscription: ListenerRegistration? = null
         _groupsFlow.subscriptionCount.collect {
             if (it > 0) {
-                subscription = dbInstance.collection("groups")
+                subscription = dbInstance.collection(COLLECTION_GROUPS)
                     .addSnapshotListener(MetadataChanges.INCLUDE) { value, error ->
                         if (error != null) {
                             _groupsFlow.tryEmit(ResultDataModel.error(error.message ?: ""))
@@ -65,7 +65,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                             for (doc in value) {
                                 groups.add(doc.toObject())
                             }
-                            groupsFlow.tryEmit(ResultDataModel.success(groups))
+                            _groupsFlow.tryEmit(ResultDataModel.success(groups))
                         }
                     }
             } else {
@@ -76,14 +76,16 @@ class FirebaseDataSourceImpl @Inject constructor(
 
     private suspend fun subscribeUserGroups() {
         var subscription: ListenerRegistration? = null
-        _userGroupsFlow.subscriptionCount.collect {
-            if (authInstance.currentUser == null) return@collect
-            if (it > 0) {
-                subscription = dbInstance.collection("personal")
-                    .document(authInstance.currentUser?.uid ?: "").collection("groups")
+        _userGroupsFlow.subscriptionCount.collect { subscribers ->
+
+            val userId = authInstance.currentUser?.uid ?: return@collect
+            if (subscribers > 0) {
+                subscription = dbInstance.collection(COLLECTION_PERSONAL)
+                    .document(userId).collection(COLLECTION_GROUPS)
                     .addSnapshotListener { value, error ->
                         if (error != null) {
-                            _userGroupsFlow.tryEmit(ResultDataModel.error(error.message ?: ""))
+                            // TODO empty string shouldn't be returned. In debug it should just throw ex
+                            _userGroupsFlow.tryEmit(ResultDataModel.error(error.message ?: "Empty string"))
                             return@addSnapshotListener
                         }
 
@@ -104,18 +106,16 @@ class FirebaseDataSourceImpl @Inject constructor(
     private suspend fun subscribeSelectedGroups() {
         var subscription: ListenerRegistration? = null
         _selectedGroupsFlow.subscriptionCount.collect {
-            if (authInstance.currentUser == null) return@collect
+            val userId = authInstance.currentUser?.uid ?: return@collect
             if (it > 0) {
                 subscription =
-                    dbInstance.collection("personal")
-                        .document(authInstance.currentUser?.uid ?: "")
-                        .collection("selection")
+                    dbInstance.collection(COLLECTION_PERSONAL)
+                        .document(userId)
+                        .collection(COLLECTION_SELECTION)
                         .addSnapshotListener { value, error ->
                             if (error != null) {
                                 _selectedGroupsFlow.tryEmit(
-                                    ResultDataModel.error(
-                                        error.message ?: ""
-                                    )
+                                    ResultDataModel.error(error.message ?: "")
                                 )
                                 return@addSnapshotListener
                             }
@@ -139,8 +139,9 @@ class FirebaseDataSourceImpl @Inject constructor(
         suspendCancellableCoroutine { continuation ->
             val uuid = UUID.randomUUID().toString()
             authInstance.currentUser?.let {
-                dbInstance.collection("personal").document(it.uid)
-                    .collection("groups")
+                dbInstance.collection(COLLECTION_PERSONAL)
+                    .document(it.uid)
+                    .collection(COLLECTION_GROUPS)
                     .document(uuid)
                     .set(group.apply { id = uuid })
                     .addOnSuccessListener {
@@ -162,8 +163,9 @@ class FirebaseDataSourceImpl @Inject constructor(
     override suspend fun saveSelection(selectedGroup: SelectedGroupDataModel): ResultDataModel<SelectedGroupDataModel> =
         suspendCancellableCoroutine { continuation ->
             authInstance.currentUser?.let {
-                dbInstance.collection("personal").document(it.uid)
-                    .collection("selection")
+                dbInstance.collection(COLLECTION_PERSONAL)
+                    .document(it.uid)
+                    .collection(COLLECTION_SELECTION)
                     .document(selectedGroup.groupId ?: "")
                     .set(selectedGroup)
                     .addOnSuccessListener {
@@ -174,4 +176,10 @@ class FirebaseDataSourceImpl @Inject constructor(
                     }
             }
         }
+
+    companion object {
+        const val COLLECTION_PERSONAL = "personal"
+        const val COLLECTION_SELECTION = "selection"
+        const val COLLECTION_GROUPS = "groups"
+    }
 }
