@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface FirebaseDataSource {
 
-     val groupsFlow: Flow<ResultDataModel<List<GroupDataModel?>>>
+    val groupsFlow: Flow<ResultDataModel<List<GroupDataModel>>>
 
-     val userGroupsFlow: Flow<ResultDataModel<List<GroupDataModel?>>>
+     val userGroupsFlow: Flow<ResultDataModel<List<GroupDataModel>>>
 
-     val selectedGroupsFlow: Flow<ResultDataModel<List<SelectedGroupDataModel?>>>
+     val selectedGroupsFlow: Flow<ResultDataModel<List<SelectedGroupDataModel>>>
 
     suspend fun saveNewGroup(group: GroupDataModel): ResultDataModel<GroupDataModel>
 
