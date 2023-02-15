@@ -38,4 +38,6 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
     suspend fun addGroup(name: String, description: String) {
 
     }
+
+    fun getCurrentUser() = motivationPhraseRepository.getCurrentUser()
 }

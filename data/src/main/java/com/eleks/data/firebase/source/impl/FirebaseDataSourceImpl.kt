@@ -44,6 +44,9 @@ class FirebaseDataSourceImpl @Inject constructor(
 
     override val selectedGroupsFlow = _selectedGroupsFlow.asSharedFlow()
 
+    override val currentUser
+        get() = authInstance.currentUser
+
     init {
         launch { subscribeGroups() }
         launch { subscribeUserGroups() }
@@ -85,7 +88,11 @@ class FirebaseDataSourceImpl @Inject constructor(
                     .addSnapshotListener { value, error ->
                         if (error != null) {
                             // TODO empty string shouldn't be returned. In debug it should just throw ex
-                            _userGroupsFlow.tryEmit(ResultDataModel.error(error.message ?: "Empty string"))
+                            _userGroupsFlow.tryEmit(
+                                ResultDataModel.error(
+                                    error.message ?: "Empty string"
+                                )
+                            )
                             return@addSnapshotListener
                         }
 

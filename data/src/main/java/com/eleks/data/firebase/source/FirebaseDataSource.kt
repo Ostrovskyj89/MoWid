@@ -4,6 +4,7 @@ import com.eleks.data.model.GroupDataModel
 import com.eleks.data.model.QuoteDataModel
 import com.eleks.data.model.ResultDataModel
 import com.eleks.data.model.SelectedGroupDataModel
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.Flow
 
 interface FirebaseDataSource {
@@ -13,6 +14,8 @@ interface FirebaseDataSource {
      val userGroupsFlow: Flow<ResultDataModel<List<GroupDataModel>>>
 
      val selectedGroupsFlow: Flow<ResultDataModel<List<SelectedGroupDataModel>>>
+
+     val currentUser: FirebaseUser?
 
     suspend fun saveNewGroup(group: GroupDataModel): ResultDataModel<GroupDataModel>
 

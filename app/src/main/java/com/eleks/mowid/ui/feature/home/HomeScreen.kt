@@ -12,9 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -33,12 +31,14 @@ import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
 import com.eleks.mowid.ui.feature.home.composable.HomeBottomSheet
 import com.eleks.mowid.ui.feature.home.composable.HomeList
+import com.eleks.mowid.ui.feature.main.MainEvent
+import com.eleks.mowid.ui.feature.main.MainViewModel
 import com.eleks.mowid.ui.theme.MoWidTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel) {
+fun HomeScreen(viewModel: HomeViewModel, activityViewModel: MainViewModel) {
     val state: HomeState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -68,10 +68,14 @@ fun HomeScreen(viewModel: HomeViewModel) {
         viewModel.event.onEach { event ->
             when (event) {
                 HomeEvent.ShowAddGroupModal -> {
-                    if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
-                        bottomSheetScaffoldState.bottomSheetState.expand()
+                    if (activityViewModel.isUserAlreadyLogIn()) {
+                        if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
+                            bottomSheetScaffoldState.bottomSheetState.expand()
+                        } else {
+                            bottomSheetScaffoldState.bottomSheetState.collapse()
+                        }
                     } else {
-                        bottomSheetScaffoldState.bottomSheetState.collapse()
+                        activityViewModel.setEvent(MainEvent.SignIn)
                     }
                 }
                 is HomeEvent.GroupItemClicked -> Toast.makeText(
@@ -93,6 +97,8 @@ fun HomeScreen(viewModel: HomeViewModel) {
     ScreenContent(
         state = state,
         sendEvent = viewModel::setEvent,
+        sendMainEvent = activityViewModel::setEvent,
+        isUserAlreadyLogin = activityViewModel::isUserAlreadyLogIn,
         bottomSheetState = bottomSheetScaffoldState
     )
 }
@@ -102,8 +108,13 @@ fun HomeScreen(viewModel: HomeViewModel) {
 fun ScreenContent(
     state: HomeState,
     sendEvent: (HomeEvent) -> Unit,
+    sendMainEvent: (MainEvent) -> Unit,
+    isUserAlreadyLogin: () -> Boolean,
     bottomSheetState: BottomSheetScaffoldState
 ) {
+
+    var showMenu by remember { mutableStateOf(false) }
+
     BottomSheetScaffold(
         sheetContent = {
             HomeBottomSheet(
@@ -132,13 +143,35 @@ fun ScreenContent(
                     AppCenterAlignedTopAppBar(
                         title = stringResource(id = R.string.title_home),
                         actions = {
-                            IconButton(onClick = {
-                                //TODO:
-                            }) {
+                            IconButton(onClick = { showMenu = !showMenu }) {
                                 Icon(
                                     imageVector = Icons.Filled.MoreVert,
                                     contentDescription = "TODO: description"
                                 )
+                            }
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = if (isUserAlreadyLogin()) {
+                                                "LogOut"
+                                            } else {
+                                                "SignIn"
+                                            }
+                                        )
+                                    },
+                                    onClick = {
+                                        val event = if (isUserAlreadyLogin()) {
+                                            MainEvent.SignOut
+                                        } else {
+                                            MainEvent.SignIn
+                                        }
+                                        sendMainEvent(event)
+                                        showMenu = false
+                                    })
                             }
                         }
                     )
@@ -214,6 +247,8 @@ fun ScreenContentPreview() {
                 groupPhraseList = list
             ),
             sendEvent = {},
+            sendMainEvent = {},
+            isUserAlreadyLogin = { false },
             bottomSheetState = rememberBottomSheetScaffoldState()
         )
     }

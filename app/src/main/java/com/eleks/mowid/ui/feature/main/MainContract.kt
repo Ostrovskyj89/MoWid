@@ -8,6 +8,12 @@ sealed class MainState : UiState {
     data class Loading(val state: Boolean) : MainState()
 }
 
-sealed class MainEvent : UiEvent
+sealed class MainEvent : UiEvent {
+    object SignIn : MainEvent()
+    object SignOut : MainEvent()
+}
 
-sealed class MainEffect : UiEffect
+sealed class MainEffect : UiEffect {
+    object SignIn : MainEffect()
+    object SignOut : MainEffect()
+}
