@@ -1,10 +1,7 @@
 package com.eleks.data.firebase.source.impl
 
 import com.eleks.data.firebase.source.FirebaseDataSource
-import com.eleks.data.model.GroupDataModel
-import com.eleks.data.model.QuoteDataModel
-import com.eleks.data.model.ResultDataModel
-import com.eleks.data.model.SelectedGroupDataModel
+import com.eleks.data.model.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -57,12 +54,12 @@ class FirebaseDataSourceImpl @Inject constructor(
                 subscription = dbInstance.collection(COLLECTION_GROUPS)
                     .addSnapshotListener(MetadataChanges.INCLUDE) { value, error ->
                         if (error != null) {
-                            _groupsFlow.tryEmit(ResultDataModel.error(error.message ?: ""))
+                            _groupsFlow.tryEmit(ResultDataModel.error(error))
                             return@addSnapshotListener
                         }
-                        if (value?.isEmpty == false) {
+                        value?.let { snapShot ->
                             val groups = mutableListOf<GroupDataModel>()
-                            for (doc in value) {
+                            for (doc in snapShot) {
                                 groups.add(doc.toObject())
                             }
                             _groupsFlow.tryEmit(ResultDataModel.success(groups))
@@ -78,20 +75,24 @@ class FirebaseDataSourceImpl @Inject constructor(
         var subscription: ListenerRegistration? = null
         _userGroupsFlow.subscriptionCount.collect { subscribers ->
 
-            val userId = authInstance.currentUser?.uid ?: return@collect
+            val userId = authInstance.currentUser?.uid
+            if (userId == null) {
+                _userGroupsFlow.tryEmit(ResultDataModel.success(mutableListOf()))
+                return@collect
+            }
             if (subscribers > 0) {
                 subscription = dbInstance.collection(COLLECTION_PERSONAL)
                     .document(userId).collection(COLLECTION_GROUPS)
                     .addSnapshotListener { value, error ->
                         if (error != null) {
                             // TODO empty string shouldn't be returned. In debug it should just throw ex
-                            _userGroupsFlow.tryEmit(ResultDataModel.error(error.message ?: "Empty string"))
+                            _userGroupsFlow.tryEmit(ResultDataModel.error(error))
                             return@addSnapshotListener
                         }
 
-                        if (value?.isEmpty == false) {
+                        value?.let { snapShot ->
                             val groups = mutableListOf<GroupDataModel>()
-                            for (doc in value) {
+                            for (doc in snapShot) {
                                 groups.add(doc.toObject())
                             }
                             _userGroupsFlow.tryEmit(ResultDataModel.success(groups))
@@ -105,9 +106,13 @@ class FirebaseDataSourceImpl @Inject constructor(
 
     private suspend fun subscribeSelectedGroups() {
         var subscription: ListenerRegistration? = null
-        _selectedGroupsFlow.subscriptionCount.collect {
-            val userId = authInstance.currentUser?.uid ?: return@collect
-            if (it > 0) {
+        _selectedGroupsFlow.subscriptionCount.collect { subscribers ->
+            val userId = authInstance.currentUser?.uid
+            if (userId == null) {
+                _selectedGroupsFlow.tryEmit(ResultDataModel.success(mutableListOf()))
+                return@collect
+            }
+            if (subscribers > 0) {
                 subscription =
                     dbInstance.collection(COLLECTION_PERSONAL)
                         .document(userId)
@@ -115,12 +120,12 @@ class FirebaseDataSourceImpl @Inject constructor(
                         .addSnapshotListener { value, error ->
                             if (error != null) {
                                 _selectedGroupsFlow.tryEmit(
-                                    ResultDataModel.error(error.message ?: "")
+                                    ResultDataModel.error(error)
                                 )
                                 return@addSnapshotListener
                             }
 
-                            if (value?.isEmpty == false) {
+                            value?.let {
                                 val selections = mutableListOf<SelectedGroupDataModel>()
                                 for (doc in value) {
                                     selections.add(doc.toObject())
@@ -148,7 +153,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                         continuation.resume(ResultDataModel.success(group)) {}
                     }
                     .addOnFailureListener { exception ->
-                        continuation.resume(ResultDataModel.error(exception.message ?: "")) {}
+                        continuation.resume(ResultDataModel.error(exception)) {}
                     }
             }
         }
@@ -172,7 +177,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                         continuation.resume(ResultDataModel.success(selectedGroup)) {}
                     }
                     .addOnFailureListener { exception ->
-                        continuation.resume(ResultDataModel.error(exception.message ?: "")) {}
+                        continuation.resume(ResultDataModel.error(exception)) {}
                     }
             }
         }
