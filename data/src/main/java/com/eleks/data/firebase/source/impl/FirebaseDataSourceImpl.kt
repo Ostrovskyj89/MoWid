@@ -1,10 +1,7 @@
 package com.eleks.data.firebase.source.impl
 
 import com.eleks.data.firebase.source.FirebaseDataSource
-import com.eleks.data.model.GroupDataModel
-import com.eleks.data.model.QuoteDataModel
-import com.eleks.data.model.ResultDataModel
-import com.eleks.data.model.SelectedGroupDataModel
+import com.eleks.data.model.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -176,6 +173,30 @@ class FirebaseDataSourceImpl @Inject constructor(
                     }
             }
         }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun saveGeneralGroup(group: GroupDataModel) {
+        suspendCancellableCoroutine { continuation ->
+            val uuid = UUID.randomUUID().toString()
+            dbInstance.collection(COLLECTION_GROUPS)
+                .document(uuid)
+                .set(group)
+                .addOnSuccessListener {
+                    continuation.resume(ResultDataModel.success(group)) {}
+                }
+                .addOnFailureListener { exception ->
+                    continuation.resume(
+                        ResultDataModel(
+                            Status.ERROR,
+                            data = emptyList<GroupDataModel>(),
+                            message = exception.message ?: ""
+                        )
+                    ) {}
+                }
+        }
+    }
+
+
 
     companion object {
         const val COLLECTION_PERSONAL = "personal"

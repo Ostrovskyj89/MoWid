@@ -1,5 +1,6 @@
 package com.eleks.mowid.ui.feature.home
 
+import android.util.Log
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.eleks.domain.intearactor.MotivationPhraseInteractor
@@ -62,10 +63,12 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvent.AddGroupClicked -> {
                 viewModelScope.launch {
-                    motivationPhraseInteractor.addGroup(
-                        name = event.name,
-                        description = event.description
-                    )
+                    Log.d("QQQ", "Add Group clicked")
+                    motivationPhraseInteractor.saveGeneralGroups()
+//                    motivationPhraseInteractor.addGroup(
+//                        name = event.name,
+//                        description = event.description
+//                    )
                 }
             }
         }

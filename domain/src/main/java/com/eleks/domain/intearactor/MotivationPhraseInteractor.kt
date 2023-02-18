@@ -35,6 +35,10 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
         }
     }
 
+    suspend fun saveGeneralGroups(){
+        motivationPhraseRepository.saveGeneralGroups()
+    }
+
     suspend fun addGroup(name: String, description: String) {
 
     }
