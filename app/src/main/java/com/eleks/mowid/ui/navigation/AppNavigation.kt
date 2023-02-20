@@ -36,12 +36,8 @@ fun AppNavigation() {
                 }
             )
         ) { backStackEntry ->
-            val groupId = requireNotNull(backStackEntry.arguments?.getString(GROUP_ID))
             val groupName = requireNotNull(backStackEntry.arguments?.getString(GROUP_NAME))
-            QuotesScreenDestination(
-                groupId = groupId,
-                groupName = groupName
-            )
+            QuotesScreenDestination(groupName = groupName)
         }
     }
 }
