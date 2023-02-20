@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.onEach
 
 
 @Composable
-fun QuotesScreen(viewModel: QuotesViewModel, groupId: String, groupName: String) {
+fun QuotesScreen(viewModel: QuotesViewModel, groupName: String) {
     val state: QuotesState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -112,6 +112,7 @@ fun ScreenContent(
                 header = stringResource(id = R.string.title_add_quote),
                 hint1 = stringResource(id = R.string.label_quote),
                 hint2 = stringResource(id = R.string.label_author),
+                isSecondFieldOptional = true,
                 onAddClick = { quote, author ->
                     sendEvent(
                         QuotesEvent.AddQuoteClicked(

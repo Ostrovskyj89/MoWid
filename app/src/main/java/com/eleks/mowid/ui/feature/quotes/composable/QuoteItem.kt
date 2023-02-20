@@ -38,7 +38,6 @@ fun QuoteListItem(
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 12.dp)
-            .height(64.dp)
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(

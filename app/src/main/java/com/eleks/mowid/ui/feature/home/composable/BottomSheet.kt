@@ -29,6 +29,7 @@ fun BottomSheet(
     header: String,
     hint1: String,
     hint2: String,
+    isSecondFieldOptional: Boolean = false,
     onAddClick: (String, String) -> Unit,
     clearSavedStates: Boolean = false
 ) {
@@ -98,7 +99,7 @@ fun BottomSheet(
 
         Button(
             modifier = Modifier.padding(16.dp),
-            enabled = groupTextState.text.isNotEmpty() && descriptionTextState.text.isNotEmpty(),
+            enabled = groupTextState.text.isNotEmpty() && (descriptionTextState.text.isNotEmpty() || isSecondFieldOptional),
             onClick = {
                 onAddClick(groupTextState.text, descriptionTextState.text)
             }) {
