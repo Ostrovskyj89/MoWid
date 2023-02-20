@@ -2,9 +2,16 @@
     <string name="app_name">MoWid</string>
 
     <string name="title_home">Mowid</string>
+    <string name="label_add">Add</string>
 
+    // Groups screen
     <string name="title_add_group">Add group</string>
     <string name="label_group">Group</string>
     <string name="label_description">Description</string>
-    <string name="label_add">Add</string>
+
+    // Quotes screen
+    <string name="title_add_quote">Add quote</string>
+    <string name="label_quote">Quote</string>
+    <string name="label_author">Author</string>
+
 </resources>

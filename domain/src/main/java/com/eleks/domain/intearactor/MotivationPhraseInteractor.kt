@@ -1,6 +1,7 @@
 package com.eleks.domain.intearactor
 
 import com.eleks.domain.model.GroupPhraseModel
+import com.eleks.domain.model.QuoteModel
 import com.eleks.domain.repository.MotivationPhraseRepository
 import kotlinx.coroutines.flow.Flow
 
@@ -9,7 +10,14 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
     fun getGroupPhraseListFlow(): Flow<List<GroupPhraseModel>> =
         motivationPhraseRepository.getGroupsFlow()
 
+    fun getQuotesListFlow(groupId: String): Flow<List<QuoteModel>> =
+        motivationPhraseRepository.getQuotes(groupId)
+
     suspend fun addGroup(name: String, description: String) {
         motivationPhraseRepository.addGroup(name, description)
+    }
+
+    suspend fun addQuote(groupId: String, quote: String, author: String) {
+        motivationPhraseRepository.addQuote(groupId, quote, author)
     }
 }

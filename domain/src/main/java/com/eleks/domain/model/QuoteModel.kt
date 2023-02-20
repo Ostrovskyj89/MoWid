@@ -1,0 +1,9 @@
+package com.eleks.domain.model
+
+data class QuoteModel(
+    val id: String,
+    val author: String,
+    val created: String,
+    val quote: String,
+    val isSelected: Boolean
+)

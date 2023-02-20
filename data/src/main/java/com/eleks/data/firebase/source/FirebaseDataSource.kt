@@ -14,6 +14,12 @@ interface FirebaseDataSource {
 
      val selectedGroupsFlow: Flow<ResultDataModel<List<SelectedGroupDataModel>>>
 
+     val quotesFlow: Flow<ResultDataModel<List<QuoteDataModel>>>
+
+    val userQuotesFlow: Flow<ResultDataModel<List<QuoteDataModel>>>
+
+    fun subscribeAllGroupsQuotes(groupId: String)
+
     suspend fun saveNewGroup(group: GroupDataModel): ResultDataModel<GroupDataModel>
 
     suspend fun saveNewQuote(groupId: String, quote: QuoteDataModel): ResultDataModel<QuoteDataModel>

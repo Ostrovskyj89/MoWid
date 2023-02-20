@@ -37,18 +37,21 @@ fun HomeListPreview() {
         HomeList(
             listOf(
                 GroupPhraseUIModel(
+                    id = "1",
                     name = "Group 0",
                     description = "Description 0",
                     count = 10,
                     selectedCount = 5
                 ),
                 GroupPhraseUIModel(
+                    id = "2",
                     name = "Group 1",
                     description = "Description 1",
                     count = 10,
                     selectedCount = 5
                 ),
                 GroupPhraseUIModel(
+                    id = "3",
                     name = "Group 2",
                     description = "Description 2",
                     count = 10,

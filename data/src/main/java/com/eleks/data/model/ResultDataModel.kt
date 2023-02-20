@@ -17,7 +17,7 @@ data class ResultDataModel<out T>(
     }
 }
 
-fun ResultDataModel<List<GroupDataModel>>.merge(model: ResultDataModel<List<GroupDataModel>>): ResultDataModel<List<GroupDataModel>> =
+fun <T> ResultDataModel<List<T>>.merge(model: ResultDataModel<List<T>>): ResultDataModel<List<T>> =
     if (this.status == Status.SUCCESS && model.status == Status.SUCCESS) {
         ResultDataModel.success(this.data.orEmpty() + model.data.orEmpty())
     } else {

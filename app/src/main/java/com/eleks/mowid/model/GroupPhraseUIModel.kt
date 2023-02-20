@@ -3,6 +3,7 @@ package com.eleks.mowid.model
 import com.eleks.domain.model.GroupPhraseModel
 
 data class GroupPhraseUIModel(
+    val id: String,
     val name: String,
     val description: String,
     val count: Int,
@@ -10,6 +11,7 @@ data class GroupPhraseUIModel(
 )
 
 fun GroupPhraseUIModel.toDomainModel() = GroupPhraseModel(
+    id = id,
     name = name,
     description = description,
     count = count,
@@ -17,6 +19,7 @@ fun GroupPhraseUIModel.toDomainModel() = GroupPhraseModel(
 )
 
 fun GroupPhraseModel.toUIModel() = GroupPhraseUIModel(
+    id = id,
     name = name,
     description = description,
     count = count,

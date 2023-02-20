@@ -5,9 +5,10 @@ import com.eleks.data.model.SelectedGroupDataModel
 import com.eleks.domain.model.GroupPhraseModel
 
 fun GroupDataModel.mapToDomain(selectedGroups: List<SelectedGroupDataModel>) = GroupPhraseModel(
-    name = name ?: "",
-    description = description ?: "",
-    count = quotes?.size ?: 0,
+    id = id.orEmpty(),
+    name = name.orEmpty(),
+    description = description.orEmpty(),
+    count = quotesCount ?: 0,
     selectedCount = calculateSelectedCount(this, selectedGroups)
 )
 
@@ -16,9 +17,7 @@ fun calculateSelectedCount(
     selectedGroups: List<SelectedGroupDataModel>
 ): Int {
     selectedGroups.firstOrNull { groupDataModel.id == it.groupId }?.let { group ->
-        return groupDataModel.quotes?.mapNotNull { model ->
-            group.selectedQuotes?.firstOrNull { it.id == model.id }
-        }?.size ?: groupDataModel.quotes?.size ?: 0
+        return group.selectedQuotes?.size ?: 0
     }
-    return groupDataModel.quotes?.size ?: 0
+    return groupDataModel.quotesCount ?: 0
 }
