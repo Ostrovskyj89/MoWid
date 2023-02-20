@@ -1,6 +1,5 @@
 package com.eleks.mowid.ui.feature.home
 
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.eleks.domain.intearactor.MotivationPhraseInteractor
 import com.eleks.mowid.base.ui.BaseViewModel
@@ -39,8 +38,6 @@ class HomeViewModel @Inject constructor(
                 ).sendEffect()
             }
             .launchIn(viewModelScope)
-
-        snapshotFlow { }
 
     }
 

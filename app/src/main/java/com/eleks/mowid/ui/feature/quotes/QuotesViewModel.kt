@@ -1,6 +1,5 @@
 package com.eleks.mowid.ui.feature.quotes
 
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.eleks.domain.intearactor.MotivationPhraseInteractor
@@ -43,8 +42,6 @@ class QuotesViewModel @Inject constructor(
                 ).sendEffect()
             }
             .launchIn(viewModelScope)
-
-        snapshotFlow { }
     }
 
     override fun handleEvent(event: QuotesEvent) {
