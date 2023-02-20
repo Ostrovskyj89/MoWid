@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.eleks.mowid.ui.navigation.Navigation.Args.GROUP_ID
+import com.eleks.mowid.ui.navigation.Navigation.Args.GROUP_NAME
 
 @Composable
 fun AppNavigation() {
@@ -14,36 +15,47 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Navigation.Routes.HOME
+        startDestination = Navigation.Route.HOME.route
     ) {
         composable(
-            route = Navigation.Routes.HOME
+            route = Navigation.Route.HOME.route
         ) {
-            HomeScreenDestination(navController)
+            HomeScreenDestination { groupId, groupName ->
+                navController.navigate(Navigation.Route.Quotes.createRoute(groupId, groupName))
+            }
         }
 
-//        composable(
-//            route = Navigation.Routes.PHRASES,
-//            arguments = listOf(navArgument(name = GROUP_ID) {
-//                type = NavType.StringType
-//            })
-//        ) { backStackEntry ->
-//            val groupId = requireNotNull(backStackEntry.arguments?.getString(GROUP_ID)) { "Group id is required as an argument" }
-//            PhrasesScreenDestination(
-//                groupId = groupId,
-//                navController = navController,
-//            )
-//        }
+        composable(
+            route = Navigation.Route.Quotes.route,
+            arguments = listOf(
+                navArgument(name = GROUP_ID) {
+                    type = NavType.StringType
+                },
+                navArgument(name = GROUP_NAME) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val groupId = requireNotNull(backStackEntry.arguments?.getString(GROUP_ID))
+            val groupName = requireNotNull(backStackEntry.arguments?.getString(GROUP_NAME))
+            QuotesScreenDestination(
+                groupId = groupId,
+                groupName = groupName
+            )
+        }
     }
 }
 
 object Navigation {
     object Args {
         const val GROUP_ID = "group_id"
+        const val GROUP_NAME = "group_name"
     }
 
-    object Routes {
-        const val HOME = "home"
-        const val PHRASES = "phrases"
+    sealed class Route(val route: String) {
+        object HOME : Route("Home")
+        object Quotes : Route("Quotes/{$GROUP_ID}/{$GROUP_NAME}") {
+            fun createRoute(groupId: String, groupName: String) = "Quotes/$groupId/$groupName"
+        }
     }
 }

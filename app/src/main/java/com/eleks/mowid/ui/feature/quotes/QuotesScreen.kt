@@ -1,4 +1,4 @@
-package com.eleks.mowid.ui.feature.home
+package com.eleks.mowid.ui.feature.quotes
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -24,7 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.EFFECTS_KEY
 import com.eleks.mowid.base.ui.EVENTS_KEY
-import com.eleks.mowid.model.GroupPhraseUIModel
+import com.eleks.mowid.model.QuoteUIModel
 import com.eleks.mowid.ui.composable.AppCenterAlignedTopAppBar
 import com.eleks.mowid.ui.composable.AppFloatingActionButton
 import com.eleks.mowid.ui.composable.AppProgress
@@ -32,14 +32,15 @@ import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffold
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
 import com.eleks.mowid.ui.feature.home.composable.BottomSheet
-import com.eleks.mowid.ui.feature.home.composable.HomeList
+import com.eleks.mowid.ui.feature.quotes.composable.QuotesList
 import com.eleks.mowid.ui.theme.MoWidTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
+
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, onNavigateToQuotes: (String, String) -> Unit) {
-    val state: HomeState by viewModel.uiState.collectAsStateWithLifecycle()
+fun QuotesScreen(viewModel: QuotesViewModel, groupId: String, groupName: String) {
+    val state: QuotesState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
     val context = LocalContext.current
@@ -48,14 +49,14 @@ fun HomeScreen(viewModel: HomeViewModel, onNavigateToQuotes: (String, String) ->
         enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded
     ) {
         if (bottomSheetScaffoldState.bottomSheetState.isExpanded) {
-            viewModel.setEvent(HomeEvent.HideAddGroupModal)
+            viewModel.setEvent(QuotesEvent.HideAddQuoteModal)
         }
     }
 
     LaunchedEffect(EFFECTS_KEY) {
         viewModel.effect.onEach { effect ->
             when (effect) {
-                is HomeEffect.ShowError -> Toast.makeText(
+                is QuotesEffect.ShowError -> Toast.makeText(
                     context,
                     effect.message,
                     Toast.LENGTH_SHORT
@@ -67,29 +68,30 @@ fun HomeScreen(viewModel: HomeViewModel, onNavigateToQuotes: (String, String) ->
     LaunchedEffect(EVENTS_KEY) {
         viewModel.event.onEach { event ->
             when (event) {
-                HomeEvent.ShowAddGroupModal -> {
+                QuotesEvent.ShowAddQuoteModal -> {
                     if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                         bottomSheetScaffoldState.bottomSheetState.expand()
                     } else {
                         bottomSheetScaffoldState.bottomSheetState.collapse()
                     }
                 }
-                is HomeEvent.GroupItemClicked -> onNavigateToQuotes(
-                    event.groupPhrase.id,
-                    event.groupPhrase.name
-                )
-                HomeEvent.HideAddGroupModal -> {
+                is QuotesEvent.QuoteItemChecked -> Toast.makeText(
+                    context,
+                    "item checked, unchecked",
+                    Toast.LENGTH_SHORT
+                ).show()
+                QuotesEvent.HideAddQuoteModal -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
-                is HomeEvent.AddGroupClicked -> {
+                is QuotesEvent.AddQuoteClicked -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
             }
         }.collect()
     }
 
-
     ScreenContent(
+        groupName = groupName,
         state = state,
         sendEvent = viewModel::setEvent,
         bottomSheetState = bottomSheetScaffoldState
@@ -99,21 +101,22 @@ fun HomeScreen(viewModel: HomeViewModel, onNavigateToQuotes: (String, String) ->
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenContent(
-    state: HomeState,
-    sendEvent: (HomeEvent) -> Unit,
+    groupName: String,
+    state: QuotesState,
+    sendEvent: (QuotesEvent) -> Unit,
     bottomSheetState: BottomSheetScaffoldState
 ) {
     BottomSheetScaffold(
         sheetContent = {
             BottomSheet(
-                header = stringResource(id = R.string.title_add_group),
-                hint1 = stringResource(id = R.string.label_group),
-                hint2 = stringResource(id = R.string.label_description),
-                onAddClick = { group, author ->
+                header = stringResource(id = R.string.title_add_quote),
+                hint1 = stringResource(id = R.string.label_quote),
+                hint2 = stringResource(id = R.string.label_author),
+                onAddClick = { quote, author ->
                     sendEvent(
-                        HomeEvent.AddGroupClicked(
-                            name = group,
-                            description = author
+                        QuotesEvent.AddQuoteClicked(
+                            quote = quote,
+                            author = author
                         )
                     )
                 },
@@ -132,7 +135,7 @@ fun ScreenContent(
             Scaffold(
                 topBar = {
                     AppCenterAlignedTopAppBar(
-                        title = stringResource(id = R.string.title_home),
+                        title = groupName,
                         actions = {
                             IconButton(onClick = {
                                 //TODO:
@@ -148,7 +151,7 @@ fun ScreenContent(
                 floatingActionButton = {
                     if (state.isLoading.not()) AppFloatingActionButton(
                         onClick = {
-                            sendEvent(HomeEvent.ShowAddGroupModal)
+                            sendEvent(QuotesEvent.ShowAddQuoteModal)
                         }
                     ) else Unit
                 }
@@ -158,10 +161,10 @@ fun ScreenContent(
                 ) {
                     when {
                         state.isLoading -> AppProgress()
-                        else -> HomeList(
-                            groupPhraseList = state.groupPhraseList,
-                            onClick = {
-                                sendEvent(HomeEvent.GroupItemClicked(it))
+                        else -> QuotesList(
+                            quotes = state.quotes,
+                            onCheckedChange = { id, checked ->
+                                sendEvent(QuotesEvent.QuoteItemChecked(id, checked))
                             }
                         )
                     }
@@ -171,7 +174,7 @@ fun ScreenContent(
                 Box(
                     modifier = Modifier
                         .clickable {
-                            sendEvent(HomeEvent.HideAddGroupModal)
+                            sendEvent(QuotesEvent.HideAddQuoteModal)
                         }
                         .background(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.20F))
                         .fillMaxSize(),
@@ -182,7 +185,6 @@ fun ScreenContent(
         }
 
     }
-
 }
 
 @Preview(showBackground = true)
@@ -190,33 +192,34 @@ fun ScreenContent(
 fun ScreenContentPreview() {
     MoWidTheme {
         val list = listOf(
-            GroupPhraseUIModel(
+            QuoteUIModel(
                 id = "1",
-                name = "Group 0",
-                description = "Description 0",
-                count = 10,
-                selectedCount = 5
+                author = "Author 1 ",
+                created = "",
+                quote = "Quote 1 ",
+                isSelected = true
             ),
-            GroupPhraseUIModel(
+            QuoteUIModel(
                 id = "2",
-                name = "Group 1",
-                description = "Description 1",
-                count = 10,
-                selectedCount = 5
+                author = "Author 2 ",
+                created = "",
+                quote = "Quote 2 ",
+                isSelected = true
             ),
-            GroupPhraseUIModel(
+            QuoteUIModel(
                 id = "3",
-                name = "Group 2",
-                description = "Description 2",
-                count = 10,
-                selectedCount = 5
+                author = "Author 3 ",
+                created = "",
+                quote = "Quote 3 ",
+                isSelected = true
             )
         )
 
         ScreenContent(
-            state = HomeState(
+            groupName = "Group 1",
+            state = QuotesState(
                 isLoading = false,
-                groupPhraseList = list
+                quotes = list
             ),
             sendEvent = {},
             bottomSheetState = rememberBottomSheetScaffoldState()
