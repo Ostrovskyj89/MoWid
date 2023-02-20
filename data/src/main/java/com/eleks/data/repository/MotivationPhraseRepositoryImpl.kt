@@ -28,7 +28,7 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
                 throw selectedGroups.error ?: Exception("Unknown exception")
             }
             when (allGroups.status) {
-                Status.SUCCESS -> allGroups.data?.map { model -> model.mapToDomain(selectedGroups.data) }
+                Status.SUCCESS -> allGroups.data?.map { model -> model.mapToDomain(selectedGroups.data.orEmpty()) }
                     ?: emptyList()
                 Status.ERROR -> throw allGroups.error ?: Exception("Unknown exception")
             }

@@ -19,8 +19,7 @@ data class ResultDataModel<out T>(
 
 fun ResultDataModel<List<GroupDataModel>>.merge(model: ResultDataModel<List<GroupDataModel>>): ResultDataModel<List<GroupDataModel>> =
     if (this.status == Status.SUCCESS && model.status == Status.SUCCESS) {
-        ResultDataModel.success(
-            this.data?.toMutableList().apply { model.data?.let { this?.addAll(it) } })
+        ResultDataModel.success(this.data.orEmpty() + model.data.orEmpty())
     } else {
         ResultDataModel.error(
             if (this.status == Status.ERROR) {
@@ -28,8 +27,6 @@ fun ResultDataModel<List<GroupDataModel>>.merge(model: ResultDataModel<List<Grou
             } else {
                 model.error
             } ?: Exception("Unknown exception")
-
-
         )
     }
 
