@@ -35,7 +35,7 @@ class HomeViewModel @Inject constructor(
             }
             .catch {
                 HomeEffect.ShowError(
-                    message = this.toString()
+                    message = it.message.toString()
                 ).sendEffect()
             }
             .launchIn(viewModelScope)
