@@ -59,7 +59,14 @@ class QuotesViewModel @Inject constructor(
 
             }
             is QuotesEvent.QuoteItemChecked -> {
-
+                viewModelScope.launch {
+                    motivationPhraseInteractor.saveSelection(
+                        groupId = groupId,
+                        quoteId = event.quoteId,
+                        shownAt = "",
+                        isSelected = event.checked
+                    )
+                }
             }
             QuotesEvent.ShowAddQuoteModal -> {
 

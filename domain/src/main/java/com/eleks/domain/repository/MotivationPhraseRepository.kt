@@ -13,4 +13,6 @@ interface MotivationPhraseRepository {
     suspend fun addGroup(name: String, description: String)
 
     suspend fun addQuote(groupId: String, quote: String, author: String)
+
+    suspend fun saveSelection(groupId: String, quoteId: String, shownAt: String, isSelected: Boolean)
 }

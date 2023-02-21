@@ -1,9 +1,6 @@
 package com.eleks.data.firebase.source
 
-import com.eleks.data.model.GroupDataModel
-import com.eleks.data.model.QuoteDataModel
-import com.eleks.data.model.ResultDataModel
-import com.eleks.data.model.SelectedGroupDataModel
+import com.eleks.data.model.*
 import kotlinx.coroutines.flow.Flow
 
 interface FirebaseDataSource {
@@ -13,6 +10,8 @@ interface FirebaseDataSource {
      val userGroupsFlow: Flow<ResultDataModel<List<GroupDataModel>>>
 
      val selectedGroupsFlow: Flow<ResultDataModel<List<SelectedGroupDataModel>>>
+
+     val selectedQuotesFlow: Flow<ResultDataModel<List<SelectedQuoteDataModel>>>
 
      val quotesFlow: Flow<ResultDataModel<List<QuoteDataModel>>>
 
@@ -24,5 +23,5 @@ interface FirebaseDataSource {
 
     suspend fun saveNewQuote(groupId: String, quote: QuoteDataModel): ResultDataModel<QuoteDataModel>
 
-    suspend fun saveSelection(selectedGroup: SelectedGroupDataModel): ResultDataModel<SelectedGroupDataModel>
+    suspend fun saveSelection(groupId: String, quote: SelectedQuoteDataModel, isSelected: Boolean): ResultDataModel<SelectedQuoteDataModel>
 }

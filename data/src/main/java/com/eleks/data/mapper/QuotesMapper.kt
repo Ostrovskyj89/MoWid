@@ -9,5 +9,12 @@ fun QuoteDataModel.mapToDomain(selectedQuotes: List<SelectedQuoteDataModel>) = Q
     author = author.orEmpty(),
     created = created.orEmpty(),
     quote = quote.orEmpty(),
-    isSelected = selectedQuotes.any { it.id == id }
+    isSelected = isQuoteSelected(this, selectedQuotes)
 )
+
+fun isQuoteSelected(
+    quoteDataModel: QuoteDataModel,
+    selectedQuotes: List<SelectedQuoteDataModel>
+): Boolean {
+    return selectedQuotes.firstOrNull { quoteDataModel.id == it.id } != null
+}

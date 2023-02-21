@@ -20,4 +20,13 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
     suspend fun addQuote(groupId: String, quote: String, author: String) {
         motivationPhraseRepository.addQuote(groupId, quote, author)
     }
+
+    suspend fun saveSelection(
+        groupId: String,
+        quoteId: String,
+        shownAt: String,
+        isSelected: Boolean
+    ) {
+        motivationPhraseRepository.saveSelection(groupId, quoteId, shownAt, isSelected)
+    }
 }

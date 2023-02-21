@@ -2,10 +2,7 @@ package com.eleks.data.repository
 
 import com.eleks.data.firebase.source.FirebaseDataSource
 import com.eleks.data.mapper.mapToDomain
-import com.eleks.data.model.GroupDataModel
-import com.eleks.data.model.QuoteDataModel
-import com.eleks.data.model.Status
-import com.eleks.data.model.merge
+import com.eleks.data.model.*
 import com.eleks.domain.model.GroupPhraseModel
 import com.eleks.domain.model.QuoteModel
 import com.eleks.domain.repository.MotivationPhraseRepository
@@ -31,7 +28,8 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
             throw selectedGroups.error ?: Exception("Unknown exception")
         }
         when (allGroups.status) {
-            Status.SUCCESS -> allGroups.data?.map { model -> model.mapToDomain(selectedGroups.data.orEmpty()) }
+            Status.SUCCESS -> allGroups.data?.distinctBy { it.id }
+                ?.map { model -> model.mapToDomain(selectedGroups.data.orEmpty()) }
                 ?: emptyList()
             Status.ERROR -> throw allGroups.error ?: Exception("Unknown exception")
         }
@@ -42,14 +40,14 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
         return combine(
             firebaseDataSource.quotesFlow,
             firebaseDataSource.userQuotesFlow,
-            firebaseDataSource.selectedGroupsFlow
-        ) { quotes, userQuotes, selectedGroups ->
+            firebaseDataSource.selectedQuotesFlow
+        ) { quotes, userQuotes, selectedQuotes ->
             val allQuotes = quotes.merge(userQuotes)
-            if (selectedGroups.status == Status.ERROR) {
-                throw selectedGroups.error ?: Exception("Unknown exception")
+            if (selectedQuotes.status == Status.ERROR) {
+                throw selectedQuotes.error ?: Exception("Unknown exception")
             }
             when (allQuotes.status) {
-                Status.SUCCESS -> allQuotes.data?.map { model -> model.mapToDomain(selectedGroups.data?.firstOrNull { groupId == it.groupId }?.selectedQuotes.orEmpty()) }
+                Status.SUCCESS -> allQuotes.data?.map { model -> model.mapToDomain(selectedQuotes.data.orEmpty()) }
                     ?: emptyList()
                 Status.ERROR -> throw allQuotes.error ?: Exception("Unknown exception")
             }
@@ -74,6 +72,22 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
                 quote = quote,
                 created = format.format(Date())
             )
+        )
+    }
+
+    override suspend fun saveSelection(
+        groupId: String,
+        quoteId: String,
+        shownAt: String,
+        isSelected: Boolean
+    ) {
+        firebaseDataSource.saveSelection(
+            groupId = groupId,
+            quote = SelectedQuoteDataModel(
+                quoteId,
+                shownAt
+            ),
+            isSelected = isSelected
         )
     }
 }
