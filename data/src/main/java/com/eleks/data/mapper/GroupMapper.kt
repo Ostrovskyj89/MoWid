@@ -17,7 +17,7 @@ fun calculateSelectedCount(
     selectedGroups: List<SelectedGroupDataModel>
 ): Int {
     selectedGroups.firstOrNull { groupDataModel.id == it.groupId }?.let { group ->
-        return group.selectedQuotes?.size ?: 0
+        return group.selectedQuotesCount ?: 0
     }
-    return groupDataModel.quotesCount ?: 0
+    return 0
 }
