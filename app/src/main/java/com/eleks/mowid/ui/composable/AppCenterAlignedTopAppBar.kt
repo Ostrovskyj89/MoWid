@@ -10,6 +10,7 @@ import com.eleks.mowid.ui.theme.MoWidTheme
 @Composable
 fun AppCenterAlignedTopAppBar(
     title: String,
+    navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
@@ -22,6 +23,7 @@ fun AppCenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
+        navigationIcon = navigationIcon,
         actions = actions
     )
 }
