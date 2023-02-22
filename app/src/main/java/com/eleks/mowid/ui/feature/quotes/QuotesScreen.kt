@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -32,6 +33,7 @@ import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffold
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
 import com.eleks.mowid.ui.feature.home.composable.BottomSheet
+import com.eleks.mowid.ui.feature.quotes.composable.EmptyState
 import com.eleks.mowid.ui.feature.quotes.composable.QuotesList
 import com.eleks.mowid.ui.theme.MoWidTheme
 import kotlinx.coroutines.flow.collect
@@ -39,7 +41,7 @@ import kotlinx.coroutines.flow.onEach
 
 
 @Composable
-fun QuotesScreen(viewModel: QuotesViewModel, groupName: String) {
+fun QuotesScreen(viewModel: QuotesViewModel, groupName: String, onBackClicked: () -> Unit) {
     val state: QuotesState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -86,6 +88,7 @@ fun QuotesScreen(viewModel: QuotesViewModel, groupName: String) {
                 is QuotesEvent.AddQuoteClicked -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
+                QuotesEvent.BackButtonClicked -> onBackClicked()
             }
         }.collect()
     }
@@ -146,11 +149,19 @@ fun ScreenContent(
                                     contentDescription = "TODO: description"
                                 )
                             }
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { sendEvent(QuotesEvent.BackButtonClicked) }) {
+                                Icon(
+                                    imageVector = Icons.Filled.ArrowBack,
+                                    contentDescription = "Back"
+                                )
+                            }
                         }
                     )
                 },
                 floatingActionButton = {
-                    if (state.isLoading.not()) AppFloatingActionButton(
+                    if (state.isLoading.not() && state.quotes.isNotEmpty()) AppFloatingActionButton(
                         onClick = {
                             sendEvent(QuotesEvent.ShowAddQuoteModal)
                         }
@@ -162,6 +173,7 @@ fun ScreenContent(
                 ) {
                     when {
                         state.isLoading -> AppProgress()
+                        state.quotes.isEmpty() -> EmptyState { sendEvent(QuotesEvent.ShowAddQuoteModal) }
                         else -> QuotesList(
                             quotes = state.quotes,
                             onCheckedChange = { id, checked ->

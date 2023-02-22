@@ -14,6 +14,7 @@ sealed class QuotesEvent : UiEvent {
     data class QuoteItemChecked(val quoteId: String, val checked: Boolean) : QuotesEvent()
     object ShowAddQuoteModal : QuotesEvent()
     object HideAddQuoteModal : QuotesEvent()
+    object BackButtonClicked : QuotesEvent()
     data class AddQuoteClicked(val quote: String, val author: String) : QuotesEvent()
 }
 

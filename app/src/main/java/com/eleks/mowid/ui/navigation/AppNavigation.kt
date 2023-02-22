@@ -37,7 +37,9 @@ fun AppNavigation() {
             )
         ) { backStackEntry ->
             val groupName = requireNotNull(backStackEntry.arguments?.getString(GROUP_NAME))
-            QuotesScreenDestination(groupName = groupName)
+            QuotesScreenDestination(groupName = groupName) {
+                navController.navigateUp()
+            }
         }
     }
 }
