@@ -8,43 +8,59 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.core.app.ComponentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.BaseActivity
 import com.eleks.mowid.ui.navigation.AppNavigation
 import com.eleks.mowid.ui.theme.MoWidTheme
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewModel>() {
     override val viewModel: MainViewModel by viewModels()
 
-    override fun handleEffect(effect: MainEffect) {
-        when (effect) {
-            MainEffect.SignIn -> createSignInIntent()
-            MainEffect.SignOut -> signOut()
-        }
-    }
-
     private val signInLauncher = registerForActivityResult(
         FirebaseAuthUIActivityResultContract()
     ) { res ->
-        this.onSignInResult(res)
+        this.viewModel.onSignInResult(res)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MoWidTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     AppNavigation(viewModel)
+                }
+            }
+        }
+        subscribeOnEvent()
+    }
+
+    override fun handleEffect(effect: MainEffect) {
+        when (effect) {
+            is MainEffect.ShowToast -> {
+                Toast.makeText(this, getString(effect.messageId), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun subscribeOnEvent() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.event.collect {
+                    when (it) {
+                        MainEvent.SignIn -> createSignInIntent()
+                        MainEvent.SignOut -> signOut()
+                    }
                 }
             }
         }
@@ -63,19 +79,12 @@ class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewMode
         signInLauncher.launch(signInIntent)
     }
 
-    private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-        if (result.resultCode == ComponentActivity.RESULT_OK) {
-            Toast.makeText(this, "SignIn Complete", Toast.LENGTH_LONG).show()
-        } else {
-            Toast.makeText(this, "SignIn Error", Toast.LENGTH_LONG).show()
-        }
-    }
-
     private fun signOut() {
         AuthUI.getInstance()
             .signOut(this)
             .addOnCompleteListener {
-                Toast.makeText(this, "SignOut Complete", Toast.LENGTH_LONG).show()
+                viewModel.signOutSuccess()
+                Toast.makeText(this, getString(R.string.label_sign_out_success), Toast.LENGTH_LONG).show()
             }
     }
 }

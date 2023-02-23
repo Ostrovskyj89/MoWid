@@ -29,6 +29,4 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
     ) {
         motivationPhraseRepository.saveSelection(groupId, quoteId, shownAt, isSelected)
     }
-
-    fun getCurrentUser() = motivationPhraseRepository.getCurrentUser()
 }

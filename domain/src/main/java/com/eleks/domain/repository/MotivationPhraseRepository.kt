@@ -7,8 +7,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface MotivationPhraseRepository {
 
-    fun getCurrentUser(): UserModel?
-
     fun getGroupsFlow(): Flow<List<GroupPhraseModel>>
 
     fun getQuotes(groupId: String): Flow<List<QuoteModel>>

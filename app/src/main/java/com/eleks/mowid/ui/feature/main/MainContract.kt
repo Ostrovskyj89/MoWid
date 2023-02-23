@@ -1,5 +1,6 @@
 package com.eleks.mowid.ui.feature.main
 
+import androidx.annotation.StringRes
 import com.eleks.mowid.base.ui.UiEffect
 import com.eleks.mowid.base.ui.UiEvent
 import com.eleks.mowid.base.ui.UiState
@@ -14,6 +15,5 @@ sealed class MainEvent : UiEvent {
 }
 
 sealed class MainEffect : UiEffect {
-    object SignIn : MainEffect()
-    object SignOut : MainEffect()
+    data class ShowToast(@StringRes val messageId: Int) : MainEffect()
 }

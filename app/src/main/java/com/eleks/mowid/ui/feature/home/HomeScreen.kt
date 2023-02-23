@@ -23,9 +23,7 @@ import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.EFFECTS_KEY
 import com.eleks.mowid.base.ui.EVENTS_KEY
 import com.eleks.mowid.model.GroupPhraseUIModel
-import com.eleks.mowid.ui.composable.AppCenterAlignedTopAppBar
-import com.eleks.mowid.ui.composable.AppFloatingActionButton
-import com.eleks.mowid.ui.composable.AppProgress
+import com.eleks.mowid.ui.composable.*
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffold
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
@@ -38,7 +36,11 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, activityViewModel: MainViewModel,  onNavigateToQuotes: (String, String) -> Unit) {
+fun HomeScreen(
+    viewModel: HomeViewModel,
+    activityViewModel: MainViewModel,
+    onNavigateToQuotes: (String, String) -> Unit
+) {
     val state: HomeState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -68,14 +70,10 @@ fun HomeScreen(viewModel: HomeViewModel, activityViewModel: MainViewModel,  onNa
         viewModel.event.onEach { event ->
             when (event) {
                 HomeEvent.ShowAddGroupModal -> {
-                    if (activityViewModel.isUserAlreadyLogIn()) {
-                        if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
-                            bottomSheetScaffoldState.bottomSheetState.expand()
-                        } else {
-                            bottomSheetScaffoldState.bottomSheetState.collapse()
-                        }
+                    if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
+                        bottomSheetScaffoldState.bottomSheetState.expand()
                     } else {
-                        activityViewModel.setEvent(MainEvent.SignIn)
+                        bottomSheetScaffoldState.bottomSheetState.collapse()
                     }
                 }
                 is HomeEvent.GroupItemClicked -> onNavigateToQuotes(
@@ -113,6 +111,19 @@ fun ScreenContent(
 ) {
 
     var showMenu by remember { mutableStateOf(false) }
+    var openDialog by remember { mutableStateOf(false) }
+
+    if (openDialog) {
+        AppAlertDialog(
+            onConfirmButtonClicked = {
+                sendMainEvent(MainEvent.SignIn)
+                openDialog = false
+            },
+            onDismissButtonClicked = {
+                openDialog = false
+            }
+        )
+    }
 
     BottomSheetScaffold(
         sheetContent = {
@@ -151,37 +162,23 @@ fun ScreenContent(
                                     contentDescription = "TODO: description"
                                 )
                             }
-                            DropdownMenu(
+                            AppDropDownMenu(
                                 expanded = showMenu,
-                                onDismissRequest = { showMenu = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            text = if (isUserAlreadyLogin()) {
-                                                "LogOut"
-                                            } else {
-                                                "SignIn"
-                                            }
-                                        )
-                                    },
-                                    onClick = {
-                                        val event = if (isUserAlreadyLogin()) {
-                                            MainEvent.SignOut
-                                        } else {
-                                            MainEvent.SignIn
-                                        }
-                                        sendMainEvent(event)
-                                        showMenu = false
-                                    })
-                            }
+                                onDismissRequest = { showMenu = false },
+                                sendEvent = sendMainEvent,
+                                isUserLogIn = isUserAlreadyLogin()
+                            )
                         }
                     )
                 },
                 floatingActionButton = {
                     if (state.isLoading.not()) AppFloatingActionButton(
                         onClick = {
-                            sendEvent(HomeEvent.ShowAddGroupModal)
+                            if (isUserAlreadyLogin()) {
+                                sendEvent(HomeEvent.ShowAddGroupModal)
+                            } else {
+                                openDialog = true
+                            }
                         }
                     ) else Unit
                 }

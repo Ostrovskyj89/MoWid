@@ -38,7 +38,7 @@ fun AppNavigation(activityViewModel: MainViewModel) {
             )
         ) { backStackEntry ->
             val groupName = requireNotNull(backStackEntry.arguments?.getString(GROUP_NAME))
-            QuotesScreenDestination(groupName = groupName) {
+            QuotesScreenDestination(activityViewModel = activityViewModel, groupName = groupName) {
                 navController.navigateUp()
             }
         }

@@ -13,9 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -26,13 +24,14 @@ import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.EFFECTS_KEY
 import com.eleks.mowid.base.ui.EVENTS_KEY
 import com.eleks.mowid.model.QuoteUIModel
-import com.eleks.mowid.ui.composable.AppCenterAlignedTopAppBar
-import com.eleks.mowid.ui.composable.AppFloatingActionButton
-import com.eleks.mowid.ui.composable.AppProgress
+import com.eleks.mowid.ui.composable.*
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffold
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
+import com.eleks.mowid.ui.feature.home.HomeEvent
 import com.eleks.mowid.ui.feature.home.composable.BottomSheet
+import com.eleks.mowid.ui.feature.main.MainEvent
+import com.eleks.mowid.ui.feature.main.MainViewModel
 import com.eleks.mowid.ui.feature.quotes.composable.EmptyState
 import com.eleks.mowid.ui.feature.quotes.composable.QuotesList
 import com.eleks.mowid.ui.theme.MoWidTheme
@@ -41,7 +40,12 @@ import kotlinx.coroutines.flow.onEach
 
 
 @Composable
-fun QuotesScreen(viewModel: QuotesViewModel, groupName: String, onBackClicked: () -> Unit) {
+fun QuotesScreen(
+    viewModel: QuotesViewModel,
+    activityViewModel: MainViewModel,
+    groupName: String,
+    onBackClicked: () -> Unit
+) {
     val state: QuotesState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -97,6 +101,8 @@ fun QuotesScreen(viewModel: QuotesViewModel, groupName: String, onBackClicked: (
         groupName = groupName,
         state = state,
         sendEvent = viewModel::setEvent,
+        sendMainEvent = activityViewModel::setEvent,
+        isUserAlreadyLogin = activityViewModel::isUserAlreadyLogIn,
         bottomSheetState = bottomSheetScaffoldState
     )
 }
@@ -107,8 +113,26 @@ fun ScreenContent(
     groupName: String,
     state: QuotesState,
     sendEvent: (QuotesEvent) -> Unit,
+    sendMainEvent: (MainEvent) -> Unit,
+    isUserAlreadyLogin: () -> Boolean,
     bottomSheetState: BottomSheetScaffoldState
 ) {
+
+    var showMenu by remember { mutableStateOf(false) }
+    var openDialog by remember { mutableStateOf(false) }
+
+    if (openDialog) {
+        AppAlertDialog(
+            onConfirmButtonClicked = {
+                sendMainEvent(MainEvent.SignIn)
+                openDialog = false
+            },
+            onDismissButtonClicked = {
+                openDialog = false
+            }
+        )
+    }
+
     BottomSheetScaffold(
         sheetContent = {
             BottomSheet(
@@ -141,15 +165,20 @@ fun ScreenContent(
                     AppCenterAlignedTopAppBar(
                         title = groupName,
                         actions = {
-                            IconButton(onClick = {
-                                //TODO:
-                            }) {
+                            IconButton(onClick = { showMenu = !showMenu }) {
                                 Icon(
                                     imageVector = Icons.Filled.MoreVert,
                                     contentDescription = "TODO: description"
                                 )
                             }
+                            AppDropDownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false },
+                                sendEvent = sendMainEvent,
+                                isUserLogIn = isUserAlreadyLogin()
+                            )
                         },
+
                         navigationIcon = {
                             IconButton(onClick = { sendEvent(QuotesEvent.BackButtonClicked) }) {
                                 Icon(
@@ -163,7 +192,11 @@ fun ScreenContent(
                 floatingActionButton = {
                     if (state.isLoading.not() && state.quotes.isNotEmpty()) AppFloatingActionButton(
                         onClick = {
-                            sendEvent(QuotesEvent.ShowAddQuoteModal)
+                            if (isUserAlreadyLogin()) {
+                                sendEvent(QuotesEvent.ShowAddQuoteModal)
+                            } else {
+                                openDialog = true
+                            }
                         }
                     ) else Unit
                 }
@@ -173,11 +206,21 @@ fun ScreenContent(
                 ) {
                     when {
                         state.isLoading -> AppProgress()
-                        state.quotes.isEmpty() -> EmptyState { sendEvent(QuotesEvent.ShowAddQuoteModal) }
+                        state.quotes.isEmpty() -> EmptyState {
+                            if (isUserAlreadyLogin()) {
+                                sendEvent(QuotesEvent.ShowAddQuoteModal)
+                            } else {
+                                openDialog = true
+                            }
+                        }
                         else -> QuotesList(
                             quotes = state.quotes,
                             onCheckedChange = { id, checked ->
-                                sendEvent(QuotesEvent.QuoteItemChecked(id, checked))
+                                if (isUserAlreadyLogin()) {
+                                    sendEvent(QuotesEvent.QuoteItemChecked(id, checked))
+                                } else {
+                                    openDialog = true
+                                }
                             }
                         )
                     }
@@ -235,6 +278,8 @@ fun ScreenContentPreview() {
                 quotes = list
             ),
             sendEvent = {},
+            sendMainEvent = {},
+            isUserAlreadyLogin = { false },
             bottomSheetState = rememberBottomSheetScaffoldState()
         )
     }

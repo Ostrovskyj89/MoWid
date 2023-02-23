@@ -1,8 +1,8 @@
 package com.eleks.mowid.ui.feature.main
 
-import android.util.Log
-import androidx.activity.ComponentActivity
-import com.eleks.domain.intearactor.MotivationPhraseInteractor
+import androidx.core.app.ComponentActivity
+import com.eleks.domain.intearactor.UserInteractor
+import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.BaseViewModel
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,17 +10,25 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val interactor: MotivationPhraseInteractor
+    private val interactor: UserInteractor
 ) : BaseViewModel<MainState, MainEvent, MainEffect>() {
 
     override fun createInitialState(): MainState = MainState.Loading(state = false)
 
-    override fun handleEvent(event: MainEvent) {
-        when (event) {
-            MainEvent.SignIn -> MainEffect.SignIn.sendEffect()
-            MainEvent.SignOut -> MainEffect.SignOut.sendEffect()
+    override fun handleEvent(event: MainEvent) {}
+
+    fun isUserAlreadyLogIn() = interactor.getCurrentUser() != null
+
+    fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
+        if (result.resultCode == ComponentActivity.RESULT_OK) {
+            interactor.signInSuccess()
+            MainEffect.ShowToast(R.string.label_sign_in_success).sendEffect()
+        } else {
+            MainEffect.ShowToast(R.string.label_sign_in_error).sendEffect()
         }
     }
 
-    fun isUserAlreadyLogIn() = interactor.getCurrentUser() != null
+    fun signOutSuccess() {
+        interactor.signOutSuccess()
+    }
 }

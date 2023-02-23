@@ -2,7 +2,6 @@ package com.eleks.data.repository
 
 import com.eleks.data.firebase.source.FirebaseDataSource
 import com.eleks.data.mapper.mapToDomain
-import com.eleks.data.mapper.toUserModel
 import com.eleks.data.model.*
 import com.eleks.domain.model.GroupPhraseModel
 import com.eleks.domain.model.QuoteModel
@@ -18,8 +17,6 @@ import javax.inject.Singleton
 class MotivationPhraseRepositoryImpl @Inject constructor(
     private val firebaseDataSource: FirebaseDataSource
 ) : MotivationPhraseRepository {
-
-    override fun getCurrentUser() = firebaseDataSource.currentUser?.toUserModel()
 
     override fun getGroupsFlow(): Flow<List<GroupPhraseModel>> = combine(
         firebaseDataSource.userGroupsFlow,
