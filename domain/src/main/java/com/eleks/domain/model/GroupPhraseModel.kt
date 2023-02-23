@@ -1,6 +1,7 @@
 package com.eleks.domain.model
 
 data class GroupPhraseModel(
+    val id: String,
     val name: String,
     val description: String,
     val count: Int,

@@ -1,42 +1,33 @@
 package com.eleks.domain.intearactor
 
 import com.eleks.domain.model.GroupPhraseModel
+import com.eleks.domain.model.QuoteModel
 import com.eleks.domain.repository.MotivationPhraseRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
 class MotivationPhraseInteractor(private val motivationPhraseRepository: MotivationPhraseRepository) {
 
-    fun getGroupPhraseListFlow(): Flow<List<GroupPhraseModel>> {
-        return flow {
-            delay(1500)
-            val tempResult = listOf(
-                GroupPhraseModel(
-                    name = "Name 1",
-                    description = "Description 1",
-                    count = 10,
-                    selectedCount = 15
-                ),
-                GroupPhraseModel(
-                    name = "Name 2",
-                    description = "Description 2",
-                    count = 10,
-                    selectedCount = 15
-                ),
-                GroupPhraseModel(
-                    name = "Name 3",
-                    description = "Description 3",
-                    count = 10,
-                    selectedCount = 15
-                ),
-            )
-            emit(tempResult)
-        }
-    }
+    fun getGroupPhraseListFlow(): Flow<List<GroupPhraseModel>> =
+        motivationPhraseRepository.getGroupsFlow()
+
+    fun getQuotesListFlow(groupId: String): Flow<List<QuoteModel>> =
+        motivationPhraseRepository.getQuotes(groupId)
 
     suspend fun addGroup(name: String, description: String) {
+        motivationPhraseRepository.addGroup(name, description)
+    }
 
+    suspend fun addQuote(groupId: String, quote: String, author: String) {
+        motivationPhraseRepository.addQuote(groupId, quote, author)
+    }
+
+    suspend fun saveSelection(
+        groupId: String,
+        quoteId: String,
+        shownAt: String,
+        isSelected: Boolean
+    ) {
+        motivationPhraseRepository.saveSelection(groupId, quoteId, shownAt, isSelected)
     }
 
     fun getCurrentUser() = motivationPhraseRepository.getCurrentUser()

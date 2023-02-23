@@ -25,7 +25,11 @@ import com.eleks.mowid.ui.theme.MoWidTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeBottomSheet(
+fun BottomSheet(
+    header: String,
+    hint1: String,
+    hint2: String,
+    isSecondFieldOptional: Boolean = false,
     onAddClick: (String, String) -> Unit,
     clearSavedStates: Boolean = false
 ) {
@@ -56,7 +60,7 @@ fun HomeBottomSheet(
         )
 
         Text(
-            text = stringResource(id = R.string.title_add_group),
+            text = header,
             fontSize = 28.sp,
             style = MaterialTheme.typography.headlineMedium
         )
@@ -69,7 +73,7 @@ fun HomeBottomSheet(
             onValueChange = { groupTextState = it },
             label = {
                 Text(
-                    text = stringResource(id = R.string.label_group),
+                    text = hint1,
                     style = MaterialTheme.typography.bodySmall
                 )
             },
@@ -85,7 +89,7 @@ fun HomeBottomSheet(
             onValueChange = { descriptionTextState = it },
             label = {
                 Text(
-                    text = stringResource(id = R.string.label_description),
+                    text = hint2,
                     style = MaterialTheme.typography.bodySmall
                 )
             },
@@ -95,7 +99,7 @@ fun HomeBottomSheet(
 
         Button(
             modifier = Modifier.padding(16.dp),
-            enabled = groupTextState.text.isNotEmpty() && descriptionTextState.text.isNotEmpty(),
+            enabled = groupTextState.text.isNotEmpty() && (descriptionTextState.text.isNotEmpty() || isSecondFieldOptional),
             onClick = {
                 onAddClick(groupTextState.text, descriptionTextState.text)
             }) {
@@ -111,7 +115,10 @@ fun HomeBottomSheet(
 @Composable
 fun HomeBottomSheetPreview() {
     MoWidTheme {
-        HomeBottomSheet(
+        BottomSheet(
+            header = stringResource(id = R.string.title_add_group),
+            hint1 = stringResource(id = R.string.label_group),
+            hint2 = stringResource(id = R.string.label_description),
             onAddClick = { _, _ ->
 
             }

@@ -1,14 +1,11 @@
 package com.eleks.data.firebase.source.impl
 
 import com.eleks.data.firebase.source.FirebaseDataSource
-import com.eleks.data.model.GroupDataModel
-import com.eleks.data.model.QuoteDataModel
-import com.eleks.data.model.ResultDataModel
-import com.eleks.data.model.SelectedGroupDataModel
+import com.eleks.data.model.*
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -38,6 +35,19 @@ class FirebaseDataSourceImpl @Inject constructor(
             replay = 1
         )
 
+    private val _selectedQuotesFlow =
+        MutableSharedFlow<ResultDataModel<List<SelectedQuoteDataModel>>>(
+            replay = 1
+        )
+
+    private val _quotesFlow = MutableSharedFlow<ResultDataModel<List<QuoteDataModel>>>(
+        replay = 1
+    )
+
+    private val _userQuotesFlow = MutableSharedFlow<ResultDataModel<List<QuoteDataModel>>>(
+        replay = 1
+    )
+
     override val groupsFlow = _groupsFlow.asSharedFlow()
 
     override val userGroupsFlow = _userGroupsFlow.asSharedFlow()
@@ -46,6 +56,12 @@ class FirebaseDataSourceImpl @Inject constructor(
 
     override val currentUser
         get() = authInstance.currentUser
+
+    override val selectedQuotesFlow = _selectedQuotesFlow.asSharedFlow()
+
+    override val quotesFlow = _quotesFlow.asSharedFlow()
+
+    override val userQuotesFlow = _userQuotesFlow.asSharedFlow()
 
     init {
         launch { subscribeGroups() }
@@ -58,14 +74,14 @@ class FirebaseDataSourceImpl @Inject constructor(
         _groupsFlow.subscriptionCount.collect {
             if (it > 0) {
                 subscription = dbInstance.collection(COLLECTION_GROUPS)
-                    .addSnapshotListener(MetadataChanges.INCLUDE) { value, error ->
+                    .addSnapshotListener { value, error ->
                         if (error != null) {
-                            _groupsFlow.tryEmit(ResultDataModel.error(error.message ?: ""))
+                            _groupsFlow.tryEmit(ResultDataModel.error(error))
                             return@addSnapshotListener
                         }
-                        if (value?.isEmpty == false) {
+                        value?.let { snapShot ->
                             val groups = mutableListOf<GroupDataModel>()
-                            for (doc in value) {
+                            for (doc in snapShot) {
                                 groups.add(doc.toObject())
                             }
                             _groupsFlow.tryEmit(ResultDataModel.success(groups))
@@ -81,24 +97,24 @@ class FirebaseDataSourceImpl @Inject constructor(
         var subscription: ListenerRegistration? = null
         _userGroupsFlow.subscriptionCount.collect { subscribers ->
 
-            val userId = authInstance.currentUser?.uid ?: return@collect
+            val userId = authInstance.currentUser?.uid
+            if (userId == null) {
+                _userGroupsFlow.tryEmit(ResultDataModel.success(mutableListOf()))
+                return@collect
+            }
             if (subscribers > 0) {
                 subscription = dbInstance.collection(COLLECTION_PERSONAL)
                     .document(userId).collection(COLLECTION_GROUPS)
                     .addSnapshotListener { value, error ->
                         if (error != null) {
                             // TODO empty string shouldn't be returned. In debug it should just throw ex
-                            _userGroupsFlow.tryEmit(
-                                ResultDataModel.error(
-                                    error.message ?: "Empty string"
-                                )
-                            )
+                            _userGroupsFlow.tryEmit(ResultDataModel.error(error))
                             return@addSnapshotListener
                         }
 
-                        if (value?.isEmpty == false) {
+                        value?.let { snapShot ->
                             val groups = mutableListOf<GroupDataModel>()
-                            for (doc in value) {
+                            for (doc in snapShot) {
                                 groups.add(doc.toObject())
                             }
                             _userGroupsFlow.tryEmit(ResultDataModel.success(groups))
@@ -110,11 +126,89 @@ class FirebaseDataSourceImpl @Inject constructor(
         }
     }
 
+    override fun subscribeAllGroupsQuotes(groupId: String) {
+        subscribeQuotes(groupId)
+        subscribeUserQuotes(groupId)
+        subscribeSelectedQuotes(groupId)
+    }
+
+    private fun subscribeQuotes(groupId: String) {
+        launch {
+            var subscription: ListenerRegistration? = null
+            _quotesFlow.subscriptionCount.collect { subscribers ->
+                if (subscribers > 0) {
+                    subscription = dbInstance.collection(COLLECTION_GROUPS).document(groupId)
+                        .collection(COLLECTION_QUOTES)
+                        .addSnapshotListener { value, error ->
+                            if (error != null) {
+                                _quotesFlow.tryEmit(ResultDataModel.error(error))
+                                return@addSnapshotListener
+                            }
+                            value?.let { snapShot ->
+                                val groups = mutableListOf<QuoteDataModel>()
+                                for (doc in snapShot) {
+                                    groups.add(doc.toObject())
+                                }
+                                _quotesFlow.tryEmit(ResultDataModel.success(groups))
+                            }
+                        }
+                } else {
+                    subscription?.let {
+                        it.remove()
+                        cancel()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun subscribeUserQuotes(groupId: String) {
+        launch {
+            var subscription: ListenerRegistration? = null
+            _userQuotesFlow.subscriptionCount.collect { subscribers ->
+
+                val userId = authInstance.currentUser?.uid
+                if (userId == null) {
+                    _userQuotesFlow.tryEmit(ResultDataModel.success(mutableListOf()))
+                    return@collect
+                }
+                if (subscribers > 0) {
+                    subscription = dbInstance.collection(COLLECTION_PERSONAL)
+                        .document(userId).collection(COLLECTION_GROUPS)
+                        .document(groupId).collection(COLLECTION_QUOTES)
+                        .addSnapshotListener { value, error ->
+                            if (error != null) {
+                                _userQuotesFlow.tryEmit(ResultDataModel.error(error))
+                                return@addSnapshotListener
+                            }
+
+                            value?.let { snapShot ->
+                                val groups = mutableListOf<QuoteDataModel>()
+                                for (doc in snapShot) {
+                                    groups.add(doc.toObject())
+                                }
+                                _userQuotesFlow.tryEmit(ResultDataModel.success(groups))
+                            }
+                        }
+                } else {
+                    subscription?.let {
+                        it.remove()
+                        cancel()
+                    }
+                }
+            }
+        }
+    }
+
     private suspend fun subscribeSelectedGroups() {
         var subscription: ListenerRegistration? = null
-        _selectedGroupsFlow.subscriptionCount.collect {
-            val userId = authInstance.currentUser?.uid ?: return@collect
-            if (it > 0) {
+        _selectedGroupsFlow.subscriptionCount.collect { subscribers ->
+            val userId = authInstance.currentUser?.uid
+            if (userId == null) {
+                _selectedGroupsFlow.tryEmit(ResultDataModel.success(mutableListOf()))
+                return@collect
+            }
+            if (subscribers > 0) {
                 subscription =
                     dbInstance.collection(COLLECTION_PERSONAL)
                         .document(userId)
@@ -122,12 +216,12 @@ class FirebaseDataSourceImpl @Inject constructor(
                         .addSnapshotListener { value, error ->
                             if (error != null) {
                                 _selectedGroupsFlow.tryEmit(
-                                    ResultDataModel.error(error.message ?: "")
+                                    ResultDataModel.error(error)
                                 )
                                 return@addSnapshotListener
                             }
 
-                            if (value?.isEmpty == false) {
+                            value?.let {
                                 val selections = mutableListOf<SelectedGroupDataModel>()
                                 for (doc in value) {
                                     selections.add(doc.toObject())
@@ -141,6 +235,45 @@ class FirebaseDataSourceImpl @Inject constructor(
         }
     }
 
+    private fun subscribeSelectedQuotes(groupId: String) {
+        launch {
+            var subscription: ListenerRegistration? = null
+            _selectedQuotesFlow.subscriptionCount.collect { subscribers ->
+                val userId = authInstance.currentUser?.uid
+                if (userId == null) {
+                    _selectedQuotesFlow.tryEmit(ResultDataModel.success(mutableListOf()))
+                    return@collect
+                }
+                if (subscribers > 0) {
+                    subscription =
+                        dbInstance.collection(COLLECTION_PERSONAL)
+                            .document(userId)
+                            .collection(COLLECTION_SELECTION)
+                            .document(groupId)
+                            .collection(COLLECTION_QUOTES)
+                            .addSnapshotListener { value, error ->
+                                if (error != null) {
+                                    _selectedQuotesFlow.tryEmit(ResultDataModel.error(error))
+                                    return@addSnapshotListener
+                                }
+                                value?.let {
+                                    val selections = mutableListOf<SelectedQuoteDataModel>()
+                                    for (doc in value) {
+                                        selections.add(doc.toObject())
+                                    }
+                                    _selectedQuotesFlow.tryEmit(ResultDataModel.success(selections))
+                                }
+                            }
+                } else {
+                    subscription?.let {
+                        it.remove()
+                        cancel()
+                    }
+                }
+            }
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun saveNewGroup(group: GroupDataModel): ResultDataModel<GroupDataModel> =
         suspendCancellableCoroutine { continuation ->
@@ -150,37 +283,104 @@ class FirebaseDataSourceImpl @Inject constructor(
                     .document(it.uid)
                     .collection(COLLECTION_GROUPS)
                     .document(uuid)
-                    .set(group.apply { id = uuid })
+                    .set(group.apply {
+                        id = uuid
+                        quotesCount = 0
+                    })
                     .addOnSuccessListener {
                         continuation.resume(ResultDataModel.success(group)) {}
                     }
                     .addOnFailureListener { exception ->
-                        continuation.resume(ResultDataModel.error(exception.message ?: "")) {}
+                        continuation.resume(ResultDataModel.error(exception)) {}
                     }
             }
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun saveNewQuote(
         groupId: String, quote: QuoteDataModel
-    ): ResultDataModel<QuoteDataModel> {
-        TODO("Not yet implemented")
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun saveSelection(selectedGroup: SelectedGroupDataModel): ResultDataModel<SelectedGroupDataModel> =
+    ): ResultDataModel<QuoteDataModel> =
         suspendCancellableCoroutine { continuation ->
+            val uuid = UUID.randomUUID().toString()
             authInstance.currentUser?.let {
-                dbInstance.collection(COLLECTION_PERSONAL)
+                val currentDocument = dbInstance.collection(COLLECTION_PERSONAL)
                     .document(it.uid)
-                    .collection(COLLECTION_SELECTION)
-                    .document(selectedGroup.groupId ?: "")
-                    .set(selectedGroup)
+                    .collection(COLLECTION_GROUPS)
+                    .document(groupId)
+                currentDocument.collection(COLLECTION_QUOTES)
+                    .document(uuid)
+                    .set(quote.apply { id = uuid })
                     .addOnSuccessListener {
-                        continuation.resume(ResultDataModel.success(selectedGroup)) {}
+                        continuation.resume(ResultDataModel.success(quote)) {}
                     }
                     .addOnFailureListener { exception ->
-                        continuation.resume(ResultDataModel.error(exception.message ?: "")) {}
+                        continuation.resume(ResultDataModel.error(exception)) {}
                     }
+                currentDocument.get().addOnCompleteListener {
+                    if (!it.result.exists()) {
+                        dbInstance.collection(COLLECTION_GROUPS).document(groupId).get()
+                            .addOnCompleteListener { snapShot ->
+                                val group = snapShot.result.toObject<GroupDataModel>()
+                                group?.let { model ->
+                                    currentDocument.set(model.apply {
+                                        quotesCount = quotesCount?.inc()
+                                    })
+                                }
+                            }
+                    } else {
+                        currentDocument.update("quotesCount", FieldValue.increment(1))
+                    }
+
+                }
+            }
+        }
+
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun saveSelection(
+        groupId: String,
+        quote: SelectedQuoteDataModel,
+        isSelected: Boolean
+    ): ResultDataModel<SelectedQuoteDataModel> =
+        suspendCancellableCoroutine { continuation ->
+            authInstance.currentUser?.let {
+                val currentDocument = dbInstance.collection(COLLECTION_PERSONAL)
+                    .document(it.uid)
+                    .collection(COLLECTION_SELECTION)
+                    .document(groupId)
+                currentDocument.get().addOnCompleteListener {
+                    if (it.result.exists()) {
+                        if (isSelected) {
+                            currentDocument
+                                .collection(COLLECTION_QUOTES)
+                                .document(quote.id ?: "").set(quote)
+                                .addOnSuccessListener {
+                                    continuation.resume(ResultDataModel.success(quote)) {}
+                                }
+                                .addOnFailureListener { exception ->
+                                    continuation.resume(ResultDataModel.error(exception)) {}
+                                }
+                            currentDocument.update("selectedQuotesCount", FieldValue.increment(1))
+                        } else {
+                            currentDocument
+                                .collection(COLLECTION_QUOTES)
+                                .document(quote.id ?: "")
+                                .delete()
+                            currentDocument.update("selectedQuotesCount", FieldValue.increment(-1))
+                        }
+                    } else {
+                        currentDocument.set(
+                            SelectedGroupDataModel(
+                                groupId = groupId,
+                                selectedQuotesCount = 1
+                            )
+                        ).addOnCompleteListener {
+                            currentDocument
+                                .collection(COLLECTION_QUOTES)
+                                .document(quote.id ?: "").set(quote)
+                        }
+                    }
+                }
             }
         }
 
@@ -188,5 +388,6 @@ class FirebaseDataSourceImpl @Inject constructor(
         const val COLLECTION_PERSONAL = "personal"
         const val COLLECTION_SELECTION = "selection"
         const val COLLECTION_GROUPS = "groups"
+        const val COLLECTION_QUOTES = "quotes"
     }
 }
