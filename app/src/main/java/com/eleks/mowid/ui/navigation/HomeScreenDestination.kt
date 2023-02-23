@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eleks.mowid.ui.feature.home.HomeScreen
 import com.eleks.mowid.ui.feature.home.HomeViewModel
+import com.eleks.mowid.ui.feature.main.MainViewModel
 
 @Composable
 fun HomeScreenDestination(activityViewModel: MainViewModel, onNavigateToQuotes: (String, String) -> Unit) {

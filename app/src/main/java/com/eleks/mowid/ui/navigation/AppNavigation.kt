@@ -1,6 +1,7 @@
 package com.eleks.mowid.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -20,7 +21,7 @@ fun AppNavigation(activityViewModel: MainViewModel) {
         composable(
             route = Navigation.Route.HOME.route
         ) {
-            HomeScreenDestination(navController, activityViewModel)  { groupId, groupName ->
+            HomeScreenDestination(activityViewModel) { groupId, groupName ->
                 navController.navigate(Navigation.Route.Quotes.createRoute(groupId, groupName))
             }
         }
