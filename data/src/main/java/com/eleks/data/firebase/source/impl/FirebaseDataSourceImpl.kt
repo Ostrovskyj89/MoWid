@@ -56,8 +56,20 @@ class FirebaseDataSourceImpl @Inject constructor(
 
     override val selectedGroupsFlow = _selectedGroupsFlow.asSharedFlow()
 
+    override val selectedQuotesFlow = _selectedQuotesFlow.asSharedFlow()
+
+    override val quotesFlow = _quotesFlow.asSharedFlow()
+
+    override val userQuotesFlow = _userQuotesFlow.asSharedFlow()
+
     override val currentUser
         get() = authInstance.currentUser
+
+    init {
+        launch { subscribeGroups() }
+        subscribeUserGroups()
+        subscribeSelectedGroups()
+    }
 
     override fun signInSuccess() {
         subscribeUserGroups()
@@ -72,17 +84,122 @@ class FirebaseDataSourceImpl @Inject constructor(
         _selectedQuotesFlow.tryEmit(ResultDataModel.success(emptyList()))
     }
 
-    override val selectedQuotesFlow = _selectedQuotesFlow.asSharedFlow()
-
-    override val quotesFlow = _quotesFlow.asSharedFlow()
-
-    override val userQuotesFlow = _userQuotesFlow.asSharedFlow()
-
-    init {
-        launch { subscribeGroups() }
-        subscribeUserGroups()
-        subscribeSelectedGroups()
+    override fun subscribeAllGroupsQuotes(groupId: String) {
+        currentGroupId = groupId
+        subscribeQuotes(groupId)
+        subscribeUserQuotes(groupId)
+        subscribeSelectedQuotes(groupId)
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun saveNewGroup(group: GroupDataModel): ResultDataModel<GroupDataModel> =
+        suspendCancellableCoroutine { continuation ->
+            val uuid = UUID.randomUUID().toString()
+            authInstance.currentUser?.let {
+                dbInstance.collection(COLLECTION_PERSONAL)
+                    .document(it.uid)
+                    .collection(COLLECTION_GROUPS)
+                    .document(uuid)
+                    .set(group.apply {
+                        id = uuid
+                        quotesCount = 0
+                    })
+                    .addOnSuccessListener {
+                        continuation.resume(ResultDataModel.success(group)) {}
+                    }
+                    .addOnFailureListener { exception ->
+                        continuation.resume(ResultDataModel.error(exception)) {}
+                    }
+            }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun saveNewQuote(
+        groupId: String, quote: QuoteDataModel
+    ): ResultDataModel<QuoteDataModel> =
+        suspendCancellableCoroutine { continuation ->
+            val uuid = UUID.randomUUID().toString()
+            authInstance.currentUser?.let {
+                val currentDocument = dbInstance.collection(COLLECTION_PERSONAL)
+                    .document(it.uid)
+                    .collection(COLLECTION_GROUPS)
+                    .document(groupId)
+                currentDocument.collection(COLLECTION_QUOTES)
+                    .document(uuid)
+                    .set(quote.apply { id = uuid })
+                    .addOnSuccessListener {
+                        continuation.resume(ResultDataModel.success(quote)) {}
+                    }
+                    .addOnFailureListener { exception ->
+                        continuation.resume(ResultDataModel.error(exception)) {}
+                    }
+                currentDocument.get().addOnCompleteListener {
+                    if (!it.result.exists()) {
+                        dbInstance.collection(COLLECTION_GROUPS).document(groupId).get()
+                            .addOnCompleteListener { snapShot ->
+                                val group = snapShot.result.toObject<GroupDataModel>()
+                                group?.let { model ->
+                                    currentDocument.set(model.apply {
+                                        quotesCount = quotesCount?.inc()
+                                    })
+                                }
+                            }
+                    } else {
+                        currentDocument.update("quotesCount", FieldValue.increment(1))
+                    }
+
+                }
+            }
+        }
+
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun saveSelection(
+        groupId: String,
+        quote: SelectedQuoteDataModel,
+        isSelected: Boolean
+    ): ResultDataModel<SelectedQuoteDataModel> =
+        suspendCancellableCoroutine { continuation ->
+            authInstance.currentUser?.let {
+                val currentDocument = dbInstance.collection(COLLECTION_PERSONAL)
+                    .document(it.uid)
+                    .collection(COLLECTION_SELECTION)
+                    .document(groupId)
+                currentDocument.get().addOnCompleteListener {
+                    if (it.result.exists()) {
+                        if (isSelected) {
+                            currentDocument
+                                .collection(COLLECTION_QUOTES)
+                                .document(quote.id ?: "").set(quote)
+                                .addOnSuccessListener {
+                                    continuation.resume(ResultDataModel.success(quote)) {}
+                                }
+                                .addOnFailureListener { exception ->
+                                    continuation.resume(ResultDataModel.error(exception)) {}
+                                }
+                            currentDocument.update("selectedQuotesCount", FieldValue.increment(1))
+                        } else {
+                            currentDocument
+                                .collection(COLLECTION_QUOTES)
+                                .document(quote.id ?: "")
+                                .delete()
+                            currentDocument.update("selectedQuotesCount", FieldValue.increment(-1))
+                        }
+                    } else {
+                        currentDocument.set(
+                            SelectedGroupDataModel(
+                                groupId = groupId,
+                                selectedQuotesCount = 1
+                            )
+                        ).addOnCompleteListener {
+                            currentDocument
+                                .collection(COLLECTION_QUOTES)
+                                .document(quote.id ?: "").set(quote)
+                        }
+                    }
+                }
+            }
+        }
 
     private suspend fun subscribeGroups() {
         var subscription: ListenerRegistration? = null
@@ -142,13 +259,6 @@ class FirebaseDataSourceImpl @Inject constructor(
                 }
             }
         }
-    }
-
-    override fun subscribeAllGroupsQuotes(groupId: String) {
-        currentGroupId = groupId
-        subscribeQuotes(groupId)
-        subscribeUserQuotes(groupId)
-        subscribeSelectedQuotes(groupId)
     }
 
     private fun subscribeQuotes(groupId: String) {
@@ -302,116 +412,6 @@ class FirebaseDataSourceImpl @Inject constructor(
             }
         }
     }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun saveNewGroup(group: GroupDataModel): ResultDataModel<GroupDataModel> =
-        suspendCancellableCoroutine { continuation ->
-            val uuid = UUID.randomUUID().toString()
-            authInstance.currentUser?.let {
-                dbInstance.collection(COLLECTION_PERSONAL)
-                    .document(it.uid)
-                    .collection(COLLECTION_GROUPS)
-                    .document(uuid)
-                    .set(group.apply {
-                        id = uuid
-                        quotesCount = 0
-                    })
-                    .addOnSuccessListener {
-                        continuation.resume(ResultDataModel.success(group)) {}
-                    }
-                    .addOnFailureListener { exception ->
-                        continuation.resume(ResultDataModel.error(exception)) {}
-                    }
-            }
-        }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun saveNewQuote(
-        groupId: String, quote: QuoteDataModel
-    ): ResultDataModel<QuoteDataModel> =
-        suspendCancellableCoroutine { continuation ->
-            val uuid = UUID.randomUUID().toString()
-            authInstance.currentUser?.let {
-                val currentDocument = dbInstance.collection(COLLECTION_PERSONAL)
-                    .document(it.uid)
-                    .collection(COLLECTION_GROUPS)
-                    .document(groupId)
-                currentDocument.collection(COLLECTION_QUOTES)
-                    .document(uuid)
-                    .set(quote.apply { id = uuid })
-                    .addOnSuccessListener {
-                        continuation.resume(ResultDataModel.success(quote)) {}
-                    }
-                    .addOnFailureListener { exception ->
-                        continuation.resume(ResultDataModel.error(exception)) {}
-                    }
-                currentDocument.get().addOnCompleteListener {
-                    if (!it.result.exists()) {
-                        dbInstance.collection(COLLECTION_GROUPS).document(groupId).get()
-                            .addOnCompleteListener { snapShot ->
-                                val group = snapShot.result.toObject<GroupDataModel>()
-                                group?.let { model ->
-                                    currentDocument.set(model.apply {
-                                        quotesCount = quotesCount?.inc()
-                                    })
-                                }
-                            }
-                    } else {
-                        currentDocument.update("quotesCount", FieldValue.increment(1))
-                    }
-
-                }
-            }
-        }
-
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun saveSelection(
-        groupId: String,
-        quote: SelectedQuoteDataModel,
-        isSelected: Boolean
-    ): ResultDataModel<SelectedQuoteDataModel> =
-        suspendCancellableCoroutine { continuation ->
-            authInstance.currentUser?.let {
-                val currentDocument = dbInstance.collection(COLLECTION_PERSONAL)
-                    .document(it.uid)
-                    .collection(COLLECTION_SELECTION)
-                    .document(groupId)
-                currentDocument.get().addOnCompleteListener {
-                    if (it.result.exists()) {
-                        if (isSelected) {
-                            currentDocument
-                                .collection(COLLECTION_QUOTES)
-                                .document(quote.id ?: "").set(quote)
-                                .addOnSuccessListener {
-                                    continuation.resume(ResultDataModel.success(quote)) {}
-                                }
-                                .addOnFailureListener { exception ->
-                                    continuation.resume(ResultDataModel.error(exception)) {}
-                                }
-                            currentDocument.update("selectedQuotesCount", FieldValue.increment(1))
-                        } else {
-                            currentDocument
-                                .collection(COLLECTION_QUOTES)
-                                .document(quote.id ?: "")
-                                .delete()
-                            currentDocument.update("selectedQuotesCount", FieldValue.increment(-1))
-                        }
-                    } else {
-                        currentDocument.set(
-                            SelectedGroupDataModel(
-                                groupId = groupId,
-                                selectedQuotesCount = 1
-                            )
-                        ).addOnCompleteListener {
-                            currentDocument
-                                .collection(COLLECTION_QUOTES)
-                                .document(quote.id ?: "").set(quote)
-                        }
-                    }
-                }
-            }
-        }
 
     companion object {
         const val COLLECTION_PERSONAL = "personal"
