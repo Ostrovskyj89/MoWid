@@ -8,9 +8,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.eleks.mowid.ui.navigation.Navigation.Args.GROUP_ID
 import com.eleks.mowid.ui.navigation.Navigation.Args.GROUP_NAME
+import com.eleks.mowid.ui.feature.main.MainViewModel
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(activityViewModel: MainViewModel) {
     val navController = rememberNavController()
 
     NavHost(
@@ -20,7 +21,7 @@ fun AppNavigation() {
         composable(
             route = Navigation.Route.HOME.route
         ) {
-            HomeScreenDestination { groupId, groupName ->
+            HomeScreenDestination(activityViewModel) { groupId, groupName ->
                 navController.navigate(Navigation.Route.Quotes.createRoute(groupId, groupName))
             }
         }
@@ -37,7 +38,7 @@ fun AppNavigation() {
             )
         ) { backStackEntry ->
             val groupName = requireNotNull(backStackEntry.arguments?.getString(GROUP_NAME))
-            QuotesScreenDestination(groupName = groupName) {
+            QuotesScreenDestination(activityViewModel = activityViewModel, groupName = groupName) {
                 navController.navigateUp()
             }
         }

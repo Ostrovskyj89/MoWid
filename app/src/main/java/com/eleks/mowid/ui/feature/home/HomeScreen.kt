@@ -12,9 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -25,20 +23,24 @@ import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.EFFECTS_KEY
 import com.eleks.mowid.base.ui.EVENTS_KEY
 import com.eleks.mowid.model.GroupPhraseUIModel
-import com.eleks.mowid.ui.composable.AppCenterAlignedTopAppBar
-import com.eleks.mowid.ui.composable.AppFloatingActionButton
-import com.eleks.mowid.ui.composable.AppProgress
+import com.eleks.mowid.ui.composable.*
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffold
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
 import com.eleks.mowid.ui.feature.home.composable.BottomSheet
 import com.eleks.mowid.ui.feature.home.composable.HomeList
+import com.eleks.mowid.ui.feature.main.MainEvent
+import com.eleks.mowid.ui.feature.main.MainViewModel
 import com.eleks.mowid.ui.theme.MoWidTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, onNavigateToQuotes: (String, String) -> Unit) {
+fun HomeScreen(
+    viewModel: HomeViewModel,
+    activityViewModel: MainViewModel,
+    onNavigateToQuotes: (String, String) -> Unit
+) {
     val state: HomeState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -92,6 +94,8 @@ fun HomeScreen(viewModel: HomeViewModel, onNavigateToQuotes: (String, String) ->
     ScreenContent(
         state = state,
         sendEvent = viewModel::setEvent,
+        sendMainEvent = activityViewModel::setEvent,
+        isUserAlreadyLogin = activityViewModel::isUserAlreadyLogIn,
         bottomSheetState = bottomSheetScaffoldState
     )
 }
@@ -101,8 +105,26 @@ fun HomeScreen(viewModel: HomeViewModel, onNavigateToQuotes: (String, String) ->
 fun ScreenContent(
     state: HomeState,
     sendEvent: (HomeEvent) -> Unit,
+    sendMainEvent: (MainEvent) -> Unit,
+    isUserAlreadyLogin: () -> Boolean,
     bottomSheetState: BottomSheetScaffoldState
 ) {
+
+    var showMenu by remember { mutableStateOf(false) }
+    var openDialog by remember { mutableStateOf(false) }
+
+    if (openDialog) {
+        AppAlertDialog(
+            onConfirmButtonClicked = {
+                sendMainEvent(MainEvent.SignIn)
+                openDialog = false
+            },
+            onDismissButtonClicked = {
+                openDialog = false
+            }
+        )
+    }
+
     BottomSheetScaffold(
         sheetContent = {
             BottomSheet(
@@ -134,21 +156,29 @@ fun ScreenContent(
                     AppCenterAlignedTopAppBar(
                         title = stringResource(id = R.string.title_home),
                         actions = {
-                            IconButton(onClick = {
-                                //TODO:
-                            }) {
+                            IconButton(onClick = { showMenu = !showMenu }) {
                                 Icon(
                                     imageVector = Icons.Filled.MoreVert,
                                     contentDescription = "TODO: description"
                                 )
                             }
+                            AppDropDownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false },
+                                sendEvent = sendMainEvent,
+                                isUserLogIn = isUserAlreadyLogin()
+                            )
                         }
                     )
                 },
                 floatingActionButton = {
                     if (state.isLoading.not()) AppFloatingActionButton(
                         onClick = {
-                            sendEvent(HomeEvent.ShowAddGroupModal)
+                            if (isUserAlreadyLogin()) {
+                                sendEvent(HomeEvent.ShowAddGroupModal)
+                            } else {
+                                openDialog = true
+                            }
                         }
                     ) else Unit
                 }
@@ -219,6 +249,8 @@ fun ScreenContentPreview() {
                 groupPhraseList = list
             ),
             sendEvent = {},
+            sendMainEvent = {},
+            isUserAlreadyLogin = { false },
             bottomSheetState = rememberBottomSheetScaffoldState()
         )
     }

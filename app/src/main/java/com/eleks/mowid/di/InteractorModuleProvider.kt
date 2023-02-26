@@ -1,7 +1,9 @@
 package com.eleks.mowid.di
 
 import com.eleks.data.repository.MotivationPhraseRepositoryImpl
+import com.eleks.data.repository.UserRepositoryImpl
 import com.eleks.domain.intearactor.MotivationPhraseInteractor
+import com.eleks.domain.intearactor.UserInteractor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,5 +18,12 @@ object InteractorModuleProvider {
         motivationPhraseRepository: MotivationPhraseRepositoryImpl
     ): MotivationPhraseInteractor {
         return MotivationPhraseInteractor(motivationPhraseRepository)
+    }
+
+    @Provides
+    fun provideUserInteractor(
+        userRepository: UserRepositoryImpl
+    ): UserInteractor {
+        return UserInteractor(userRepository)
     }
 }

@@ -15,4 +15,13 @@
     <string name="label_author">Author</string>
     <string name="label_empty_state">Поки немає жодної цитати.. Натисни ось цю кнопочку нижче щоб додати першу</string>
 
+    // SignIn, SignOut
+    <string name="label_sign_in_success">SignIn Complete</string>
+    <string name="label_sign_in_error">"SignIn Error"</string>
+    <string name="label_sign_out_success">"SignOut Complete"</string>
+
+    <string name="label_sign_in">"SignIn"</string>
+    <string name="label_sign_out">"SignOut"</string>
+    <string name="label_cancel">"Cancel"</string>
+    <string name="sign_in_alert_dialog_text">"To continue you should SignIn"</string>
 </resources>
