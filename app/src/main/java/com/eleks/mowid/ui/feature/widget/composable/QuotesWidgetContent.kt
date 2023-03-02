@@ -31,9 +31,9 @@ fun QuotesWidgetContent(
     val context = LocalContext.current
 
     val prefs = currentState<Preferences>()
-    val quote = prefs[stringPreferencesKey(QUOTE_PREFS_KEY)]
-        ?: "Життя вимірюється не кількістю наших вдохів, а кількістю моментів, від яких перехоплює дихання"
-    val author = prefs[stringPreferencesKey(AUTHOR_PREFS_KEY)] ?: "Майя Енджелоу"
+    // TODO remove predefined strings
+    val quote = prefs[stringPreferencesKey(QUOTE_PREFS_KEY)] ?: "Quote"
+    val author = prefs[stringPreferencesKey(AUTHOR_PREFS_KEY)] ?: "Author"
 
     WidgetContent(
         modifier = modifier,

@@ -15,8 +15,9 @@ class LeftArrowClickAction : ActionCallback {
         updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) {
             it.toMutablePreferences()
                 .apply {
-                    this[stringPreferencesKey(QUOTE_PREFS_KEY)] = "У кожному матчі я граю однаково – так, ніби це фінал"
-                    this[stringPreferencesKey(AUTHOR_PREFS_KEY)] = "Ліонель Мессі"
+                    // TODO add mechanism to change quote
+                    this[stringPreferencesKey(QUOTE_PREFS_KEY)] = ""
+                    this[stringPreferencesKey(AUTHOR_PREFS_KEY)] = ""
                 }
         }
         QuotesWidget().update(context, glanceId)
@@ -28,8 +29,9 @@ class RightArrowClickAction : ActionCallback {
         updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) {
             it.toMutablePreferences()
                 .apply {
-                    this[stringPreferencesKey(QUOTE_PREFS_KEY)] = "Неважливо, як повільно ти просувається. Головне – ти не зупиняєшся."
-                    this[stringPreferencesKey(AUTHOR_PREFS_KEY)] = "Брюс Лі"
+                    // TODO add mechanism to change quote
+                    this[stringPreferencesKey(QUOTE_PREFS_KEY)] = ""
+                    this[stringPreferencesKey(AUTHOR_PREFS_KEY)] = ""
                 }
         }
         QuotesWidget().update(context, glanceId)
