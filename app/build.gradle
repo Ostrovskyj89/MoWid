@@ -85,7 +85,9 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_compose_version"
     // compose - Integration with Navigation
     implementation "androidx.navigation:navigation-compose:$navigation_version"
+    implementation "androidx.glance:glance-appwidget:1.0.0-alpha05"
 
+    implementation 'com.google.android.gms:play-services-auth:20.4.1'
 
     // tests
     testImplementation 'junit:junit:4.13.2'
