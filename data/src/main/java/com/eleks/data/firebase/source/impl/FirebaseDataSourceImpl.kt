@@ -155,7 +155,6 @@ class FirebaseDataSourceImpl @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun saveSelection(
-        groupId: String,
         quote: SelectedQuoteDataModel,
         isSelected: Boolean
     ): ResultDataModel<SelectedQuoteDataModel> =
@@ -164,12 +163,12 @@ class FirebaseDataSourceImpl @Inject constructor(
                 val currentDocument = dbInstance.collection(COLLECTION_PERSONAL)
                     .document(it.uid)
                     .collection(COLLECTION_SELECTION)
-                    .document(groupId)
+                    .document(quote.groupId ?: "")
                 currentDocument.get().addOnCompleteListener {
                     if (it.result.exists()) {
                         if (isSelected) {
                             currentDocument
-                                .collection(COLLECTION_QUOTES)
+                                .collection(COLLECTION_SELECTED_QUOTES)
                                 .document(quote.id ?: "").set(quote)
                                 .addOnSuccessListener {
                                     continuation.resume(ResultDataModel.success(quote)) {}
@@ -180,7 +179,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                             currentDocument.update("selectedQuotesCount", FieldValue.increment(1))
                         } else {
                             currentDocument
-                                .collection(COLLECTION_QUOTES)
+                                .collection(COLLECTION_SELECTED_QUOTES)
                                 .document(quote.id ?: "")
                                 .delete()
                             currentDocument.update("selectedQuotesCount", FieldValue.increment(-1))
@@ -188,18 +187,52 @@ class FirebaseDataSourceImpl @Inject constructor(
                     } else {
                         currentDocument.set(
                             SelectedGroupDataModel(
-                                groupId = groupId,
+                                groupId = quote.groupId,
                                 selectedQuotesCount = 1
                             )
                         ).addOnCompleteListener {
                             currentDocument
-                                .collection(COLLECTION_QUOTES)
+                                .collection(COLLECTION_SELECTED_QUOTES)
                                 .document(quote.id ?: "").set(quote)
                         }
                     }
                 }
             }
         }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun getSelectedQuotes(): ResultDataModel<List<SelectedQuoteDataModel>> =
+        suspendCancellableCoroutine { continuation ->
+            authInstance.currentUser?.let {
+                dbInstance.collectionGroup(COLLECTION_SELECTED_QUOTES)
+                    .get()
+                    .addOnSuccessListener { task ->
+                        val quotes = mutableListOf<SelectedQuoteDataModel>()
+                        for (doc in task.documents) {
+                            doc.toObject<SelectedQuoteDataModel>()?.let {
+                                quotes.add(it)
+                            }
+                        }
+                        continuation.resume(ResultDataModel.success(quotes)) {}
+
+                    }
+                    .addOnFailureListener { exception ->
+                        continuation.resume(ResultDataModel.error(exception)) {}
+                    }
+            }
+        }
+
+    override suspend fun updateSelectedQuote(groupId: String,quoteId: String, shownTime: Long) {
+        authInstance.currentUser?.let {
+            dbInstance.collection(COLLECTION_PERSONAL)
+                .document(it.uid)
+                .collection(COLLECTION_SELECTION)
+                .document(groupId)
+                .collection(COLLECTION_SELECTED_QUOTES)
+                .document(quoteId)
+                .update("shownAt", shownTime)
+        }
+    }
 
     private suspend fun subscribeGroups() {
         var subscription: ListenerRegistration? = null
@@ -388,7 +421,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                             .document(userId)
                             .collection(COLLECTION_SELECTION)
                             .document(groupId)
-                            .collection(COLLECTION_QUOTES)
+                            .collection(COLLECTION_SELECTED_QUOTES)
                             .addSnapshotListener { value, error ->
                                 if (error != null) {
                                     _selectedQuotesFlow.tryEmit(ResultDataModel.error(error))
@@ -418,5 +451,6 @@ class FirebaseDataSourceImpl @Inject constructor(
         const val COLLECTION_SELECTION = "selection"
         const val COLLECTION_GROUPS = "groups"
         const val COLLECTION_QUOTES = "quotes"
+        const val COLLECTION_SELECTED_QUOTES = "selectedquotes"
     }
 }

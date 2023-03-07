@@ -6,7 +6,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.*
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
@@ -17,10 +16,9 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import com.eleks.mowid.ui.feature.widget.QuotesWidget.Companion.AUTHOR_PREFS_KEY
-import com.eleks.mowid.ui.feature.widget.QuotesWidget.Companion.QUOTE_PREFS_KEY
 import com.eleks.mowid.ui.feature.widget.LeftArrowClickAction
 import com.eleks.mowid.R
+import com.eleks.mowid.ui.feature.widget.QuotesWidget
 import com.eleks.mowid.ui.feature.widget.RightArrowClickAction
 
 @Composable
@@ -32,8 +30,8 @@ fun QuotesWidgetContent(
 
     val prefs = currentState<Preferences>()
     // TODO remove predefined strings
-    val quote = prefs[stringPreferencesKey(QUOTE_PREFS_KEY)] ?: "Quote"
-    val author = prefs[stringPreferencesKey(AUTHOR_PREFS_KEY)] ?: "Author"
+    val quote = prefs[QuotesWidget.quotePreference] ?: "Quote"
+    val author = prefs[QuotesWidget.authorPreference] ?: "Author"
 
     WidgetContent(
         modifier = modifier,

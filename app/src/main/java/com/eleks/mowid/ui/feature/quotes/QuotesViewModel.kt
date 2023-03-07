@@ -61,7 +61,8 @@ class QuotesViewModel @Inject constructor(
                     motivationPhraseInteractor.saveSelection(
                         groupId = groupId,
                         quoteId = event.quoteId,
-                        shownAt = "",
+                        quote = event.quote,
+                        author = event.author,
                         isSelected = event.checked
                     )
                 }

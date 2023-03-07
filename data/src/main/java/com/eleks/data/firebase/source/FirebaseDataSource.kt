@@ -30,6 +30,10 @@ interface FirebaseDataSource {
 
     fun subscribeAllGroupsQuotes(groupId: String)
 
+    suspend fun getSelectedQuotes(): ResultDataModel<List<SelectedQuoteDataModel>>
+
+    suspend fun updateSelectedQuote(groupId: String, quoteId: String, shownTime: Long)
+
     suspend fun saveNewGroup(group: GroupDataModel): ResultDataModel<GroupDataModel>
 
     suspend fun saveNewQuote(
@@ -38,7 +42,6 @@ interface FirebaseDataSource {
     ): ResultDataModel<QuoteDataModel>
 
     suspend fun saveSelection(
-        groupId: String,
         quote: SelectedQuoteDataModel,
         isSelected: Boolean
     ): ResultDataModel<SelectedQuoteDataModel>
