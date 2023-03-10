@@ -217,7 +217,15 @@ fun ScreenContent(
                             quotes = state.quotes,
                             onCheckedChange = { id, checked ->
                                 if (isUserAlreadyLogin()) {
-                                    sendEvent(QuotesEvent.QuoteItemChecked(id, checked))
+                                    val quote = state.quotes.firstOrNull { it.id == id }
+                                    sendEvent(
+                                        QuotesEvent.QuoteItemChecked(
+                                            quoteId = id,
+                                            quote = quote?.quote ?: "",
+                                            author = quote?.author,
+                                            checked = checked
+                                        )
+                                    )
                                 } else {
                                     openDialog = true
                                 }

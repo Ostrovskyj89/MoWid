@@ -18,7 +18,8 @@ interface MotivationPhraseRepository {
     suspend fun saveSelection(
         groupId: String,
         quoteId: String,
-        shownAt: String,
+        quote: String,
+        author: String?,
         isSelected: Boolean
     )
 }

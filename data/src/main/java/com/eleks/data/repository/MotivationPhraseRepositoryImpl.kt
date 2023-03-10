@@ -78,14 +78,16 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
     override suspend fun saveSelection(
         groupId: String,
         quoteId: String,
-        shownAt: String,
+        quote: String,
+        author: String?,
         isSelected: Boolean
     ) {
         firebaseDataSource.saveSelection(
-            groupId = groupId,
             quote = SelectedQuoteDataModel(
-                quoteId,
-                shownAt
+                id = quoteId,
+                groupId = groupId,
+                quote = quote,
+                author = author
             ),
             isSelected = isSelected
         )

@@ -64,6 +64,12 @@ dependencies {
     implementation "androidx.hilt:hilt-navigation-compose:$hilt_compose_version"
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
 
+    // Worker
+    implementation "androidx.hilt:hilt-common:$hilt_worker_version"
+    implementation "androidx.hilt:hilt-work:$hilt_worker_version"
+    kapt("androidx.hilt:hilt-compiler:$hilt_worker_version")
+    implementation "androidx.work:work-runtime-ktx:$worker_version"
+
     // coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_core_version"
 

@@ -24,9 +24,16 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
     suspend fun saveSelection(
         groupId: String,
         quoteId: String,
-        shownAt: String,
+        quote: String,
+        author: String?,
         isSelected: Boolean
     ) {
-        motivationPhraseRepository.saveSelection(groupId, quoteId, shownAt, isSelected)
+        motivationPhraseRepository.saveSelection(
+            groupId = groupId,
+            quoteId = quoteId,
+            quote = quote,
+            author = author,
+            isSelected = isSelected
+        )
     }
 }
