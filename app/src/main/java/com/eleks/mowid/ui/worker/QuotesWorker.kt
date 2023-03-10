@@ -23,7 +23,7 @@ class QuotesWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workParams) {
 
     override suspend fun doWork(): Result {
-        val option = Options.valueOf(localDataSource.quoteChangeOption ?: Options.REGULAR.name)
+        val option = ExecutionOption.valueOf(localDataSource.quoteChangeOption ?: ExecutionOption.REGULAR.name)
         Log.d("QuotesWorker", "doWork option = ${option.name}")
         val result = firebaseDataSource.getSelectedQuotes()
         return when (result.status) {
@@ -35,12 +35,12 @@ class QuotesWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun showNextQuote(quotes: List<SelectedQuoteDataModel>?, option: Options) {
+    private suspend fun showNextQuote(quotes: List<SelectedQuoteDataModel>?, option: ExecutionOption) {
         quotes?.let {
             when (option) {
-                Options.REGULAR -> showRegularQuote(it)
-                Options.NEXT -> showNextQuote(it)
-                Options.PREVIOUS -> showPreviousQuote(it)
+                ExecutionOption.REGULAR -> showRegularQuote(it)
+                ExecutionOption.NEXT -> showNextQuote(it)
+                ExecutionOption.PREVIOUS -> showPreviousQuote(it)
             }
         }
     }
@@ -72,7 +72,7 @@ class QuotesWorker @AssistedInject constructor(
             )
             updateShownQuote(it)
         }
-        localDataSource.quoteChangeOption = Options.REGULAR.name
+        localDataSource.quoteChangeOption = ExecutionOption.REGULAR.name
     }
 
     private suspend fun showPreviousQuote(quotes: List<SelectedQuoteDataModel>) {
@@ -91,7 +91,7 @@ class QuotesWorker @AssistedInject constructor(
             )
             updateShownQuote(it)
         }
-        localDataSource.quoteChangeOption = Options.REGULAR.name
+        localDataSource.quoteChangeOption = ExecutionOption.REGULAR.name
     }
 
     private suspend fun updateShownQuote(quote: SelectedQuoteDataModel) {

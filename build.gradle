@@ -14,6 +14,10 @@ buildscript {
         hilt_android_version = "hilt-android:$hilt_version"
         hilt_android_compiler_version = "hilt-android-compiler:$hilt_version"
 
+        // worker
+        worker_version = '2.8.0'
+        hilt_worker_version = '1.0.0'
+
         // coroutines
         kotlinx_coroutines_core_version = '1.6.4'
 

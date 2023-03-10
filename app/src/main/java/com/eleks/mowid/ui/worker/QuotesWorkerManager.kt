@@ -2,10 +2,10 @@ package com.eleks.mowid.ui.worker
 
 interface QuotesWorkerManager {
 
-    fun execute(options: Options)
+    fun execute(option: ExecutionOption)
 }
 
-enum class Options {
+enum class ExecutionOption {
     REGULAR,
     PREVIOUS,
     NEXT

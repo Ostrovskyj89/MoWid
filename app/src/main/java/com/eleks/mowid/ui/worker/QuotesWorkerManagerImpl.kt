@@ -10,9 +10,9 @@ class QuotesWorkerManagerImpl @Inject constructor(
     private val localDataSource: LocalDataSource
 ) : QuotesWorkerManager {
 
-    override fun execute(options: Options) = enqueueWorker(options)
+    override fun execute(option: ExecutionOption) = enqueueWorker(option)
 
-    private fun enqueueWorker(option: Options) {
+    private fun enqueueWorker(option: ExecutionOption) {
         workManager.enqueueUniquePeriodicWork(
             QuotesWorker.TAG,
             ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
@@ -20,7 +20,7 @@ class QuotesWorkerManagerImpl @Inject constructor(
         )
     }
 
-    private fun buildRequest(option: Options): PeriodicWorkRequest {
+    private fun buildRequest(option: ExecutionOption): PeriodicWorkRequest {
         saveOption(option)
         // TODO change repeatInterval value when settings screen will be ready
         return PeriodicWorkRequestBuilder<QuotesWorker>(20, TimeUnit.MINUTES)
@@ -29,7 +29,7 @@ class QuotesWorkerManagerImpl @Inject constructor(
             .build()
     }
 
-    private fun saveOption(option: Options) {
+    private fun saveOption(option: ExecutionOption) {
         localDataSource.quoteChangeOption = option.name
     }
 

@@ -3,7 +3,7 @@ package com.eleks.mowid
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import com.eleks.mowid.ui.worker.Options
+import com.eleks.mowid.ui.worker.ExecutionOption
 import com.eleks.mowid.ui.worker.QuotesWorkerManager
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -24,6 +24,6 @@ class MoWidApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        workerManager.execute(Options.REGULAR)
+        workerManager.execute(ExecutionOption.REGULAR)
     }
 }

@@ -5,7 +5,7 @@ import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import com.eleks.mowid.di.ActionCallBackEntryPoint
-import com.eleks.mowid.ui.worker.Options
+import com.eleks.mowid.ui.worker.ExecutionOption
 import dagger.hilt.android.EntryPointAccessors
 
 class LeftArrowClickAction : ActionCallback {
@@ -16,7 +16,7 @@ class LeftArrowClickAction : ActionCallback {
     ) {
         val workManager =
             EntryPointAccessors.fromApplication<ActionCallBackEntryPoint>(context).workManager()
-        workManager.execute(Options.PREVIOUS)
+        workManager.execute(ExecutionOption.PREVIOUS)
     }
 }
 
@@ -29,6 +29,6 @@ class RightArrowClickAction : ActionCallback {
     ) {
         val workManager =
             EntryPointAccessors.fromApplication<ActionCallBackEntryPoint>(context).workManager()
-        workManager.execute(Options.NEXT)
+        workManager.execute(ExecutionOption.NEXT)
     }
 }
