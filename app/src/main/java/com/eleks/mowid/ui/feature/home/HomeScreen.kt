@@ -111,19 +111,6 @@ fun ScreenContent(
 ) {
 
     var showMenu by remember { mutableStateOf(false) }
-    var openDialog by remember { mutableStateOf(false) }
-
-    if (openDialog) {
-        AppAlertDialog(
-            onConfirmButtonClicked = {
-                sendMainEvent(MainEvent.SignIn)
-                openDialog = false
-            },
-            onDismissButtonClicked = {
-                openDialog = false
-            }
-        )
-    }
 
     BottomSheetScaffold(
         sheetContent = {
@@ -174,11 +161,7 @@ fun ScreenContent(
                 floatingActionButton = {
                     if (state.isLoading.not()) AppFloatingActionButton(
                         onClick = {
-                            if (isUserAlreadyLogin()) {
-                                sendEvent(HomeEvent.ShowAddGroupModal)
-                            } else {
-                                openDialog = true
-                            }
+                            sendEvent(HomeEvent.ShowAddGroupModal)
                         }
                     ) else Unit
                 }

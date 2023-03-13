@@ -28,7 +28,6 @@ import com.eleks.mowid.ui.composable.*
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffold
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
-import com.eleks.mowid.ui.feature.home.HomeEvent
 import com.eleks.mowid.ui.feature.home.composable.BottomSheet
 import com.eleks.mowid.ui.feature.main.MainEvent
 import com.eleks.mowid.ui.feature.main.MainViewModel
@@ -81,11 +80,7 @@ fun QuotesScreen(
                         bottomSheetScaffoldState.bottomSheetState.collapse()
                     }
                 }
-                is QuotesEvent.QuoteItemChecked -> Toast.makeText(
-                    context,
-                    "item checked, unchecked",
-                    Toast.LENGTH_SHORT
-                ).show()
+                is QuotesEvent.QuoteItemChecked -> {}
                 QuotesEvent.HideAddQuoteModal -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
@@ -119,19 +114,6 @@ fun ScreenContent(
 ) {
 
     var showMenu by remember { mutableStateOf(false) }
-    var openDialog by remember { mutableStateOf(false) }
-
-    if (openDialog) {
-        AppAlertDialog(
-            onConfirmButtonClicked = {
-                sendMainEvent(MainEvent.SignIn)
-                openDialog = false
-            },
-            onDismissButtonClicked = {
-                openDialog = false
-            }
-        )
-    }
 
     BottomSheetScaffold(
         sheetContent = {
@@ -192,11 +174,7 @@ fun ScreenContent(
                 floatingActionButton = {
                     if (state.isLoading.not() && state.quotes.isNotEmpty()) AppFloatingActionButton(
                         onClick = {
-                            if (isUserAlreadyLogin()) {
-                                sendEvent(QuotesEvent.ShowAddQuoteModal)
-                            } else {
-                                openDialog = true
-                            }
+                            sendEvent(QuotesEvent.ShowAddQuoteModal)
                         }
                     ) else Unit
                 }
@@ -207,28 +185,20 @@ fun ScreenContent(
                     when {
                         state.isLoading -> AppProgress()
                         state.quotes.isEmpty() -> EmptyState {
-                            if (isUserAlreadyLogin()) {
-                                sendEvent(QuotesEvent.ShowAddQuoteModal)
-                            } else {
-                                openDialog = true
-                            }
+                            sendEvent(QuotesEvent.ShowAddQuoteModal)
                         }
                         else -> QuotesList(
                             quotes = state.quotes,
                             onCheckedChange = { id, checked ->
-                                if (isUserAlreadyLogin()) {
-                                    val quote = state.quotes.firstOrNull { it.id == id }
-                                    sendEvent(
-                                        QuotesEvent.QuoteItemChecked(
-                                            quoteId = id,
-                                            quote = quote?.quote ?: "",
-                                            author = quote?.author,
-                                            checked = checked
-                                        )
+                                val quote = state.quotes.firstOrNull { it.id == id }
+                                sendEvent(
+                                    QuotesEvent.QuoteItemChecked(
+                                        quoteId = id,
+                                        quote = quote?.quote ?: "",
+                                        author = quote?.author,
+                                        checked = checked
                                     )
-                                } else {
-                                    openDialog = true
-                                }
+                                )
                             }
                         )
                     }
