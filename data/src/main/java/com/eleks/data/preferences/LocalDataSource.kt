@@ -5,4 +5,6 @@ interface LocalDataSource {
     var testValue: Boolean
 
     var quoteChangeOption: String?
+
+    var token: String
 }

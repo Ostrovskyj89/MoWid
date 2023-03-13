@@ -20,6 +20,11 @@ class LocalDataSourceImpl @Inject constructor(val sharedPreferences: SharedPrefe
         set(value) = commit {
             putString(QUOTE_CHANGE_OPTION, value)
         }
+    override var token: String
+        get() = sharedPreferences.getString(TOKEN, "") ?: ""
+        set(value) = commit {
+            putString(TOKEN, value)
+        }
 
 
     @SuppressLint("ApplySharedPref")
@@ -33,6 +38,7 @@ class LocalDataSourceImpl @Inject constructor(val sharedPreferences: SharedPrefe
     companion object {
         private const val TEST_VALUE = "TEST_VALUE"
         private const val QUOTE_CHANGE_OPTION = "QUOTE_CHANGE_OPTION"
+        private const val TOKEN = "TOKEN"
 
     }
 }
