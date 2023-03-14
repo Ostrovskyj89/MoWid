@@ -161,7 +161,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                                 }
                             }
                     } else {
-                        currentDocument.update("quotesCount", FieldValue.increment(1))
+                        currentDocument.update(QUOTES_COUNT_FIELD, FieldValue.increment(1))
                     }
                 }
             }
@@ -191,13 +191,13 @@ class FirebaseDataSourceImpl @Inject constructor(
                                 .addOnFailureListener { exception ->
                                     continuation.resume(ResultDataModel.error(exception)) {}
                                 }
-                            currentDocument.update("selectedQuotesCount", FieldValue.increment(1))
+                            currentDocument.update(SELECTED_QUOTES_COUNT_FIELD, FieldValue.increment(1))
                         } else {
                             currentDocument
                                 .collection("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
                                 .document(quote.id ?: "")
                                 .delete()
-                            currentDocument.update("selectedQuotesCount", FieldValue.increment(-1))
+                            currentDocument.update(SELECTED_QUOTES_COUNT_FIELD, FieldValue.increment(-1))
                         }
                     } else {
                         currentDocument.set(
@@ -247,7 +247,7 @@ class FirebaseDataSourceImpl @Inject constructor(
             .document(groupId)
             .collection("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
             .document(quoteId)
-            .update("shownAt", shownTime)
+            .update(SHOWN_AT_FIELD, shownTime)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -274,7 +274,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                 .document(authInstance.currentUser?.uid ?: "_")
                 .get()
                 .addOnCompleteListener { snapShot ->
-                    continuation.resume(snapShot.result.data?.get("token") as? String, {})
+                    continuation.resume(snapShot.result.data?.get(TOKEN_FIELD) as? String, {})
                 }
                 .addOnFailureListener {
                     continuation.resume(null, {})
@@ -505,11 +505,15 @@ class FirebaseDataSourceImpl @Inject constructor(
     }
 
     companion object {
-        const val COLLECTION_PERSONAL = "personal"
-        const val USERS_COLLECTION = "users"
-        const val COLLECTION_SELECTION = "selection"
-        const val COLLECTION_GROUPS = "groups"
-        const val COLLECTION_QUOTES = "quotes"
-        const val COLLECTION_SELECTED_QUOTES = "selectedquotes"
+        private const val COLLECTION_PERSONAL = "personal"
+        private const val USERS_COLLECTION = "users"
+        private const val COLLECTION_SELECTION = "selection"
+        private const val COLLECTION_GROUPS = "groups"
+        private const val COLLECTION_QUOTES = "quotes"
+        private const val COLLECTION_SELECTED_QUOTES = "selectedquotes"
+        private const val TOKEN_FIELD = "token"
+        private const val SHOWN_AT_FIELD = "shownAt"
+        private const val SELECTED_QUOTES_COUNT_FIELD = "selectedQuotesCount"
+        private const val QUOTES_COUNT_FIELD = "quotesCount"
     }
 }
