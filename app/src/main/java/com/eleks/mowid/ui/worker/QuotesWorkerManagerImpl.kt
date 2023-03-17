@@ -22,8 +22,7 @@ class QuotesWorkerManagerImpl @Inject constructor(
 
     private fun buildRequest(option: ExecutionOption): PeriodicWorkRequest {
         saveOption(option)
-        // TODO change repeatInterval value when settings screen will be ready
-        return PeriodicWorkRequestBuilder<QuotesWorker>(20, TimeUnit.MINUTES)
+        return PeriodicWorkRequestBuilder<QuotesWorker>(localDataSource.frequency, TimeUnit.HOURS)
             .addTag(QuotesWorker.TAG)
             .setConstraints(getDRMConstraints())
             .build()

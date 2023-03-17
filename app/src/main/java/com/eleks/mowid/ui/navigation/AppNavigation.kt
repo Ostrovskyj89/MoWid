@@ -21,9 +21,13 @@ fun AppNavigation(activityViewModel: MainViewModel) {
         composable(
             route = Navigation.Route.HOME.route
         ) {
-            HomeScreenDestination(activityViewModel) { groupId, groupName ->
-                navController.navigate(Navigation.Route.Quotes.createRoute(groupId, groupName))
-            }
+            HomeScreenDestination(
+                activityViewModel = activityViewModel,
+                onNavigateToQuotes = { groupId, groupName ->
+                    navController.navigate(Navigation.Route.Quotes.createRoute(groupId, groupName))
+                },
+                onNavigateToSettings = { navController.navigate(Navigation.Route.Settings.route) }
+            )
         }
 
         composable(
@@ -38,9 +42,18 @@ fun AppNavigation(activityViewModel: MainViewModel) {
             )
         ) { backStackEntry ->
             val groupName = requireNotNull(backStackEntry.arguments?.getString(GROUP_NAME))
-            QuotesScreenDestination(activityViewModel = activityViewModel, groupName = groupName) {
-                navController.navigateUp()
-            }
+            QuotesScreenDestination(
+                activityViewModel = activityViewModel,
+                groupName = groupName,
+                onBackClicked = { navController.navigateUp() },
+                onNavigateToSettings = { navController.navigate(Navigation.Route.Settings.route) }
+            )
+        }
+
+        composable(
+            route = Navigation.Route.Settings.route
+        ) {
+            SettingsScreenDestination { navController.navigateUp() }
         }
     }
 }
@@ -56,5 +69,7 @@ object Navigation {
         object Quotes : Route("Quotes/{$GROUP_ID}/{$GROUP_NAME}") {
             fun createRoute(groupId: String, groupName: String) = "Quotes/$groupId/$groupName"
         }
+
+        object Settings : Route("Settings")
     }
 }

@@ -26,8 +26,8 @@ fun EmptyState(
         verticalArrangement = Arrangement.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.imag_empty_state),
-            contentDescription = "empty state"
+            painter = painterResource(id = R.drawable.img_empty_state),
+            contentDescription = "empty state",
         )
         Text(
             modifier = Modifier.padding(horizontal = 42.dp).padding(top = 180.dp),

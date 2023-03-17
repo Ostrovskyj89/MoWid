@@ -43,7 +43,8 @@ fun QuotesScreen(
     viewModel: QuotesViewModel,
     activityViewModel: MainViewModel,
     groupName: String,
-    onBackClicked: () -> Unit
+    onBackClicked: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
     val state: QuotesState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -98,7 +99,8 @@ fun QuotesScreen(
         sendEvent = viewModel::setEvent,
         sendMainEvent = activityViewModel::setEvent,
         isUserAlreadyLogin = activityViewModel::isUserAlreadyLogIn,
-        bottomSheetState = bottomSheetScaffoldState
+        bottomSheetState = bottomSheetScaffoldState,
+        onNavigateToSettings = onNavigateToSettings
     )
 }
 
@@ -110,7 +112,8 @@ fun ScreenContent(
     sendEvent: (QuotesEvent) -> Unit,
     sendMainEvent: (MainEvent) -> Unit,
     isUserAlreadyLogin: () -> Boolean,
-    bottomSheetState: BottomSheetScaffoldState
+    bottomSheetState: BottomSheetScaffoldState,
+    onNavigateToSettings: () -> Unit
 ) {
 
     var showMenu by remember { mutableStateOf(false) }
@@ -157,7 +160,8 @@ fun ScreenContent(
                                 expanded = showMenu,
                                 onDismissRequest = { showMenu = false },
                                 sendEvent = sendMainEvent,
-                                isUserLogIn = isUserAlreadyLogin()
+                                isUserLogIn = isUserAlreadyLogin(),
+                                onSettingsClicked = onNavigateToSettings
                             )
                         },
 
@@ -258,7 +262,8 @@ fun ScreenContentPreview() {
             sendEvent = {},
             sendMainEvent = {},
             isUserAlreadyLogin = { false },
-            bottomSheetState = rememberBottomSheetScaffoldState()
+            bottomSheetState = rememberBottomSheetScaffoldState(),
+            onNavigateToSettings = {}
         )
     }
 }
