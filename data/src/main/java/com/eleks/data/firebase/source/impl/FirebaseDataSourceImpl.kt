@@ -52,6 +52,14 @@ class FirebaseDataSourceImpl @Inject constructor(
         replay = 1
     )
 
+    private val _frequenciesFlow = MutableSharedFlow<ResultDataModel<List<FrequencyDataModel>>>(
+        replay = 1
+    )
+
+    private val _userFrequencyFlow = MutableSharedFlow<ResultDataModel<Long>>(
+        replay = 1
+    )
+
     private var currentGroupId: String? = null
 
     override val groupsFlow = _groupsFlow.asSharedFlow()
@@ -65,6 +73,10 @@ class FirebaseDataSourceImpl @Inject constructor(
     override val quotesFlow = _quotesFlow.asSharedFlow()
 
     override val userQuotesFlow = _userQuotesFlow.asSharedFlow()
+
+    override val frequenciesFlow = _frequenciesFlow.asSharedFlow()
+
+    override val userFrequencyFlow = _userFrequencyFlow.asSharedFlow()
 
     override val currentUser
         get() = authInstance.currentUser
@@ -109,6 +121,11 @@ class FirebaseDataSourceImpl @Inject constructor(
         subscribeSelectedQuotes(groupId)
     }
 
+    override fun subscribeFrequencySettings() {
+        subscribeFrequencies()
+        subscribeUserFrequency()
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun saveNewGroup(group: GroupDataModel): ResultDataModel<GroupDataModel> =
         suspendCancellableCoroutine { continuation ->
@@ -123,6 +140,21 @@ class FirebaseDataSourceImpl @Inject constructor(
                 })
                 .addOnSuccessListener {
                     continuation.resume(ResultDataModel.success(group)) {}
+                }
+                .addOnFailureListener { exception ->
+                    continuation.resume(ResultDataModel.error(exception)) {}
+                }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun updateUserFrequency(settingId: Long): ResultDataModel<Long> =
+        suspendCancellableCoroutine { continuation ->
+            dbInstance.collection(COLLECTION_PERSONAL)
+                .document(localDataSource.token)
+                .set(hashMapOf(FREQUENCY_FIELD to settingId))
+                .addOnSuccessListener {
+                    localDataSource.frequency = settingId
+                    continuation.resume(ResultDataModel.success(settingId)) {}
                 }
                 .addOnFailureListener { exception ->
                     continuation.resume(ResultDataModel.error(exception)) {}
@@ -256,8 +288,8 @@ class FirebaseDataSourceImpl @Inject constructor(
         return suspendCancellableCoroutine { continuation ->
             authInstance.currentUser?.let {
                 if (token.isEmpty()) {
-                    dbInstance.collection(USERS_COLLECTION).document(it.uid)
-                        .set(hashMapOf("token" to localDataSource.token))
+                    dbInstance.collection(COLLECTION_USER).document(it.uid)
+                        .set(hashMapOf(TOKEN_FIELD to localDataSource.token))
                         .addOnCompleteListener { continuation.resume(token, {}) }
                 } else {
                     localDataSource.token = token
@@ -270,7 +302,7 @@ class FirebaseDataSourceImpl @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getTokenFromUser(): String? =
         suspendCancellableCoroutine { continuation ->
-            dbInstance.collection(USERS_COLLECTION)
+            dbInstance.collection(COLLECTION_USER)
                 .document(authInstance.currentUser?.uid ?: "_")
                 .get()
                 .addOnCompleteListener { snapShot ->
@@ -427,6 +459,65 @@ class FirebaseDataSourceImpl @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
+    private fun subscribeFrequencies() {
+        launch {
+            var subscription: ListenerRegistration? = null
+            _frequenciesFlow.subscriptionCount.collect { subscribers ->
+                if (subscribers > 0) {
+                    subscription = dbInstance.collection(COLLECTION_FREQUENCY)
+                        .addSnapshotListener { value, error ->
+                            if (error != null) {
+                                _frequenciesFlow.tryEmit(ResultDataModel.error(error))
+                                return@addSnapshotListener
+                            }
+                            value?.let { snapShot ->
+                                val setting = mutableListOf<FrequencyDataModel>()
+                                for (doc in snapShot) {
+                                    setting.add(doc.toObject())
+                                }
+                                _frequenciesFlow.tryEmit(ResultDataModel.success(setting))
+                            }
+                        }
+                } else {
+                    subscription?.let {
+                        it.remove()
+                        _frequenciesFlow.resetReplayCache()
+                        cancel()
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun subscribeUserFrequency() {
+        launch {
+            var subscription: ListenerRegistration? = null
+            _userFrequencyFlow.subscriptionCount.collect { subscribers ->
+                if (subscribers > 0) {
+                    subscription = dbInstance.collection(COLLECTION_PERSONAL)
+                        .document(localDataSource.token)
+                        .addSnapshotListener { value, error ->
+                            if (error != null) {
+                                _userFrequencyFlow.tryEmit(ResultDataModel.error(error))
+                                return@addSnapshotListener
+                            }
+                            val frequency = value?.data?.get(FREQUENCY_FIELD) as? Long
+                            localDataSource.frequency = frequency ?: DEFAULT_FREQUENCY_VALUE
+                            _userFrequencyFlow.tryEmit(ResultDataModel.success(frequency))
+                        }
+                } else {
+                    subscription?.let {
+                        it.remove()
+                        _userFrequencyFlow.resetReplayCache()
+                        cancel()
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun subscribeSelectedGroups() {
         launch {
             var subscription: ListenerRegistration? = null
@@ -505,13 +596,16 @@ class FirebaseDataSourceImpl @Inject constructor(
     }
 
     companion object {
+        const val DEFAULT_FREQUENCY_VALUE = 24L
         private const val COLLECTION_PERSONAL = "personal"
-        private const val USERS_COLLECTION = "users"
+        private const val COLLECTION_USER = "users"
         private const val COLLECTION_SELECTION = "selection"
+        private const val COLLECTION_FREQUENCY = "frequency"
         private const val COLLECTION_GROUPS = "groups"
         private const val COLLECTION_QUOTES = "quotes"
         private const val COLLECTION_SELECTED_QUOTES = "selectedquotes"
         private const val TOKEN_FIELD = "token"
+        private const val FREQUENCY_FIELD = "frequency"
         private const val SHOWN_AT_FIELD = "shownAt"
         private const val SELECTED_QUOTES_COUNT_FIELD = "selectedQuotesCount"
         private const val QUOTES_COUNT_FIELD = "quotesCount"

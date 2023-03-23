@@ -7,4 +7,6 @@ interface LocalDataSource {
     var quoteChangeOption: String?
 
     var token: String
+
+    var frequency: Long
 }

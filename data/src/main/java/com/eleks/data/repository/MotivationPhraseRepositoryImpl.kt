@@ -1,10 +1,13 @@
 package com.eleks.data.repository
 
 import com.eleks.data.firebase.source.FirebaseDataSource
+import com.eleks.data.firebase.source.impl.FirebaseDataSourceImpl
 import com.eleks.data.mapper.mapToDomain
+import com.eleks.data.mapper.toDomain
 import com.eleks.data.model.*
 import com.eleks.domain.model.GroupPhraseModel
 import com.eleks.domain.model.QuoteModel
+import com.eleks.domain.model.FrequenciesModel
 import com.eleks.domain.repository.MotivationPhraseRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -54,6 +57,22 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getFrequencySettingsFlow(): Flow<FrequenciesModel> {
+        firebaseDataSource.subscribeFrequencySettings()
+        return combine(
+            firebaseDataSource.frequenciesFlow,
+            firebaseDataSource.userFrequencyFlow
+        ) { settings, userSettings ->
+            if (settings.status == Status.ERROR) {
+                throw settings.error ?: Exception("Unknown exception")
+            }
+            if (userSettings.status == Status.ERROR) {
+                throw userSettings.error ?: Exception("Unknown exception")
+            }
+            settings.data?.toDomain(userSettings.data ?: FirebaseDataSourceImpl.DEFAULT_FREQUENCY_VALUE) ?: throw Exception("Unknown exception")
+        }
+    }
+
     override suspend fun addGroup(name: String, description: String) {
         firebaseDataSource.saveNewGroup(
             GroupDataModel(
@@ -73,6 +92,10 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
                 created = format.format(Date())
             )
         )
+    }
+
+    override suspend fun updateUserFrequency(id: Long) {
+        firebaseDataSource.updateUserFrequency(id)
     }
 
     override suspend fun saveSelection(

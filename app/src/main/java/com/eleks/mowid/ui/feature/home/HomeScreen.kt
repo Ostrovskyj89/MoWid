@@ -39,7 +39,8 @@ import kotlinx.coroutines.flow.onEach
 fun HomeScreen(
     viewModel: HomeViewModel,
     activityViewModel: MainViewModel,
-    onNavigateToQuotes: (String, String) -> Unit
+    onNavigateToQuotes: (String, String) -> Unit,
+    onNavigateToSettings: () -> Unit,
 ) {
     val state: HomeState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -96,7 +97,8 @@ fun HomeScreen(
         sendEvent = viewModel::setEvent,
         sendMainEvent = activityViewModel::setEvent,
         isUserAlreadyLogin = activityViewModel::isUserAlreadyLogIn,
-        bottomSheetState = bottomSheetScaffoldState
+        bottomSheetState = bottomSheetScaffoldState,
+        onNavigateToSettings = onNavigateToSettings
     )
 }
 
@@ -107,7 +109,8 @@ fun ScreenContent(
     sendEvent: (HomeEvent) -> Unit,
     sendMainEvent: (MainEvent) -> Unit,
     isUserAlreadyLogin: () -> Boolean,
-    bottomSheetState: BottomSheetScaffoldState
+    bottomSheetState: BottomSheetScaffoldState,
+    onNavigateToSettings: () -> Unit
 ) {
 
     var showMenu by remember { mutableStateOf(false) }
@@ -153,7 +156,8 @@ fun ScreenContent(
                                 expanded = showMenu,
                                 onDismissRequest = { showMenu = false },
                                 sendEvent = sendMainEvent,
-                                isUserLogIn = isUserAlreadyLogin()
+                                isUserLogIn = isUserAlreadyLogin(),
+                                onSettingsClicked = onNavigateToSettings
                             )
                         }
                     )
@@ -234,7 +238,8 @@ fun ScreenContentPreview() {
             sendEvent = {},
             sendMainEvent = {},
             isUserAlreadyLogin = { false },
-            bottomSheetState = rememberBottomSheetScaffoldState()
+            bottomSheetState = rememberBottomSheetScaffoldState(),
+            onNavigateToSettings = {}
         )
     }
 }

@@ -2,7 +2,7 @@ package com.eleks.domain.repository
 
 import com.eleks.domain.model.GroupPhraseModel
 import com.eleks.domain.model.QuoteModel
-import com.eleks.domain.model.UserModel
+import com.eleks.domain.model.FrequenciesModel
 import kotlinx.coroutines.flow.Flow
 
 interface MotivationPhraseRepository {
@@ -11,9 +11,13 @@ interface MotivationPhraseRepository {
 
     fun getQuotes(groupId: String): Flow<List<QuoteModel>>
 
+    fun getFrequencySettingsFlow() : Flow<FrequenciesModel>
+
     suspend fun addGroup(name: String, description: String)
 
     suspend fun addQuote(groupId: String, quote: String, author: String)
+
+    suspend fun updateUserFrequency(id: Long)
 
     suspend fun saveSelection(
         groupId: String,

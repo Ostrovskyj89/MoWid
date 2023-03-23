@@ -7,7 +7,12 @@ import com.eleks.mowid.ui.feature.quotes.QuotesScreen
 import com.eleks.mowid.ui.feature.quotes.QuotesViewModel
 
 @Composable
-fun QuotesScreenDestination(activityViewModel: MainViewModel, groupName: String, onBackClicked: () -> Unit) {
+fun QuotesScreenDestination(
+    activityViewModel: MainViewModel,
+    groupName: String,
+    onBackClicked: () -> Unit,
+    onNavigateToSettings: () -> Unit
+) {
     val viewModel: QuotesViewModel = hiltViewModel()
-    QuotesScreen(viewModel, activityViewModel, groupName, onBackClicked)
+    QuotesScreen(viewModel, activityViewModel, groupName, onBackClicked, onNavigateToSettings)
 }

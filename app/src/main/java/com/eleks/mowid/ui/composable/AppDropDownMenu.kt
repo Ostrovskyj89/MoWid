@@ -13,6 +13,7 @@ fun AppDropDownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     sendEvent: (MainEvent) -> Unit,
+    onSettingsClicked: () -> Unit,
     isUserLogIn: Boolean
 ) {
     DropdownMenu(
@@ -35,6 +36,13 @@ fun AppDropDownMenu(
                     MainEvent.SignIn
                 }
                 sendEvent(event)
+                onDismissRequest()
+            })
+
+        DropdownMenuItem(
+            text = { Text(stringResource(id = R.string.title_settings)) },
+            onClick = {
+                onSettingsClicked()
                 onDismissRequest()
             })
     }

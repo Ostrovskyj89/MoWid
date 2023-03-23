@@ -24,4 +24,11 @@
     <string name="label_sign_out">"SignOut"</string>
     <string name="label_cancel">"Cancel"</string>
     <string name="sign_in_alert_dialog_text">"To continue you should SignIn"</string>
+
+    // Settings
+    <string name="title_settings">Settings</string>
+    <string name="label_apply">Apply</string>
+    <string name="label_frequency">Frequency</string>
+    <string name="label_applied">Applied</string>
+
 </resources>

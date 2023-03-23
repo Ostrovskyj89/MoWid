@@ -22,6 +22,10 @@ interface FirebaseDataSource {
 
     val userQuotesFlow: Flow<ResultDataModel<List<QuoteDataModel>>>
 
+    val frequenciesFlow: Flow<ResultDataModel<List<FrequencyDataModel>>>
+
+    val userFrequencyFlow: Flow<ResultDataModel<Long>>
+
     val currentUser: FirebaseUser?
 
     fun signInSuccess()
@@ -30,11 +34,15 @@ interface FirebaseDataSource {
 
     fun subscribeAllGroupsQuotes(groupId: String)
 
+    fun subscribeFrequencySettings()
+
     suspend fun getSelectedQuotes(): ResultDataModel<List<SelectedQuoteDataModel>>
 
     suspend fun updateSelectedQuote(groupId: String, quoteId: String, shownTime: Long)
 
     suspend fun saveNewGroup(group: GroupDataModel): ResultDataModel<GroupDataModel>
+
+    suspend fun updateUserFrequency(settingId: Long): ResultDataModel<Long>
 
     suspend fun saveNewQuote(
         groupId: String,
