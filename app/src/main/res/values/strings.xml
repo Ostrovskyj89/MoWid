@@ -12,8 +12,8 @@
     // Quotes screen
     <string name="title_add_quote">Add quote</string>
     <string name="label_quote">Quote</string>
-    <string name="label_author">Author</string>
-    <string name="label_empty_state">Поки немає жодної цитати.. Натисни ось цю кнопочку нижче щоб додати першу</string>
+    <string name="label_author">Author(optional)</string>
+    <string name="label_empty_state">There are no quotes yet.. Click this button below to add the first one</string>
 
     // SignIn, SignOut
     <string name="label_sign_in_success">SignIn Complete</string>
@@ -30,5 +30,13 @@
     <string name="label_apply">Apply</string>
     <string name="label_frequency">Frequency</string>
     <string name="label_applied">Applied</string>
+
+    //Frequencies
+    <string name="frequency_id_168">1 time a week</string>
+    <string name="frequency_id_120">1 time in 5 days</string>
+    <string name="frequency_id_48">1 time in 2 days</string>
+    <string name="frequency_id_24">1 time a day</string>
+    <string name="frequency_id_12">2 times a day</string>
+    <string name="frequency_id_6">4 times a day</string>
 
 </resources>

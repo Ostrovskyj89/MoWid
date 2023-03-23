@@ -131,7 +131,7 @@ fun Content(
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor(),
-                    value = selectedFrequency?.value ?: "",
+                    value = selectedFrequency?.value?.let { stringResource(id = it) } ?: "",
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(id = R.string.label_frequency)) },
@@ -152,7 +152,7 @@ fun Content(
                 ) {
                     state.frequencies.forEach { option ->
                         DropdownMenuItem(
-                            text = { Text(option.value) },
+                            text = { Text(stringResource(id = option.value)) },
                             onClick = {
                                 selectedFrequency = option
                                 showDropDown = false
@@ -166,7 +166,8 @@ fun Content(
                 onClick = {
                     sendEvent(
                         SettingsEvent.OnFrequencyChanged(
-                            selectedFrequency?.frequencyId ?: FirebaseDataSourceImpl.DEFAULT_FREQUENCY_VALUE
+                            selectedFrequency?.frequencyId
+                                ?: FirebaseDataSourceImpl.DEFAULT_FREQUENCY_VALUE
                         )
                     )
                 }
@@ -190,7 +191,7 @@ fun ScreenContentPreview() {
         val list = listOf(
             FrequencyUIModel(
                 frequencyId = 0,
-                value = "1 раз за день",
+                value = R.string.frequency_id_24,
             )
         )
         ScreenContent(
@@ -198,7 +199,7 @@ fun ScreenContentPreview() {
                 isLoading = false,
                 selectedFrequency = FrequencyUIModel(
                     frequencyId = 0,
-                    value = "1 раз за день",
+                    value = R.string.frequency_id_24,
                 ),
                 frequencies = list,
             ),

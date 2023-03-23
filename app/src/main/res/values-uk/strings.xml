@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">MoWid</string>
+
+    <string name="title_home">Mowid</string>
+    <string name="label_add">Додати</string>
+
+    // Groups screen
+    <string name="title_add_group">Додати групу</string>
+    <string name="label_group">Група</string>
+    <string name="label_description">Опис</string>
+
+    // Quotes screen
+    <string name="title_add_quote">Додати цитату</string>
+    <string name="label_quote">Цитата</string>
+    <string name="label_author">Автор(необовязково)</string>
+    <string name="label_empty_state">Поки немає жодної цитати.. Натисни ось цю кнопочку нижче щоб додати першу</string>
+
+    // SignIn, SignOut
+    <string name="label_sign_in_success">Авторизація закінчена</string>
+    <string name="label_sign_in_error">"Помилка авторизації"</string>
+    <string name="label_sign_out_success">"Вихід з акаунту підтверджено"</string>
+
+    <string name="label_sign_in">"Авторизація"</string>
+    <string name="label_sign_out">"Вихід з акаунту"</string>
+    <string name="label_cancel">"Відмінити"</string>
+    <string name="sign_in_alert_dialog_text">"Що б продовжити ви повинні авторизуватися"</string>
+
+    // Settings
+    <string name="title_settings">Налаштування</string>
+    <string name="label_apply">Застосувати</string>
+    <string name="label_frequency">Частота оновлення</string>
+    <string name="label_applied">Застосовано</string>
+
+    //Frequencies
+    <string name="frequency_id_168">1 раз на тиждень</string>
+    <string name="frequency_id_120">1 раз у 5 днів</string>
+    <string name="frequency_id_48">1 раз у 2 дні</string>
+    <string name="frequency_id_24">1 раз в день</string>
+    <string name="frequency_id_12">2 рази за день</string>
+    <string name="frequency_id_6">4 рази за день</string>
+
+</resources>
