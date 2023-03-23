@@ -1,36 +1,46 @@
 package com.eleks.mowid.model
 
+import androidx.annotation.StringRes
+import com.eleks.data.model.*
 import com.eleks.domain.model.FrequencyModel
 import com.eleks.domain.model.FrequenciesModel
+import com.eleks.mowid.R
 
 data class FrequenciesUIModel(
-    val selectedSetting: FrequencyUIModel?,
-    val settings: List<FrequencyUIModel>
+    val selectedFrequency: FrequencyUIModel?,
+    val frequencies: List<FrequencyUIModel>
 )
 
 data class FrequencyUIModel(
     val frequencyId: Long,
-    val value: String
+    @StringRes val value: Int
 )
 
 fun FrequenciesUIModel.toDomainModel() = FrequenciesModel(
-    selectedFrequency = selectedSetting?.toDomainModel(),
-    settings = settings.toDomainModel()
+    selectedFrequency = selectedFrequency?.toDomainModel(),
+    frequencies = frequencies.toDomainModel()
 )
 
 fun FrequenciesModel.toUIModel() = FrequenciesUIModel(
-    selectedSetting = selectedFrequency?.toUIModel(),
-    settings = settings.toUIModel()
+    selectedFrequency = selectedFrequency?.toUIModel(),
+    frequencies = frequencies.toUIModel()
 )
 
 fun FrequencyUIModel.toDomainModel() = FrequencyModel(
     frequencyId = frequencyId,
-    value = value
 )
 
 fun FrequencyModel.toUIModel() = FrequencyUIModel(
     frequencyId = frequencyId,
-    value = value
+    value = when(frequencyId) {
+        FREQUENCY_ID_168 -> R.string.frequency_id_168
+        FREQUENCY_ID_120 -> R.string.frequency_id_120
+        FREQUENCY_ID_48 -> R.string.frequency_id_48
+        FREQUENCY_ID_24 -> R.string.frequency_id_24
+        FREQUENCY_ID_12 -> R.string.frequency_id_12
+        FREQUENCY_ID_6 -> R.string.frequency_id_6
+        else -> R.string.frequency_id_24
+    }
 )
 
 fun List<FrequencyUIModel>.toDomainModel() = map { it.toDomainModel() }

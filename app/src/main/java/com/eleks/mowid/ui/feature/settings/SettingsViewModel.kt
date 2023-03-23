@@ -32,7 +32,7 @@ class SettingsViewModel @Inject constructor(
                     copy(
                         isLoading = false,
                         selectedFrequency = data.selectedFrequency?.toUIModel(),
-                        frequencies = data.settings.toUIModel().sortedBy { it.frequencyId }
+                        frequencies = data.frequencies.toUIModel().sortedBy { it.frequencyId }
                     )
                 }
             }
@@ -64,7 +64,10 @@ class SettingsViewModel @Inject constructor(
 
     override fun createInitialState(): SettingsState = SettingsState(
         isLoading = true,
-        selectedFrequency = FrequencyUIModel(FirebaseDataSourceImpl.DEFAULT_FREQUENCY_VALUE, ""),
+        selectedFrequency = FrequencyUIModel(
+            FirebaseDataSourceImpl.DEFAULT_FREQUENCY_VALUE,
+            R.string.frequency_id_24
+        ),
         frequencies = emptyList()
     )
 }
