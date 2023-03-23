@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val quotesWorkerManager: QuotesWorkerManager,
-    private val interactor: MotivationPhraseInteractor
+    private val interactor: MotivationPhraseInteractor,
 ) : BaseViewModel<SettingsState, SettingsEvent, SettingsEffect>() {
 
     init {

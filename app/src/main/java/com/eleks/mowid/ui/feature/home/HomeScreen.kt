@@ -40,7 +40,7 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     activityViewModel: MainViewModel,
     onNavigateToQuotes: (String, String) -> Unit,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
 ) {
     val state: HomeState by viewModel.uiState.collectAsStateWithLifecycle()
 
