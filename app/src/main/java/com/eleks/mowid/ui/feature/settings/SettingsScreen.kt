@@ -191,7 +191,7 @@ fun ScreenContentPreview() {
         val list = listOf(
             FrequencyUIModel(
                 frequencyId = 0,
-                value = R.string.frequency_id_24,
+                value = R.string.once_a_day,
             )
         )
         ScreenContent(
@@ -199,7 +199,7 @@ fun ScreenContentPreview() {
                 isLoading = false,
                 selectedFrequency = FrequencyUIModel(
                     frequencyId = 0,
-                    value = R.string.frequency_id_24,
+                    value = R.string.once_a_day,
                 ),
                 frequencies = list,
             ),
