@@ -32,11 +32,11 @@
     <string name="label_applied">Applied</string>
 
     //Frequencies
-    <string name="frequency_id_168">1 time a week</string>
-    <string name="frequency_id_120">1 time in 5 days</string>
-    <string name="frequency_id_48">1 time in 2 days</string>
-    <string name="frequency_id_24">1 time a day</string>
-    <string name="frequency_id_12">2 times a day</string>
-    <string name="frequency_id_6">4 times a day</string>
+    <string name="once_a_week">1 time a week</string>
+    <string name="once_in_a_five_days">1 time in 5 days</string>
+    <string name="once_in_two_days">1 time in 2 days</string>
+    <string name="once_a_day">1 time a day</string>
+    <string name="twice_a_day">2 times a day</string>
+    <string name="fours_a_day">4 times a day</string>
 
 </resources>

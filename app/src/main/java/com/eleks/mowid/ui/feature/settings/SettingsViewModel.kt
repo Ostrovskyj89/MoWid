@@ -1,11 +1,9 @@
 package com.eleks.mowid.ui.feature.settings
 
 import androidx.lifecycle.viewModelScope
-import com.eleks.data.firebase.source.impl.FirebaseDataSourceImpl
 import com.eleks.domain.intearactor.MotivationPhraseInteractor
 import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.BaseViewModel
-import com.eleks.mowid.model.FrequencyUIModel
 import com.eleks.mowid.model.toUIModel
 import com.eleks.mowid.ui.worker.ExecutionOption
 import com.eleks.mowid.ui.worker.QuotesWorkerManager
@@ -64,10 +62,7 @@ class SettingsViewModel @Inject constructor(
 
     override fun createInitialState(): SettingsState = SettingsState(
         isLoading = true,
-        selectedFrequency = FrequencyUIModel(
-            FirebaseDataSourceImpl.DEFAULT_FREQUENCY_VALUE,
-            R.string.frequency_id_24
-        ),
+        selectedFrequency = null,
         frequencies = emptyList()
     )
 }

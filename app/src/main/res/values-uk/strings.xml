@@ -32,11 +32,11 @@
     <string name="label_applied">Застосовано</string>
 
     //Frequencies
-    <string name="frequency_id_168">1 раз на тиждень</string>
-    <string name="frequency_id_120">1 раз у 5 днів</string>
-    <string name="frequency_id_48">1 раз у 2 дні</string>
-    <string name="frequency_id_24">1 раз в день</string>
-    <string name="frequency_id_12">2 рази за день</string>
-    <string name="frequency_id_6">4 рази за день</string>
+    <string name="once_a_week">1 раз на тиждень</string>
+    <string name="once_in_a_five_days">1 раз у 5 днів</string>
+    <string name="once_in_two_days">1 раз у 2 дні</string>
+    <string name="once_a_day">1 раз в день</string>
+    <string name="twice_a_day">2 рази за день</string>
+    <string name="fours_a_day">4 рази за день</string>
 
 </resources>
