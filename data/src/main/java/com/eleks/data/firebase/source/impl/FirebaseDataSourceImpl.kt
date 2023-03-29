@@ -201,6 +201,90 @@ class FirebaseDataSourceImpl @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun deleteQuote(
+        groupId: String,
+        quoteId: String,
+        isSelected: Boolean
+    ): ResultDataModel<String> {
+        mutex.withLock {
+            return suspendCancellableCoroutine { continuation ->
+                deleteQuote(
+                    groupId = groupId,
+                    quoteId = quoteId,
+                    isSelected = isSelected,
+                    onSuccess = {
+                        continuation.resume(ResultDataModel.success(quoteId)) {}
+                    },
+                    onFailure = {
+                        continuation.resume(ResultDataModel.error(it)) {}
+                    }
+                )
+            }
+        }
+    }
+
+    private fun deleteQuote(
+        groupId: String,
+        quoteId: String,
+        isSelected: Boolean,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit,
+    ) {
+        val currentDocument = dbInstance.collection(COLLECTION_PERSONAL)
+            .document(localDataSource.token)
+            .collection(COLLECTION_GROUPS)
+            .document(groupId)
+        currentDocument
+            .collection(COLLECTION_QUOTES)
+            .document(quoteId)
+            .delete()
+            .addOnSuccessListener {
+                currentDocument.update(QUOTES_COUNT_FIELD, FieldValue.increment(-1))
+                if (isSelected) removeQuoteFromSelected(groupId, quoteId)
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun deleteGroup(groupId: String): ResultDataModel<String> {
+        mutex.withLock {
+            return suspendCancellableCoroutine { continuation ->
+                val currentDocument = dbInstance.collection(COLLECTION_PERSONAL)
+                    .document(localDataSource.token)
+                    .collection(COLLECTION_GROUPS)
+                    .document(groupId)
+                currentDocument.collection(COLLECTION_QUOTES).get()
+                    .addOnSuccessListener { documents ->
+                        for (document in documents) {
+                            deleteQuote(
+                                groupId = groupId,
+                                quoteId = document.data["id"] as String,
+                                isSelected = true,
+                                onSuccess = {},
+                                onFailure = {}
+                            )
+                        }
+                        dbInstance.collection(COLLECTION_PERSONAL)
+                            .document(localDataSource.token)
+                            .collection(COLLECTION_SELECTION)
+                            .document(groupId)
+                            .delete()
+                        currentDocument.delete()
+                            .addOnSuccessListener {
+                                continuation.resume(ResultDataModel.success(groupId)) {}
+                            }
+                            .addOnFailureListener { exception ->
+                                continuation.resume(ResultDataModel.error(exception)) {}
+                            }
+                    }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun saveSelection(
         quote: SelectedQuoteDataModel,
         isSelected: Boolean
@@ -280,6 +364,22 @@ class FirebaseDataSourceImpl @Inject constructor(
             .collection("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
             .document(quoteId)
             .update(SHOWN_AT_FIELD, shownTime)
+    }
+
+    private fun removeQuoteFromSelected(groupId: String, quoteId: String) {
+        val currentDocument = dbInstance.collection(COLLECTION_PERSONAL)
+            .document(localDataSource.token)
+            .collection(COLLECTION_SELECTION)
+            .document(groupId)
+        currentDocument.collection("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
+            .document(quoteId)
+            .delete()
+            .addOnSuccessListener {
+                currentDocument.update(
+                    SELECTED_QUOTES_COUNT_FIELD,
+                    FieldValue.increment(-1)
+                )
+            }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

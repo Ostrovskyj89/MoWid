@@ -77,7 +77,8 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
         firebaseDataSource.saveNewGroup(
             GroupDataModel(
                 name = name,
-                description = description
+                description = description,
+                canBeDeleted = true
             )
         )
     }
@@ -89,13 +90,22 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
             QuoteDataModel(
                 author = author,
                 quote = quote,
-                created = format.format(Date())
+                created = format.format(Date()),
+                canBeDeleted = true
             )
         )
     }
 
     override suspend fun updateUserFrequency(id: Long) {
         firebaseDataSource.updateUserFrequency(id)
+    }
+
+    override suspend fun deleteQuote(groupId: String, quoteId: String, isSelected: Boolean) {
+        firebaseDataSource.deleteQuote(groupId, quoteId, isSelected)
+    }
+
+    override suspend fun deleteGroup(id: String) {
+        firebaseDataSource.deleteGroup(id)
     }
 
     override suspend fun saveSelection(

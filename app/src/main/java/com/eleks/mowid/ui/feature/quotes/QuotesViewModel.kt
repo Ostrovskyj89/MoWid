@@ -44,6 +44,12 @@ class QuotesViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    private fun deleteQuote(quoteId: String, isSelected: Boolean) {
+        viewModelScope.launch {
+            motivationPhraseInteractor.deleteQuote(groupId, quoteId, isSelected)
+        }
+    }
+
     override fun handleEvent(event: QuotesEvent) {
         when (event) {
             is QuotesEvent.AddQuoteClicked -> {
@@ -69,6 +75,7 @@ class QuotesViewModel @Inject constructor(
             }
             QuotesEvent.ShowAddQuoteModal -> {}
             QuotesEvent.BackButtonClicked -> {}
+            is QuotesEvent.OnItemDeleted -> deleteQuote(event.id, event.isSelected)
         }
     }
 

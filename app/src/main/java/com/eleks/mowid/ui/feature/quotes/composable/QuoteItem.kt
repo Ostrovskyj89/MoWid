@@ -1,5 +1,6 @@
 package com.eleks.mowid.ui.feature.quotes.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,9 +38,14 @@ fun QuoteListItem(
 ) {
     Row(
         modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .background(MaterialTheme.colorScheme.onPrimary)
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 12.dp)
+                .padding(start = 16.dp)
+        ) {
             Text(
                 text = quote.quote,
                 fontSize = 16.sp,
@@ -53,6 +59,9 @@ fun QuoteListItem(
             )
         }
         Column(
+            modifier = Modifier
+                .padding(vertical = 12.dp)
+                .padding(end = 16.dp)
         ) {
             Checkbox(
                 checked = checked,
@@ -74,7 +83,8 @@ fun QuoteListItemPreview() {
                 author = "Author",
                 created = "",
                 quote = "Quote",
-                isSelected = true
+                isSelected = true,
+                canBeDeleted = true
             ),
             checked = true,
             onCheckChanged = { _, _ -> }

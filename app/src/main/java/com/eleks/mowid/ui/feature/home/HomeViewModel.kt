@@ -65,7 +65,13 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
+            is HomeEvent.OnItemDeleted -> deleteGroup((event.id))
         }
     }
 
+    private fun deleteGroup(id: String) {
+        viewModelScope.launch {
+            motivationPhraseInteractor.deleteGroup(id)
+        }
+    }
 }

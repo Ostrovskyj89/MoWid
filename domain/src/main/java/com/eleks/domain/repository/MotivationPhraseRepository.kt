@@ -19,6 +19,10 @@ interface MotivationPhraseRepository {
 
     suspend fun updateUserFrequency(id: Long)
 
+    suspend fun deleteQuote(groupId: String, quoteId: String, isSelected: Boolean)
+
+    suspend fun deleteGroup(id: String)
+
     suspend fun saveSelection(
         groupId: String,
         quoteId: String,

@@ -89,6 +89,7 @@ fun QuotesScreen(
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
                 QuotesEvent.BackButtonClicked -> onBackClicked()
+                is QuotesEvent.OnItemDeleted -> {}
             }
         }.collect()
     }
@@ -203,6 +204,9 @@ fun ScreenContent(
                                         checked = checked
                                     )
                                 )
+                            },
+                            onItemDeleted = { id, isSelected  ->
+                                sendEvent(QuotesEvent.OnItemDeleted(id, isSelected))
                             }
                         )
                     }
@@ -235,21 +239,24 @@ fun ScreenContentPreview() {
                 author = "Author 1 ",
                 created = "",
                 quote = "Quote 1 ",
-                isSelected = true
+                isSelected = true,
+                canBeDeleted = true,
             ),
             QuoteUIModel(
                 id = "2",
                 author = "Author 2 ",
                 created = "",
                 quote = "Quote 2 ",
-                isSelected = true
+                isSelected = true,
+                canBeDeleted = true,
             ),
             QuoteUIModel(
                 id = "3",
                 author = "Author 3 ",
                 created = "",
                 quote = "Quote 3 ",
-                isSelected = true
+                isSelected = true,
+                canBeDeleted = true,
             )
         )
 

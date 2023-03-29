@@ -49,6 +49,10 @@ interface FirebaseDataSource {
         quote: QuoteDataModel
     ): ResultDataModel<QuoteDataModel>
 
+    suspend fun deleteQuote(groupId: String, quoteId: String, isSelected: Boolean) : ResultDataModel<String>
+
+    suspend fun deleteGroup(groupId: String) : ResultDataModel<String>
+
     suspend fun saveSelection(
         quote: SelectedQuoteDataModel,
         isSelected: Boolean

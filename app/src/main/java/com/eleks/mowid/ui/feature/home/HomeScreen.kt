@@ -87,6 +87,7 @@ fun HomeScreen(
                 is HomeEvent.AddGroupClicked -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
+                is HomeEvent.OnItemDeleted -> {}
             }
         }.collect()
     }
@@ -179,6 +180,9 @@ fun ScreenContent(
                             groupPhraseList = state.groupPhraseList,
                             onClick = {
                                 sendEvent(HomeEvent.GroupItemClicked(it))
+                            },
+                            onItemDeleted = {
+                                sendEvent(HomeEvent.OnItemDeleted(it))
                             }
                         )
                     }
@@ -212,21 +216,24 @@ fun ScreenContentPreview() {
                 name = "Group 0",
                 description = "Description 0",
                 count = 10,
-                selectedCount = 5
+                selectedCount = 5,
+                canBeDeleted = true,
             ),
             GroupPhraseUIModel(
                 id = "2",
                 name = "Group 1",
                 description = "Description 1",
                 count = 10,
-                selectedCount = 5
+                selectedCount = 5,
+                canBeDeleted = true,
             ),
             GroupPhraseUIModel(
                 id = "3",
                 name = "Group 2",
                 description = "Description 2",
                 count = 10,
-                selectedCount = 5
+                selectedCount = 5,
+                canBeDeleted = true,
             )
         )
 

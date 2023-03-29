@@ -5,5 +5,6 @@ data class QuoteModel(
     val author: String,
     val created: String,
     val quote: String,
+    val canBeDeleted: Boolean,
     val isSelected: Boolean
 )

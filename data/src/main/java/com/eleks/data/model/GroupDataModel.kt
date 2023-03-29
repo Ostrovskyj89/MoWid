@@ -5,4 +5,5 @@ data class GroupDataModel(
     val name: String? = null,
     val description: String? = null,
     var quotesCount: Int? = null,
+    val canBeDeleted: Boolean? = null
 )
