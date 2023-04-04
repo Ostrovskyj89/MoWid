@@ -19,7 +19,7 @@ import com.eleks.mowid.ui.theme.MoWidTheme
 fun HomeList(
     groupPhraseList: List<GroupPhraseUIModel>,
     onClick: (groupPhrase: GroupPhraseUIModel) -> Unit,
-    onItemDeleted: (String) -> Unit
+    onDelete: (String) -> Unit
 ) {
     LazyColumn {
         items(items = groupPhraseList) { item ->
@@ -27,7 +27,7 @@ fun HomeList(
             val dismissState = rememberDismissState(
                 confirmValueChange = {
                     if (it == DismissValue.DismissedToStart) {
-                        onItemDeleted(currentItem.id)
+                        onDelete(currentItem.id)
                     }
                     true
                 },
@@ -95,7 +95,7 @@ fun HomeListPreview() {
                 )
             ),
             onClick = {},
-            onItemDeleted = {},
+            onDelete = {},
         )
     }
 }

@@ -181,7 +181,7 @@ fun ScreenContent(
                             onClick = {
                                 sendEvent(HomeEvent.GroupItemClicked(it))
                             },
-                            onItemDeleted = {
+                            onDelete = {
                                 sendEvent(HomeEvent.OnItemDeleted(it))
                             }
                         )
