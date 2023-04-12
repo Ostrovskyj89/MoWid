@@ -52,4 +52,30 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
             isSelected = isSelected
         )
     }
+
+    suspend fun editQuote(
+        groupId: String,
+        quoteId: String,
+        editedQuote: String,
+        editedAuthor: String
+    ) {
+        motivationPhraseRepository.editQuote(
+            groupId = groupId,
+            quoteId = quoteId,
+            editedQuote = editedQuote,
+            editedAuthor = editedAuthor
+        )
+    }
+
+    suspend fun editGroup(
+        groupId: String,
+        editedName: String,
+        editedDescription: String
+    ) {
+        motivationPhraseRepository.editGroup(
+            groupId = groupId,
+            editedName = editedName,
+            editedDescription = editedDescription
+        )
+    }
 }

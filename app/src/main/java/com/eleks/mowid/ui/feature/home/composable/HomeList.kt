@@ -19,7 +19,8 @@ import com.eleks.mowid.ui.theme.MoWidTheme
 fun HomeList(
     groupPhraseList: List<GroupPhraseUIModel>,
     onClick: (groupPhrase: GroupPhraseUIModel) -> Unit,
-    onDelete: (String) -> Unit
+    onDelete: (String) -> Unit,
+    onEdite: (id: String, name: String, description: String) -> Unit
 ) {
     LazyColumn {
         items(items = groupPhraseList) { item ->
@@ -41,9 +42,8 @@ fun HomeList(
                     dismissContent = {
                         HomeListItem(
                             groupPhrase = item,
-                            onClick = {
-                                onClick(it)
-                            }
+                            onClick = onClick,
+                            onEdite = onEdite
                         )
                     },
                     directions = setOf(DismissDirection.EndToStart),
@@ -51,9 +51,8 @@ fun HomeList(
             } else {
                 HomeListItem(
                     groupPhrase = item,
-                    onClick = {
-                        onClick(it)
-                    }
+                    onClick = onClick,
+                    onEdite = onEdite
                 )
             }
             Divider(
@@ -96,6 +95,7 @@ fun HomeListPreview() {
             ),
             onClick = {},
             onDelete = {},
+            onEdite = { _, _, _ -> }
         )
     }
 }

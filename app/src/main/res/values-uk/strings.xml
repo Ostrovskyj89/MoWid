@@ -3,14 +3,17 @@
 
     <string name="title_home">Mowid</string>
     <string name="label_add">Додати</string>
+    <string name="label_edit">Редагувати</string>
 
     // Groups screen
     <string name="title_add_group">Додати групу</string>
+    <string name="title_edit_group">Редагувати групу</string>
     <string name="label_group">Група</string>
     <string name="label_description">Опис</string>
 
     // Quotes screen
     <string name="title_add_quote">Додати цитату</string>
+    <string name="title_edit_quote">Редагувати цитату</string>
     <string name="label_quote">Цитата</string>
     <string name="label_author">Автор(необовязково)</string>
     <string name="label_empty_state">Поки немає жодної цитати.. Натисни ось цю кнопочку нижче щоб додати першу</string>

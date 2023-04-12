@@ -3,14 +3,17 @@
 
     <string name="title_home">Mowid</string>
     <string name="label_add">Add</string>
+    <string name="label_edit">Edit</string>
 
     // Groups screen
     <string name="title_add_group">Add group</string>
+    <string name="title_edit_group">Edit group</string>
     <string name="label_group">Group</string>
     <string name="label_description">Description</string>
 
     // Quotes screen
     <string name="title_add_quote">Add quote</string>
+    <string name="title_edit_quote">Edit quote</string>
     <string name="label_quote">Quote</string>
     <string name="label_author">Author(optional)</string>
     <string name="label_empty_state">There are no quotes yet.. Click this button below to add the first one</string>

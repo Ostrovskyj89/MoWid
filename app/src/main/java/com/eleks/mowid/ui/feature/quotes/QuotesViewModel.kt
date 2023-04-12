@@ -61,7 +61,7 @@ class QuotesViewModel @Inject constructor(
                     )
                 }
             }
-            QuotesEvent.HideAddQuoteModal -> {}
+            QuotesEvent.HideQuoteModal -> {}
             is QuotesEvent.QuoteItemChecked -> {
                 viewModelScope.launch {
                     motivationPhraseInteractor.saveSelection(
@@ -73,9 +73,19 @@ class QuotesViewModel @Inject constructor(
                     )
                 }
             }
-            QuotesEvent.ShowAddQuoteModal -> {}
+            QuotesEvent.ShowQuoteModal -> {}
             QuotesEvent.BackButtonClicked -> {}
             is QuotesEvent.OnItemDeleted -> deleteQuote(event.id, event.isSelected)
+            is QuotesEvent.OnEditeClicked -> {
+                viewModelScope.launch {
+                    motivationPhraseInteractor.editQuote(
+                        groupId = groupId,
+                        quoteId = event.id,
+                        editedQuote = event.editedQuote,
+                        editedAuthor = event.editedAuthor
+                    )
+                }
+            }
         }
     }
 

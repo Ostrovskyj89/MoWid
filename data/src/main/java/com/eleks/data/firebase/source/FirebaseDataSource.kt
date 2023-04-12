@@ -49,12 +49,29 @@ interface FirebaseDataSource {
         quote: QuoteDataModel
     ): ResultDataModel<QuoteDataModel>
 
-    suspend fun deleteQuote(groupId: String, quoteId: String, isSelected: Boolean) : ResultDataModel<String>
+    suspend fun deleteQuote(
+        groupId: String,
+        quoteId: String,
+        isSelected: Boolean
+    ): ResultDataModel<String>
 
-    suspend fun deleteGroup(groupId: String) : ResultDataModel<String>
+    suspend fun deleteGroup(groupId: String): ResultDataModel<String>
 
     suspend fun saveSelection(
         quote: SelectedQuoteDataModel,
         isSelected: Boolean
     ): ResultDataModel<SelectedQuoteDataModel>
+
+    suspend fun editQuote(
+        groupId: String,
+        quoteId: String,
+        editedQuote: String,
+        editedAuthor: String
+    ): ResultDataModel<String>
+
+    suspend fun editGroup(
+        groupId: String,
+        editedName: String,
+        editedDescription: String
+    ): ResultDataModel<String>
 }

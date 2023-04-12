@@ -125,5 +125,30 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
             isSelected = isSelected
         )
     }
-}
 
+    override suspend fun editQuote(
+        groupId: String,
+        quoteId: String,
+        editedQuote: String,
+        editedAuthor: String
+    ) {
+        firebaseDataSource.editQuote(
+            groupId = groupId,
+            quoteId = quoteId,
+            editedQuote = editedQuote,
+            editedAuthor = editedAuthor
+        )
+    }
+
+    override suspend fun editGroup(
+        groupId: String,
+        editedName: String,
+        editedDescription: String
+    ) {
+        firebaseDataSource.editGroup(
+            groupId = groupId,
+            editedName = editedName,
+            editedDescription = editedDescription
+        )
+    }
+}

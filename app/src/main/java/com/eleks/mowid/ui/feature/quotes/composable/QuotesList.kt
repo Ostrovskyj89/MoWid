@@ -18,7 +18,8 @@ import com.eleks.mowid.ui.theme.MoWidTheme
 fun QuotesList(
     quotes: List<QuoteUIModel>,
     onCheckedChange: (String, Boolean) -> Unit,
-    onItemDeleted: (String, Boolean) -> Unit
+    onItemDeleted: (String, Boolean) -> Unit,
+    onEdite: (id: String, quote: String, author: String) -> Unit
 ) {
     LazyColumn {
         items(
@@ -43,7 +44,8 @@ fun QuotesList(
                     dismissContent = {
                         QuoteListItem(
                             quote = item,
-                            onCheckChanged = onCheckedChange
+                            onCheckChanged = onCheckedChange,
+                            onEdite = onEdite
                         )
                     },
                     directions = setOf(DismissDirection.EndToStart),
@@ -51,7 +53,8 @@ fun QuotesList(
             } else {
                 QuoteListItem(
                     quote = item,
-                    onCheckChanged = onCheckedChange
+                    onCheckChanged = onCheckedChange,
+                    onEdite = onEdite
                 )
             }
             Divider(
@@ -93,7 +96,8 @@ fun QuotesListPreview() {
                 )
             ),
             onCheckedChange = { _, _ -> },
-            onItemDeleted = { _, _ -> }
+            onItemDeleted = { _, _ -> },
+            onEdite = { _, _, _ -> }
         )
     }
 }

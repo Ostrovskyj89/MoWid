@@ -18,11 +18,16 @@ sealed class QuotesEvent : UiEvent {
         val author: String?
     ) : QuotesEvent()
 
-    object ShowAddQuoteModal : QuotesEvent()
-    object HideAddQuoteModal : QuotesEvent()
+    object ShowQuoteModal : QuotesEvent()
+    object HideQuoteModal : QuotesEvent()
     object BackButtonClicked : QuotesEvent()
     data class AddQuoteClicked(val quote: String, val author: String) : QuotesEvent()
-    data class OnItemDeleted(val id: String, val isSelected: Boolean): QuotesEvent()
+    data class OnItemDeleted(val id: String, val isSelected: Boolean) : QuotesEvent()
+    data class OnEditeClicked(
+        val id: String,
+        val editedQuote: String,
+        val editedAuthor: String
+    ) : QuotesEvent()
 }
 
 sealed class QuotesEffect : UiEffect {
