@@ -29,6 +29,14 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
         motivationPhraseRepository.updateUserFrequency(id)
     }
 
+    suspend fun deleteQuote(groupId: String, quoteId: String, isSelected: Boolean) {
+        motivationPhraseRepository.deleteQuote(groupId, quoteId, isSelected)
+    }
+
+    suspend fun deleteGroup(id: String) {
+        motivationPhraseRepository.deleteGroup(id)
+    }
+
     suspend fun saveSelection(
         groupId: String,
         quoteId: String,

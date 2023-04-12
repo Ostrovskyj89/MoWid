@@ -9,6 +9,7 @@ fun QuoteDataModel.mapToDomain(selectedQuotes: List<SelectedQuoteDataModel>) = Q
     author = author.orEmpty(),
     created = created.orEmpty(),
     quote = quote.orEmpty(),
+    canBeDeleted = canBeDeleted ?: false,
     isSelected = isQuoteSelected(this, selectedQuotes)
 )
 

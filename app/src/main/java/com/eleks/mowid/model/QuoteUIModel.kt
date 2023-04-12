@@ -7,6 +7,7 @@ data class QuoteUIModel(
     val author: String,
     val created: String,
     val quote: String,
+    val canBeDeleted: Boolean,
     val isSelected: Boolean
 )
 
@@ -15,7 +16,8 @@ fun QuoteUIModel.toDomainModel() = QuoteModel(
     author = author,
     created = created,
     quote = quote,
-    isSelected = isSelected
+    isSelected = isSelected,
+    canBeDeleted = canBeDeleted
 )
 
 fun QuoteModel.toUIModel() = QuoteUIModel(
@@ -23,7 +25,8 @@ fun QuoteModel.toUIModel() = QuoteUIModel(
     author = author,
     created = created,
     quote = quote,
-    isSelected = isSelected
+    isSelected = isSelected,
+    canBeDeleted = canBeDeleted
 )
 
 fun List<QuoteUIModel>.toDomainModel() = map { it.toDomainModel() }

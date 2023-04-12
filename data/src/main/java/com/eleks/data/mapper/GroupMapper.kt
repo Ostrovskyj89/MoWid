@@ -9,7 +9,8 @@ fun GroupDataModel.mapToDomain(selectedGroups: List<SelectedGroupDataModel>) = G
     name = name.orEmpty(),
     description = description.orEmpty(),
     count = quotesCount ?: 0,
-    selectedCount = calculateSelectedCount(this, selectedGroups)
+    selectedCount = calculateSelectedCount(this, selectedGroups),
+    canBeDeleted = canBeDeleted ?: false
 )
 
 fun calculateSelectedCount(

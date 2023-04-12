@@ -1,5 +1,6 @@
 package com.eleks.mowid.ui.feature.home.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -22,10 +23,15 @@ fun HomeListItem(
     }) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-                .height(64.dp)
+                .height(88.dp)
+                .background(MaterialTheme.colorScheme.onPrimary)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 12.dp)
+                    .padding(start = 16.dp)
+            ) {
                 Text(
                     text = groupPhrase.name,
                     fontSize = 16.sp,
@@ -37,7 +43,12 @@ fun HomeListItem(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            Column {
+            Column(
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+                    .padding(end = 16.dp)
+            )
+            {
                 Text(
                     text = "${groupPhrase.selectedCount}/${groupPhrase.count}",
                     fontSize = 12.sp,
@@ -58,7 +69,8 @@ fun HomeListItemPreview() {
                 name = "Group 0",
                 description = "Description 0",
                 count = 10,
-                selectedCount = 5
+                selectedCount = 5,
+                canBeDeleted = true,
             ),
             onClick = {}
         )

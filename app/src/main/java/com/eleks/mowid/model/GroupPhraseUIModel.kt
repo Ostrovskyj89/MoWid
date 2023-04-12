@@ -7,7 +7,8 @@ data class GroupPhraseUIModel(
     val name: String,
     val description: String,
     val count: Int,
-    val selectedCount: Int
+    val selectedCount: Int,
+    val canBeDeleted: Boolean
 )
 
 fun GroupPhraseUIModel.toDomainModel() = GroupPhraseModel(
@@ -15,7 +16,8 @@ fun GroupPhraseUIModel.toDomainModel() = GroupPhraseModel(
     name = name,
     description = description,
     count = count,
-    selectedCount = selectedCount
+    selectedCount = selectedCount,
+    canBeDeleted = canBeDeleted
 )
 
 fun GroupPhraseModel.toUIModel() = GroupPhraseUIModel(
@@ -23,7 +25,8 @@ fun GroupPhraseModel.toUIModel() = GroupPhraseUIModel(
     name = name,
     description = description,
     count = count,
-    selectedCount = selectedCount
+    selectedCount = selectedCount,
+    canBeDeleted = canBeDeleted
 )
 
 fun List<GroupPhraseUIModel>.toDomainModel() = map { it.toDomainModel() }

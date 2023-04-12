@@ -5,5 +5,6 @@ data class GroupPhraseModel(
     val name: String,
     val description: String,
     val count: Int,
-    val selectedCount: Int
+    val selectedCount: Int,
+    val canBeDeleted: Boolean
 )
