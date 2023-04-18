@@ -197,11 +197,11 @@ fun ScreenContent(
                             onDelete = {
                                 sendEvent(HomeEvent.OnItemDeleted(it))
                             },
-                            onEdite = { id, name, description ->
+                            onEdit = { id, name, description ->
                                 bottomSheetUIState = BottomSheetUIState.EditGroupBottomSheet(
                                     id = id,
-                                    text1 = name,
-                                    text2 = description
+                                    textField1 = name,
+                                    textField2 = description
                                 )
                                 sendEvent(HomeEvent.ShowGroupModal)
                             }

@@ -18,7 +18,7 @@ import com.eleks.mowid.ui.theme.MoWidTheme
 fun HomeListItem(
     groupPhrase: GroupPhraseUIModel,
     onClick: (groupPhrase: GroupPhraseUIModel) -> Unit,
-    onEdite: (id: String, name: String, description: String) -> Unit
+    onEdit: (id: String, name: String, description: String) -> Unit
 ) {
 
     Row(
@@ -29,7 +29,7 @@ fun HomeListItem(
                 detectTapGestures(
                     onLongPress = {
                         if (groupPhrase.canBeDeleted) {
-                            onEdite(groupPhrase.id, groupPhrase.name, groupPhrase.description)
+                            onEdit(groupPhrase.id, groupPhrase.name, groupPhrase.description)
                         }
                     },
                     onTap = {
@@ -84,7 +84,7 @@ fun HomeListItemPreview() {
                 canBeDeleted = true,
             ),
             onClick = {},
-            onEdite = { _, _, _ -> }
+            onEdit = { _, _, _ -> }
         )
     }
 }

@@ -218,11 +218,11 @@ fun ScreenContent(
                             onItemDeleted = { id, isSelected ->
                                 sendEvent(QuotesEvent.OnItemDeleted(id, isSelected))
                             },
-                            onEdite = { id, editedQuote, editedAuthor ->
+                            onEdit = { id, editedQuote, editedAuthor ->
                                 bottomSheetUIState = BottomSheetUIState.EditQuoteBottomSheet(
                                     id = id,
-                                    text1 = editedQuote,
-                                    text2 = editedAuthor
+                                    textField1 = editedQuote,
+                                    textField2 = editedAuthor
                                 )
                                 sendEvent(QuotesEvent.ShowQuoteModal)
                             }

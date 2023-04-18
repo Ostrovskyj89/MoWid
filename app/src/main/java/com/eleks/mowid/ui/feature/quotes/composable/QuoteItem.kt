@@ -19,7 +19,7 @@ import com.eleks.mowid.ui.theme.MoWidTheme
 fun QuoteListItem(
     quote: QuoteUIModel,
     onCheckChanged: (String, Boolean) -> Unit,
-    onEdite: (id: String, quote: String, author: String) -> Unit
+    onEdit: (id: String, quote: String, author: String) -> Unit
 ) {
     var checkedState by rememberSaveable { mutableStateOf(quote.isSelected) }
 
@@ -30,7 +30,7 @@ fun QuoteListItem(
             checkedState = checked
             onCheckChanged(id, checked)
         },
-        onEdite = onEdite
+        onEdit = onEdit
     )
 }
 
@@ -39,7 +39,7 @@ fun QuoteListItem(
     quote: QuoteUIModel,
     checked: Boolean,
     onCheckChanged: (String, Boolean) -> Unit,
-    onEdite: (id: String, quote: String, author: String) -> Unit
+    onEdit: (id: String, quote: String, author: String) -> Unit
 ) {
 
     Row(
@@ -49,7 +49,7 @@ fun QuoteListItem(
                 if (quote.canBeDeleted) {
                     detectTapGestures(
                         onLongPress = {
-                            onEdite(quote.id, quote.quote, quote.author)
+                            onEdit(quote.id, quote.quote, quote.author)
                         }
                     )
                 }
@@ -103,7 +103,7 @@ fun QuoteListItemPreview() {
             ),
             checked = true,
             onCheckChanged = { _, _ -> },
-            onEdite = { _, _, _ -> }
+            onEdit = { _, _, _ -> }
         )
     }
 }

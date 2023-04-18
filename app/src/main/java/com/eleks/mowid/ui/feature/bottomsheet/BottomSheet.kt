@@ -20,7 +20,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eleks.mowid.R
 import com.eleks.mowid.ui.theme.MoWidTheme
 
 @Composable
@@ -33,15 +32,15 @@ fun BottomSheet(
 
     with(bottomSheetUIState) {
         var textState1 by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-            mutableStateOf(TextFieldValue(text1))
+            mutableStateOf(TextFieldValue(textField1))
         }
         var textState2 by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-            mutableStateOf(TextFieldValue(text2))
+            mutableStateOf(TextFieldValue(textField2))
         }
 
         if (clearSavedStates) {
-            textState1 = TextFieldValue(text1)
-            textState2 = TextFieldValue(text2)
+            textState1 = TextFieldValue(textField1)
+            textState2 = TextFieldValue(textField2)
             LocalFocusManager.current.clearFocus()
         }
 
@@ -98,8 +97,7 @@ fun BottomSheet(
 
             Button(
                 modifier = Modifier.padding(16.dp),
-                enabled = textState1.text.isNotEmpty() && (textState2.text.isNotEmpty()
-                        || (bottomSheetUIState is BottomSheetUIState.AddQuoteBottomSheet || bottomSheetUIState is BottomSheetUIState.EditQuoteBottomSheet)),
+                enabled = textState1.text.isNotEmpty() && (textState2.text.isNotEmpty() || !isSecondFieldMandatory),
                 onClick = {
                     onButtonClick(
                         id,

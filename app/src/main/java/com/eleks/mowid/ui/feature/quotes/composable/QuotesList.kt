@@ -19,7 +19,7 @@ fun QuotesList(
     quotes: List<QuoteUIModel>,
     onCheckedChange: (String, Boolean) -> Unit,
     onItemDeleted: (String, Boolean) -> Unit,
-    onEdite: (id: String, quote: String, author: String) -> Unit
+    onEdit: (id: String, quote: String, author: String) -> Unit
 ) {
     LazyColumn {
         items(
@@ -45,7 +45,7 @@ fun QuotesList(
                         QuoteListItem(
                             quote = item,
                             onCheckChanged = onCheckedChange,
-                            onEdite = onEdite
+                            onEdit = onEdit
                         )
                     },
                     directions = setOf(DismissDirection.EndToStart),
@@ -54,7 +54,7 @@ fun QuotesList(
                 QuoteListItem(
                     quote = item,
                     onCheckChanged = onCheckedChange,
-                    onEdite = onEdite
+                    onEdit = onEdit
                 )
             }
             Divider(
@@ -97,7 +97,7 @@ fun QuotesListPreview() {
             ),
             onCheckedChange = { _, _ -> },
             onItemDeleted = { _, _ -> },
-            onEdite = { _, _, _ -> }
+            onEdit = { _, _, _ -> }
         )
     }
 }

@@ -20,7 +20,7 @@ fun HomeList(
     groupPhraseList: List<GroupPhraseUIModel>,
     onClick: (groupPhrase: GroupPhraseUIModel) -> Unit,
     onDelete: (String) -> Unit,
-    onEdite: (id: String, name: String, description: String) -> Unit
+    onEdit: (id: String, name: String, description: String) -> Unit
 ) {
     LazyColumn {
         items(items = groupPhraseList) { item ->
@@ -43,7 +43,7 @@ fun HomeList(
                         HomeListItem(
                             groupPhrase = item,
                             onClick = onClick,
-                            onEdite = onEdite
+                            onEdit = onEdit
                         )
                     },
                     directions = setOf(DismissDirection.EndToStart),
@@ -52,7 +52,7 @@ fun HomeList(
                 HomeListItem(
                     groupPhrase = item,
                     onClick = onClick,
-                    onEdite = onEdite
+                    onEdit = onEdit
                 )
             }
             Divider(
@@ -95,7 +95,7 @@ fun HomeListPreview() {
             ),
             onClick = {},
             onDelete = {},
-            onEdite = { _, _, _ -> }
+            onEdit = { _, _, _ -> }
         )
     }
 }
