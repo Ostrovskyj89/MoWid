@@ -51,10 +51,10 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.GroupItemClicked -> {
                 // handle directly on UI
             }
-            HomeEvent.ShowAddGroupModal -> {
+            HomeEvent.ShowGroupModal -> {
                 // handle directly on UI
             }
-            HomeEvent.HideAddGroupModal -> {
+            HomeEvent.HideGroupModal -> {
                 // handle directly on UI
             }
             is HomeEvent.AddGroupClicked -> {
@@ -66,6 +66,15 @@ class HomeViewModel @Inject constructor(
                 }
             }
             is HomeEvent.OnItemDeleted -> deleteGroup((event.id))
+            is HomeEvent.OnEditeClicked -> {
+                viewModelScope.launch {
+                    motivationPhraseInteractor.editGroup(
+                        groupId = event.id,
+                        editedName = event.editedName,
+                        editedDescription = event.editedDescription
+                    )
+                }
+            }
         }
     }
 

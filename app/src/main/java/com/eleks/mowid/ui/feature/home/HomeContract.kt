@@ -13,9 +13,14 @@ data class HomeState(
 sealed class HomeEvent : UiEvent {
     data class GroupItemClicked(val groupPhrase: GroupPhraseUIModel) : HomeEvent()
     data class OnItemDeleted(val id: String) : HomeEvent()
-    object ShowAddGroupModal : HomeEvent()
-    object HideAddGroupModal : HomeEvent()
+    object ShowGroupModal : HomeEvent()
+    object HideGroupModal : HomeEvent()
     data class AddGroupClicked(val name: String, val description: String) : HomeEvent()
+    data class OnEditeClicked(
+        val id: String,
+        val editedName: String,
+        val editedDescription: String
+    ) : HomeEvent()
 }
 
 sealed class HomeEffect : UiEffect {

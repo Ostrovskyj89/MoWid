@@ -16,11 +16,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.EFFECTS_KEY
 import com.eleks.mowid.base.ui.EVENTS_KEY
 import com.eleks.mowid.model.QuoteUIModel
@@ -28,7 +26,8 @@ import com.eleks.mowid.ui.composable.*
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffold
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
-import com.eleks.mowid.ui.feature.home.composable.BottomSheet
+import com.eleks.mowid.ui.feature.bottomsheet.BottomSheet
+import com.eleks.mowid.ui.feature.bottomsheet.BottomSheetUIState
 import com.eleks.mowid.ui.feature.main.MainEvent
 import com.eleks.mowid.ui.feature.main.MainViewModel
 import com.eleks.mowid.ui.feature.quotes.composable.EmptyState
@@ -55,7 +54,7 @@ fun QuotesScreen(
         enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded
     ) {
         if (bottomSheetScaffoldState.bottomSheetState.isExpanded) {
-            viewModel.setEvent(QuotesEvent.HideAddQuoteModal)
+            viewModel.setEvent(QuotesEvent.HideQuoteModal)
         }
     }
 
@@ -74,7 +73,7 @@ fun QuotesScreen(
     LaunchedEffect(EVENTS_KEY) {
         viewModel.event.onEach { event ->
             when (event) {
-                QuotesEvent.ShowAddQuoteModal -> {
+                QuotesEvent.ShowQuoteModal -> {
                     if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                         bottomSheetScaffoldState.bottomSheetState.expand()
                     } else {
@@ -82,7 +81,7 @@ fun QuotesScreen(
                     }
                 }
                 is QuotesEvent.QuoteItemChecked -> {}
-                QuotesEvent.HideAddQuoteModal -> {
+                QuotesEvent.HideQuoteModal -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
                 is QuotesEvent.AddQuoteClicked -> {
@@ -90,6 +89,9 @@ fun QuotesScreen(
                 }
                 QuotesEvent.BackButtonClicked -> onBackClicked()
                 is QuotesEvent.OnItemDeleted -> {}
+                is QuotesEvent.OnEditeClicked -> {
+                    bottomSheetScaffoldState.bottomSheetState.collapse()
+                }
             }
         }.collect()
     }
@@ -105,7 +107,6 @@ fun QuotesScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenContent(
     groupName: String,
@@ -118,21 +119,29 @@ fun ScreenContent(
 ) {
 
     var showMenu by remember { mutableStateOf(false) }
+    var bottomSheetUIState: BottomSheetUIState by remember { mutableStateOf(BottomSheetUIState.AddQuoteBottomSheet) }
 
     BottomSheetScaffold(
         sheetContent = {
             BottomSheet(
-                header = stringResource(id = R.string.title_add_quote),
-                hint1 = stringResource(id = R.string.label_quote),
-                hint2 = stringResource(id = R.string.label_author),
-                isSecondFieldOptional = true,
-                onAddClick = { quote, author ->
-                    sendEvent(
-                        QuotesEvent.AddQuoteClicked(
-                            quote = quote,
-                            author = author
+                bottomSheetUIState = bottomSheetUIState,
+                onButtonClick = { id, quote, author ->
+                    if (id != null) {
+                        sendEvent(
+                            QuotesEvent.OnEditeClicked(
+                                id = id,
+                                editedQuote = quote,
+                                editedAuthor = author
+                            )
                         )
-                    )
+                    } else {
+                        sendEvent(
+                            QuotesEvent.AddQuoteClicked(
+                                quote = quote,
+                                author = author
+                            )
+                        )
+                    }
                 },
                 clearSavedStates = bottomSheetState.bottomSheetState.isCollapsed
             )
@@ -179,7 +188,8 @@ fun ScreenContent(
                 floatingActionButton = {
                     if (state.isLoading.not() && state.quotes.isNotEmpty()) AppFloatingActionButton(
                         onClick = {
-                            sendEvent(QuotesEvent.ShowAddQuoteModal)
+                            bottomSheetUIState = BottomSheetUIState.AddQuoteBottomSheet
+                            sendEvent(QuotesEvent.ShowQuoteModal)
                         }
                     ) else Unit
                 }
@@ -190,7 +200,7 @@ fun ScreenContent(
                     when {
                         state.isLoading -> AppProgress()
                         state.quotes.isEmpty() -> EmptyState {
-                            sendEvent(QuotesEvent.ShowAddQuoteModal)
+                            sendEvent(QuotesEvent.ShowQuoteModal)
                         }
                         else -> QuotesList(
                             quotes = state.quotes,
@@ -205,8 +215,16 @@ fun ScreenContent(
                                     )
                                 )
                             },
-                            onItemDeleted = { id, isSelected  ->
+                            onItemDeleted = { id, isSelected ->
                                 sendEvent(QuotesEvent.OnItemDeleted(id, isSelected))
+                            },
+                            onEdit = { id, editedQuote, editedAuthor ->
+                                bottomSheetUIState = BottomSheetUIState.EditQuoteBottomSheet(
+                                    id = id,
+                                    textField1 = editedQuote,
+                                    textField2 = editedAuthor
+                                )
+                                sendEvent(QuotesEvent.ShowQuoteModal)
                             }
                         )
                     }
@@ -216,7 +234,7 @@ fun ScreenContent(
                 Box(
                     modifier = Modifier
                         .clickable {
-                            sendEvent(QuotesEvent.HideAddQuoteModal)
+                            sendEvent(QuotesEvent.HideQuoteModal)
                         }
                         .background(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.20F))
                         .fillMaxSize(),

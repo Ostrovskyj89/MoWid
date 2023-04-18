@@ -1,12 +1,14 @@
 package com.eleks.mowid.ui.feature.quotes.composable
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,7 +18,8 @@ import com.eleks.mowid.ui.theme.MoWidTheme
 @Composable
 fun QuoteListItem(
     quote: QuoteUIModel,
-    onCheckChanged: (String, Boolean) -> Unit
+    onCheckChanged: (String, Boolean) -> Unit,
+    onEdit: (id: String, quote: String, author: String) -> Unit
 ) {
     var checkedState by rememberSaveable { mutableStateOf(quote.isSelected) }
 
@@ -26,7 +29,8 @@ fun QuoteListItem(
         onCheckChanged = { id, checked ->
             checkedState = checked
             onCheckChanged(id, checked)
-        }
+        },
+        onEdit = onEdit
     )
 }
 
@@ -35,10 +39,21 @@ fun QuoteListItem(
     quote: QuoteUIModel,
     checked: Boolean,
     onCheckChanged: (String, Boolean) -> Unit,
+    onEdit: (id: String, quote: String, author: String) -> Unit
 ) {
+
     Row(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.onPrimary)
+            .pointerInput(quote) {
+                if (quote.canBeDeleted) {
+                    detectTapGestures(
+                        onLongPress = {
+                            onEdit(quote.id, quote.quote, quote.author)
+                        }
+                    )
+                }
+            }
     ) {
         Column(
             modifier = Modifier
@@ -87,7 +102,8 @@ fun QuoteListItemPreview() {
                 canBeDeleted = true
             ),
             checked = true,
-            onCheckChanged = { _, _ -> }
+            onCheckChanged = { _, _ -> },
+            onEdit = { _, _, _ -> }
         )
     }
 }

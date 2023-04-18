@@ -366,6 +366,61 @@ class FirebaseDataSourceImpl @Inject constructor(
             .update(SHOWN_AT_FIELD, shownTime)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun editQuote(
+        groupId: String,
+        quoteId: String,
+        editedQuote: String,
+        editedAuthor: String
+    ): ResultDataModel<String> {
+        mutex.withLock {
+            return suspendCancellableCoroutine { continuation ->
+                val updateMap = hashMapOf<String, String>()
+                updateMap[QUOTE_QUOTE_FIELD] = editedQuote
+                updateMap[QUOTE_AUTHOR_FIELD] = editedAuthor
+                dbInstance.collection(COLLECTION_PERSONAL)
+                    .document(localDataSource.token)
+                    .collection(COLLECTION_GROUPS)
+                    .document(groupId)
+                    .collection(COLLECTION_QUOTES)
+                    .document(quoteId)
+                    .update(updateMap as Map<String, String>)
+                    .addOnSuccessListener {
+                        continuation.resume(ResultDataModel.success(quoteId)) {}
+                    }
+                    .addOnFailureListener { exception ->
+                        continuation.resume(ResultDataModel.error(exception)) {}
+                    }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun editGroup(
+        groupId: String,
+        editedName: String,
+        editedDescription: String
+    ): ResultDataModel<String> {
+        mutex.withLock {
+            return suspendCancellableCoroutine { continuation ->
+                val updateMap = hashMapOf<String, String>()
+                updateMap[GROUP_NAME_FIELD] = editedName
+                updateMap[GROUP_DESCRIPTION_FIELD] = editedDescription
+                dbInstance.collection(COLLECTION_PERSONAL)
+                    .document(localDataSource.token)
+                    .collection(COLLECTION_GROUPS)
+                    .document(groupId)
+                    .update(updateMap as Map<String, String>)
+                    .addOnSuccessListener {
+                        continuation.resume(ResultDataModel.success(groupId)) {}
+                    }
+                    .addOnFailureListener { exception ->
+                        continuation.resume(ResultDataModel.error(exception)) {}
+                    }
+            }
+        }
+    }
+
     private fun removeQuoteFromSelected(groupId: String, quoteId: String) {
         val currentDocument = dbInstance.collection(COLLECTION_PERSONAL)
             .document(localDataSource.token)
@@ -709,5 +764,9 @@ class FirebaseDataSourceImpl @Inject constructor(
         private const val SHOWN_AT_FIELD = "shownAt"
         private const val SELECTED_QUOTES_COUNT_FIELD = "selectedQuotesCount"
         private const val QUOTES_COUNT_FIELD = "quotesCount"
+        private const val GROUP_NAME_FIELD = "name"
+        private const val GROUP_DESCRIPTION_FIELD = "description"
+        private const val QUOTE_QUOTE_FIELD = "quote"
+        private const val QUOTE_AUTHOR_FIELD = "author"
     }
 }

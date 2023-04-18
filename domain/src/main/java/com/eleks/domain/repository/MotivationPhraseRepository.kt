@@ -30,4 +30,17 @@ interface MotivationPhraseRepository {
         author: String?,
         isSelected: Boolean
     )
+
+    suspend fun editQuote(
+        groupId: String,
+        quoteId: String,
+        editedQuote: String,
+        editedAuthor: String
+    )
+
+    suspend fun editGroup(
+        groupId: String,
+        editedName: String,
+        editedDescription: String
+    )
 }

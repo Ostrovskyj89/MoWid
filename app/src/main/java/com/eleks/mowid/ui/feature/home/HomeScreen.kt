@@ -27,7 +27,8 @@ import com.eleks.mowid.ui.composable.*
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffold
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
-import com.eleks.mowid.ui.feature.home.composable.BottomSheet
+import com.eleks.mowid.ui.feature.bottomsheet.BottomSheet
+import com.eleks.mowid.ui.feature.bottomsheet.BottomSheetUIState
 import com.eleks.mowid.ui.feature.home.composable.HomeList
 import com.eleks.mowid.ui.feature.main.MainEvent
 import com.eleks.mowid.ui.feature.main.MainViewModel
@@ -51,7 +52,7 @@ fun HomeScreen(
         enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded
     ) {
         if (bottomSheetScaffoldState.bottomSheetState.isExpanded) {
-            viewModel.setEvent(HomeEvent.HideAddGroupModal)
+            viewModel.setEvent(HomeEvent.HideGroupModal)
         }
     }
 
@@ -70,7 +71,7 @@ fun HomeScreen(
     LaunchedEffect(EVENTS_KEY) {
         viewModel.event.onEach { event ->
             when (event) {
-                HomeEvent.ShowAddGroupModal -> {
+                HomeEvent.ShowGroupModal -> {
                     if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                         bottomSheetScaffoldState.bottomSheetState.expand()
                     } else {
@@ -81,13 +82,16 @@ fun HomeScreen(
                     event.groupPhrase.id,
                     event.groupPhrase.name
                 )
-                HomeEvent.HideAddGroupModal -> {
+                HomeEvent.HideGroupModal -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
                 is HomeEvent.AddGroupClicked -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
                 is HomeEvent.OnItemDeleted -> {}
+                is HomeEvent.OnEditeClicked -> {
+                    bottomSheetScaffoldState.bottomSheetState.collapse()
+                }
             }
         }.collect()
     }
@@ -103,7 +107,6 @@ fun HomeScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenContent(
     state: HomeState,
@@ -115,20 +118,29 @@ fun ScreenContent(
 ) {
 
     var showMenu by remember { mutableStateOf(false) }
+    var bottomSheetUIState: BottomSheetUIState by remember { mutableStateOf(BottomSheetUIState.AddGroupBottomSheet) }
 
     BottomSheetScaffold(
         sheetContent = {
             BottomSheet(
-                header = stringResource(id = R.string.title_add_group),
-                hint1 = stringResource(id = R.string.label_group),
-                hint2 = stringResource(id = R.string.label_description),
-                onAddClick = { group, author ->
-                    sendEvent(
-                        HomeEvent.AddGroupClicked(
-                            name = group,
-                            description = author
+                bottomSheetUIState = bottomSheetUIState,
+                onButtonClick = { id, name, description ->
+                    if (id != null) {
+                        sendEvent(
+                            HomeEvent.OnEditeClicked(
+                                id = id,
+                                editedName = name,
+                                editedDescription = description
+                            )
                         )
-                    )
+                    } else {
+                        sendEvent(
+                            HomeEvent.AddGroupClicked(
+                                name = name,
+                                description = description
+                            )
+                        )
+                    }
                 },
                 clearSavedStates = bottomSheetState.bottomSheetState.isCollapsed
             )
@@ -166,7 +178,8 @@ fun ScreenContent(
                 floatingActionButton = {
                     if (state.isLoading.not()) AppFloatingActionButton(
                         onClick = {
-                            sendEvent(HomeEvent.ShowAddGroupModal)
+                            bottomSheetUIState = BottomSheetUIState.AddGroupBottomSheet
+                            sendEvent(HomeEvent.ShowGroupModal)
                         }
                     ) else Unit
                 }
@@ -183,6 +196,14 @@ fun ScreenContent(
                             },
                             onDelete = {
                                 sendEvent(HomeEvent.OnItemDeleted(it))
+                            },
+                            onEdit = { id, name, description ->
+                                bottomSheetUIState = BottomSheetUIState.EditGroupBottomSheet(
+                                    id = id,
+                                    textField1 = name,
+                                    textField2 = description
+                                )
+                                sendEvent(HomeEvent.ShowGroupModal)
                             }
                         )
                     }
@@ -192,7 +213,7 @@ fun ScreenContent(
                 Box(
                     modifier = Modifier
                         .clickable {
-                            sendEvent(HomeEvent.HideAddGroupModal)
+                            sendEvent(HomeEvent.HideGroupModal)
                         }
                         .background(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.20F))
                         .fillMaxSize(),
