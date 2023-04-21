@@ -5,11 +5,13 @@ import com.eleks.mowid.base.ui.UiEffect
 import com.eleks.mowid.base.ui.UiEvent
 import com.eleks.mowid.base.ui.UiState
 import com.eleks.mowid.model.FrequencyUIModel
+import com.eleks.mowid.model.UserUIModel
 
 data class SettingsState(
     val isLoading: Boolean,
     val selectedFrequency: FrequencyUIModel?,
-    val frequencies: List<FrequencyUIModel>
+    val frequencies: List<FrequencyUIModel>,
+    val userModel: UserUIModel?
 ) : UiState
 
 sealed class SettingsEvent : UiEvent {

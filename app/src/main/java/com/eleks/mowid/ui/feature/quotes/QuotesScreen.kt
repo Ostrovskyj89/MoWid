@@ -28,8 +28,6 @@ import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
 import com.eleks.mowid.ui.feature.bottomsheet.BottomSheet
 import com.eleks.mowid.ui.feature.bottomsheet.BottomSheetUIState
-import com.eleks.mowid.ui.feature.main.MainEvent
-import com.eleks.mowid.ui.feature.main.MainViewModel
 import com.eleks.mowid.ui.feature.quotes.composable.EmptyState
 import com.eleks.mowid.ui.feature.quotes.composable.QuotesList
 import com.eleks.mowid.ui.theme.MoWidTheme
@@ -40,7 +38,6 @@ import kotlinx.coroutines.flow.onEach
 @Composable
 fun QuotesScreen(
     viewModel: QuotesViewModel,
-    activityViewModel: MainViewModel,
     groupName: String,
     onBackClicked: () -> Unit,
     onNavigateToSettings: () -> Unit
@@ -100,8 +97,6 @@ fun QuotesScreen(
         groupName = groupName,
         state = state,
         sendEvent = viewModel::setEvent,
-        sendMainEvent = activityViewModel::setEvent,
-        isUserAlreadyLogin = activityViewModel::isUserAlreadyLogIn,
         bottomSheetState = bottomSheetScaffoldState,
         onNavigateToSettings = onNavigateToSettings
     )
@@ -112,8 +107,6 @@ fun ScreenContent(
     groupName: String,
     state: QuotesState,
     sendEvent: (QuotesEvent) -> Unit,
-    sendMainEvent: (MainEvent) -> Unit,
-    isUserAlreadyLogin: () -> Boolean,
     bottomSheetState: BottomSheetScaffoldState,
     onNavigateToSettings: () -> Unit
 ) {
@@ -169,8 +162,6 @@ fun ScreenContent(
                             AppDropDownMenu(
                                 expanded = showMenu,
                                 onDismissRequest = { showMenu = false },
-                                sendEvent = sendMainEvent,
-                                isUserLogIn = isUserAlreadyLogin(),
                                 onSettingsClicked = onNavigateToSettings
                             )
                         },
@@ -285,8 +276,6 @@ fun ScreenContentPreview() {
                 quotes = list
             ),
             sendEvent = {},
-            sendMainEvent = {},
-            isUserAlreadyLogin = { false },
             bottomSheetState = rememberBottomSheetScaffoldState(),
             onNavigateToSettings = {}
         )

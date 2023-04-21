@@ -4,7 +4,7 @@ import com.eleks.domain.repository.UserRepository
 
 class UserInteractor(private val userRepository: UserRepository) {
 
-    fun getCurrentUser() = userRepository.getCurrentUser()
+    fun getUserFlow() = userRepository.getUserFlow()
 
     fun signInSuccess() {
         userRepository.signInSuccess()

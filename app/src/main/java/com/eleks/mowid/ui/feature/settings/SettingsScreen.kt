@@ -1,7 +1,9 @@
 package com.eleks.mowid.ui.feature.settings
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.ClickableText
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -12,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -22,14 +27,19 @@ import com.eleks.mowid.base.ui.EVENTS_KEY
 import com.eleks.mowid.model.FrequencyUIModel
 import com.eleks.mowid.ui.composable.AppCenterAlignedTopAppBar
 import com.eleks.mowid.ui.composable.AppProgress
+import com.eleks.mowid.ui.feature.main.MainEvent
+import com.eleks.mowid.ui.feature.main.MainViewModel
 import com.eleks.mowid.ui.theme.MoWidTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
+private const val SIGN_IN_TAG = "SIGN_IN_TAG"
+private const val SIGN_OUT_TAG = "SIGN_OUT_TAG"
+private const val USER_NAME_TAG = "USER_NAME_TAG"
+
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel,
-    onBackClicked: () -> Unit
+    activityViewModel: MainViewModel, viewModel: SettingsViewModel, onBackClicked: () -> Unit
 ) {
     val state: SettingsState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -39,14 +49,10 @@ fun SettingsScreen(
         viewModel.effect.onEach { effect ->
             when (effect) {
                 is SettingsEffect.ShowToast -> Toast.makeText(
-                    context,
-                    effect.message,
-                    Toast.LENGTH_SHORT
+                    context, effect.message, Toast.LENGTH_SHORT
                 ).show()
                 is SettingsEffect.ShowToastId -> Toast.makeText(
-                    context,
-                    effect.messageId,
-                    Toast.LENGTH_SHORT
+                    context, effect.messageId, Toast.LENGTH_SHORT
                 ).show()
             }
         }.collect()
@@ -62,37 +68,34 @@ fun SettingsScreen(
     }
 
     ScreenContent(
-        state = state,
-        sendEvent = viewModel::setEvent
+        state = state, sendMainEvent = activityViewModel::setEvent, sendEvent = viewModel::setEvent
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenContent(
-    state: SettingsState,
-    sendEvent: (SettingsEvent) -> Unit
+    state: SettingsState, sendMainEvent: (MainEvent) -> Unit, sendEvent: (SettingsEvent) -> Unit
 ) {
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-            topBar = {
-                AppCenterAlignedTopAppBar(
-                    title = stringResource(id = R.string.title_settings),
-                    navigationIcon = {
-                        IconButton(onClick = { sendEvent(SettingsEvent.BackButtonClicked) }) {
-                            Icon(
-                                imageVector = Icons.Filled.ArrowBack,
-                                contentDescription = "Back"
-                            )
-                        }
+        Scaffold(topBar = {
+            AppCenterAlignedTopAppBar(title = stringResource(id = R.string.title_settings),
+                navigationIcon = {
+                    IconButton(onClick = { sendEvent(SettingsEvent.BackButtonClicked) }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack, contentDescription = "Back"
+                        )
                     }
-                )
-            }
-        ) { padding ->
+                })
+        }) { padding ->
             when {
                 state.isLoading -> AppProgress()
-                else -> Content(padding, state, sendEvent)
+                else -> Content(
+                    padding = padding,
+                    state = state,
+                    sendEvent = sendEvent,
+                    sendMainEvent = sendMainEvent
+                )
 
 
             }
@@ -105,8 +108,37 @@ fun ScreenContent(
 fun Content(
     padding: PaddingValues,
     state: SettingsState,
+    sendMainEvent: (MainEvent) -> Unit,
     sendEvent: (SettingsEvent) -> Unit,
 ) {
+
+    val userInfoLabel = buildAnnotatedString {
+        if (state.userModel == null) {
+            append(stringResource(R.string.label_user_not_registered))
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                pushStringAnnotation(
+                    tag = SIGN_IN_TAG, annotation = stringResource(id = R.string.label_sign_in)
+                )
+                append(stringResource(id = R.string.label_sign_in))
+            }
+        } else {
+            append(stringResource(R.string.label_user_signed_in_as))
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                pushStringAnnotation(
+                    tag = USER_NAME_TAG, annotation = state.userModel.fullName
+                )
+                append(state.userModel.fullName)
+            }
+            append(" ")
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
+                pushStringAnnotation(
+                    tag = SIGN_OUT_TAG, annotation = stringResource(id = R.string.label_sign_out)
+                )
+                append(stringResource(id = R.string.label_sign_out))
+            }
+
+        }
+    }
 
     var showDropDown by remember { mutableStateOf(false) }
 
@@ -120,17 +152,15 @@ fun Content(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            ExposedDropdownMenuBox(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+            ExposedDropdownMenuBox(modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
                 expanded = showDropDown,
                 onExpandedChange = { showDropDown = !showDropDown }) {
 
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(),
+                OutlinedTextField(modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
                     value = selectedFrequency?.value?.let { stringResource(id = it) } ?: "",
                     onValueChange = {},
                     readOnly = true,
@@ -143,45 +173,47 @@ fun Content(
                     },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = showDropDown)
-                    }
-                )
+                    })
 
-                ExposedDropdownMenu(
-                    expanded = showDropDown,
-                    onDismissRequest = { showDropDown = false }
-                ) {
+                ExposedDropdownMenu(expanded = showDropDown,
+                    onDismissRequest = { showDropDown = false }) {
                     state.frequencies.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = option.value)) },
+                        DropdownMenuItem(text = { Text(stringResource(id = option.value)) },
                             onClick = {
                                 selectedFrequency = option
                                 showDropDown = false
-                            }
-                        )
+                            })
                     }
                 }
             }
 
-            Button(
-                onClick = {
-                    sendEvent(
-                        SettingsEvent.OnFrequencyChanged(
-                            selectedFrequency?.frequencyId
-                                ?: FirebaseDataSourceImpl.DEFAULT_FREQUENCY_VALUE
-                        )
+            Button(onClick = {
+                sendEvent(
+                    SettingsEvent.OnFrequencyChanged(
+                        selectedFrequency?.frequencyId
+                            ?: FirebaseDataSourceImpl.DEFAULT_FREQUENCY_VALUE
                     )
-                }
-            )
-            {
+                )
+            }) {
                 Text(
                     text = stringResource(id = R.string.label_apply),
                     style = MaterialTheme.typography.labelLarge
                 )
             }
+            Spacer(modifier = Modifier.weight(1f))
+            ClickableText(text = userInfoLabel, onClick = { offset ->
+                userInfoLabel.getStringAnnotations(offset, offset).firstOrNull()?.let { span ->
+                    Log.d("SettingScreen", "Clicked on ${span.tag}")
+                    when (span.tag) {
+                        SIGN_IN_TAG -> sendMainEvent(MainEvent.SignIn)
+                        SIGN_OUT_TAG -> sendMainEvent(MainEvent.SignOut)
+                        USER_NAME_TAG -> {}
+                    }
+                }
+            })
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
-
-
 }
 
 @Preview(showBackground = true)
@@ -202,8 +234,10 @@ fun ScreenContentPreview() {
                     value = R.string.once_a_day,
                 ),
                 frequencies = list,
+                userModel = null,
             ),
-            sendEvent = {}
+            sendMainEvent = {},
+            sendEvent = {},
         )
     }
 }

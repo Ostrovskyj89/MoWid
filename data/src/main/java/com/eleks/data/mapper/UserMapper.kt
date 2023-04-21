@@ -1,9 +1,10 @@
 package com.eleks.data.mapper
 
+import com.eleks.data.model.UserDataModel
 import com.eleks.domain.model.UserModel
-import com.google.firebase.auth.FirebaseUser
 
-fun FirebaseUser.toUserModel() = UserModel(
-    uid = uid,
-    fullName = displayName ?: ""
+fun UserDataModel.toDomain() = UserModel(
+    token = token.orEmpty(),
+    fullName = fullName.orEmpty(),
+    email = email.orEmpty()
 )

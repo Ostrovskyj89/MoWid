@@ -22,8 +22,10 @@
     <string name="label_sign_in_success">Авторизація закінчена</string>
     <string name="label_sign_in_error">"Помилка авторизації"</string>
     <string name="label_sign_out_success">"Вихід з акаунту підтверджено"</string>
+    <string name="label_user_signed_in_as">"Ви увійшли як "</string>
+    <string name="label_user_not_registered">"Ви не зареєстровані, будь ласка "</string>
 
-    <string name="label_sign_in">"Авторизація"</string>
+    <string name="label_sign_in">"Авторизуйтеся"</string>
     <string name="label_sign_out">"Вихід з акаунту"</string>
     <string name="label_cancel">"Відмінити"</string>
     <string name="sign_in_alert_dialog_text">"Що б продовжити ви повинні авторизуватися"</string>

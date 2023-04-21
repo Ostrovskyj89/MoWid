@@ -4,7 +4,6 @@ import com.eleks.data.model.GroupDataModel
 import com.eleks.data.model.QuoteDataModel
 import com.eleks.data.model.ResultDataModel
 import com.eleks.data.model.SelectedGroupDataModel
-import com.google.firebase.auth.FirebaseUser
 import com.eleks.data.model.*
 import kotlinx.coroutines.flow.Flow
 
@@ -26,7 +25,7 @@ interface FirebaseDataSource {
 
     val userFrequencyFlow: Flow<ResultDataModel<Long>>
 
-    val currentUser: FirebaseUser?
+    val userFlow: Flow<ResultDataModel<UserDataModel>>
 
     fun signInSuccess()
 
@@ -35,6 +34,8 @@ interface FirebaseDataSource {
     fun subscribeAllGroupsQuotes(groupId: String)
 
     fun subscribeFrequencySettings()
+
+    fun subscribeUser()
 
     suspend fun getSelectedQuotes(): ResultDataModel<List<SelectedQuoteDataModel>>
 

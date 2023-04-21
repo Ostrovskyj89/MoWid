@@ -20,8 +20,6 @@ class MainViewModel @Inject constructor(
 
     override fun handleEvent(event: MainEvent) {}
 
-    fun isUserAlreadyLogIn() = interactor.getCurrentUser() != null
-
     fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == ComponentActivity.RESULT_OK) {
             interactor.signInSuccess()
