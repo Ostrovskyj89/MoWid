@@ -2,6 +2,7 @@ package com.eleks.mowid.ui.feature.settings
 
 import androidx.lifecycle.viewModelScope
 import com.eleks.domain.intearactor.MotivationPhraseInteractor
+import com.eleks.domain.intearactor.UserInteractor
 import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.BaseViewModel
 import com.eleks.mowid.model.toUIModel
@@ -17,10 +18,14 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val quotesWorkerManager: QuotesWorkerManager,
     private val interactor: MotivationPhraseInteractor,
+    private val userInteractor: UserInteractor
 ) : BaseViewModel<SettingsState, SettingsEvent, SettingsEffect>() {
 
     init {
         interactor.getFrequencySettingsFlow()
+            .combine(userInteractor.getUserFlow()) { frequency, user ->
+                frequency to user
+            }
             .onStart {
                 setState { copy(isLoading = true) }
             }
@@ -29,8 +34,9 @@ class SettingsViewModel @Inject constructor(
                 setState {
                     copy(
                         isLoading = false,
-                        selectedFrequency = data.selectedFrequency?.toUIModel(),
-                        frequencies = data.frequencies.toUIModel().sortedBy { it.frequencyId }
+                        selectedFrequency = data.first.selectedFrequency?.toUIModel(),
+                        frequencies = data.first.frequencies.toUIModel().sortedBy { it.frequencyId },
+                        userModel = data.second?.toUIModel()
                     )
                 }
             }
@@ -63,6 +69,7 @@ class SettingsViewModel @Inject constructor(
     override fun createInitialState(): SettingsState = SettingsState(
         isLoading = true,
         selectedFrequency = null,
-        frequencies = emptyList()
+        frequencies = emptyList(),
+        userModel = null,
     )
 }

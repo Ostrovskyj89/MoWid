@@ -60,6 +60,11 @@ class FirebaseDataSourceImpl @Inject constructor(
         replay = 1
     )
 
+    private val _userFlow =
+        MutableSharedFlow<ResultDataModel<UserDataModel>>(
+            replay = 1
+        )
+
     private var currentGroupId: String? = null
 
     override val groupsFlow = _groupsFlow.asSharedFlow()
@@ -78,8 +83,7 @@ class FirebaseDataSourceImpl @Inject constructor(
 
     override val userFrequencyFlow = _userFrequencyFlow.asSharedFlow()
 
-    override val currentUser
-        get() = authInstance.currentUser
+    override val userFlow = _userFlow.asSharedFlow()
 
     private val mutex = Mutex()
 
@@ -101,6 +105,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                 saveUser()
             }
             userJob.join()
+            subscribeUser()
             subscribeUserGroups()
             subscribeSelectedGroups()
             currentGroupId?.let { subscribeAllGroupsQuotes(it) }
@@ -109,6 +114,7 @@ class FirebaseDataSourceImpl @Inject constructor(
 
     override fun signOutSuccess() {
         localDataSource.token = UUID.randomUUID().toString()
+        subscribeUser()
         subscribeUserGroups()
         subscribeSelectedGroups()
         currentGroupId?.let { subscribeAllGroupsQuotes(it) }
@@ -124,6 +130,34 @@ class FirebaseDataSourceImpl @Inject constructor(
     override fun subscribeFrequencySettings() {
         subscribeFrequencies()
         subscribeUserFrequency()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun subscribeUser() {
+        launch {
+            var subscription: ListenerRegistration? = null
+            _userFlow.subscriptionCount.collect { subscribers ->
+                if (subscribers > 0) {
+                    subscription = dbInstance
+                        .collection(COLLECTION_USER)
+                        .document(authInstance.currentUser?.uid ?: "_")
+                        .addSnapshotListener { value, error ->
+                            if (error != null) {
+                                _userFlow.tryEmit(ResultDataModel.error(error))
+                                return@addSnapshotListener
+                            }
+                            val userModel = value?.toObject<UserDataModel>()
+                            _userFlow.tryEmit(ResultDataModel.success(userModel))
+                        }
+                } else {
+                    subscription?.let {
+                        it.remove()
+                        _userFlow.resetReplayCache()
+                        cancel()
+                    }
+                }
+            }
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -307,13 +341,19 @@ class FirebaseDataSourceImpl @Inject constructor(
                                 .addOnFailureListener { exception ->
                                     continuation.resume(ResultDataModel.error(exception)) {}
                                 }
-                            currentDocument.update(SELECTED_QUOTES_COUNT_FIELD, FieldValue.increment(1))
+                            currentDocument.update(
+                                SELECTED_QUOTES_COUNT_FIELD,
+                                FieldValue.increment(1)
+                            )
                         } else {
                             currentDocument
                                 .collection("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
                                 .document(quote.id ?: "")
                                 .delete()
-                            currentDocument.update(SELECTED_QUOTES_COUNT_FIELD, FieldValue.increment(-1))
+                            currentDocument.update(
+                                SELECTED_QUOTES_COUNT_FIELD,
+                                FieldValue.increment(-1)
+                            )
                         }
                     } else {
                         currentDocument.set(
@@ -444,7 +484,13 @@ class FirebaseDataSourceImpl @Inject constructor(
             authInstance.currentUser?.let {
                 if (token.isEmpty()) {
                     dbInstance.collection(COLLECTION_USER).document(it.uid)
-                        .set(hashMapOf(TOKEN_FIELD to localDataSource.token))
+                        .set(
+                            UserDataModel(
+                                token = localDataSource.token,
+                                fullName = it.displayName,
+                                email = it.email
+                            )
+                        )
                         .addOnCompleteListener { continuation.resume(token, {}) }
                 } else {
                     localDataSource.token = token

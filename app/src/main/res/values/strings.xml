@@ -22,6 +22,8 @@
     <string name="label_sign_in_success">SignIn Complete</string>
     <string name="label_sign_in_error">"SignIn Error"</string>
     <string name="label_sign_out_success">"SignOut Complete"</string>
+    <string name="label_user_signed_in_as">"You are SignedIn as "</string>
+    <string name="label_user_not_registered">"You are not registered, please "</string>
 
     <string name="label_sign_in">"SignIn"</string>
     <string name="label_sign_out">"SignOut"</string>
