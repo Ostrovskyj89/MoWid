@@ -76,7 +76,7 @@ class QuotesViewModel @Inject constructor(
             QuotesEvent.ShowQuoteModal -> {}
             QuotesEvent.BackButtonClicked -> {}
             is QuotesEvent.OnItemDeleted -> deleteQuote(event.id, event.isSelected)
-            is QuotesEvent.OnEditeClicked -> {
+            is QuotesEvent.OnEditClicked -> {
                 viewModelScope.launch {
                     motivationPhraseInteractor.editQuote(
                         groupId = groupId,

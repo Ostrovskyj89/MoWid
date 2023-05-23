@@ -86,7 +86,7 @@ fun QuotesScreen(
                 }
                 QuotesEvent.BackButtonClicked -> onBackClicked()
                 is QuotesEvent.OnItemDeleted -> {}
-                is QuotesEvent.OnEditeClicked -> {
+                is QuotesEvent.OnEditClicked -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
             }
@@ -121,7 +121,7 @@ fun ScreenContent(
                 onButtonClick = { id, quote, author ->
                     if (id != null) {
                         sendEvent(
-                            QuotesEvent.OnEditeClicked(
+                            QuotesEvent.OnEditClicked(
                                 id = id,
                                 editedQuote = quote,
                                 editedAuthor = author

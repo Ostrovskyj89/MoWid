@@ -5,30 +5,30 @@
     <string name="label_add">Додати</string>
     <string name="label_edit">Редагувати</string>
 
-    // Groups screen
+    <!--   Groups screen-->
     <string name="title_add_group">Додати групу</string>
     <string name="title_edit_group">Редагувати групу</string>
     <string name="label_group">Група</string>
     <string name="label_description">Опис</string>
 
-    // Quotes screen
+    <!--   Quotes screen-->
     <string name="title_add_quote">Додати цитату</string>
     <string name="title_edit_quote">Редагувати цитату</string>
     <string name="label_quote">Цитата</string>
-    <string name="label_author">Автор(необовязково)</string>
+    <string name="label_author">Автор (необов\'язково)</string>
     <string name="label_empty_state">Поки немає жодної цитати.. Натисни ось цю кнопочку нижче щоб додати першу</string>
 
-    // SignIn, SignOut
+    <!--   SignIn, SignOut-->
     <string name="label_sign_in_success">Авторизація закінчена</string>
-    <string name="label_sign_in_error">"Помилка авторизації"</string>
-    <string name="label_sign_out_success">"Вихід з акаунту підтверджено"</string>
-    <string name="label_user_signed_in_as">"Ви увійшли як "</string>
-    <string name="label_user_not_registered">"Ви не зареєстровані, будь ласка "</string>
+    <string name="label_sign_in_error">Помилка авторизації</string>
+    <string name="label_sign_out_success">Вихід з акаунту підтверджено</string>
+    <string name="label_user_signed_in_as">Ви увійшли як </string>
+    <string name="label_user_not_registered">Ви не зареєстровані, будь ласка </string>
 
-    <string name="label_sign_in">"Авторизуйтеся"</string>
-    <string name="label_sign_out">"Вихід з акаунту"</string>
-    <string name="label_cancel">"Відмінити"</string>
-    <string name="sign_in_alert_dialog_text">"Що б продовжити ви повинні авторизуватися"</string>
+    <string name="label_sign_in">Авторизуйтеся</string>
+    <string name="label_sign_out">Вихід з акаунту</string>
+    <string name="label_cancel">Відмінити</string>
+    <string name="sign_in_alert_dialog_text">Що б продовжити ви повинні авторизуватися</string>
 
     // Settings
     <string name="title_settings">Налаштування</string>

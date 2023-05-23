@@ -15,28 +15,28 @@
     <string name="title_add_quote">Add quote</string>
     <string name="title_edit_quote">Edit quote</string>
     <string name="label_quote">Quote</string>
-    <string name="label_author">Author(optional)</string>
+    <string name="label_author">Author (optional)</string>
     <string name="label_empty_state">There are no quotes yet.. Click this button below to add the first one</string>
 
     // SignIn, SignOut
-    <string name="label_sign_in_success">SignIn Complete</string>
-    <string name="label_sign_in_error">"SignIn Error"</string>
-    <string name="label_sign_out_success">"SignOut Complete"</string>
-    <string name="label_user_signed_in_as">"You are SignedIn as "</string>
-    <string name="label_user_not_registered">"You are not registered, please "</string>
+    <string name="label_sign_in_success">Signing in complete</string>
+    <string name="label_sign_in_error">Signing in error</string>
+    <string name="label_sign_out_success">Signing out complete</string>
+    <string name="label_user_signed_in_as">"You are signed in as "</string>
+    <string name="label_user_not_registered">You are not registered, please </string>
 
-    <string name="label_sign_in">"SignIn"</string>
-    <string name="label_sign_out">"SignOut"</string>
-    <string name="label_cancel">"Cancel"</string>
-    <string name="sign_in_alert_dialog_text">"To continue you should SignIn"</string>
+    <string name="label_sign_in">SignIn</string>
+    <string name="label_sign_out">SignOut</string>
+    <string name="label_cancel">Cancel</string>
+    <string name="sign_in_alert_dialog_text">To continue you should SignIn</string>
 
-    // Settings
+<!--    Settings-->
     <string name="title_settings">Settings</string>
     <string name="label_apply">Apply</string>
     <string name="label_frequency">Frequency</string>
     <string name="label_applied">Applied</string>
 
-    //Frequencies
+<!--    Frequencies-->
     <string name="once_a_week">1 time a week</string>
     <string name="once_in_a_five_days">1 time in 5 days</string>
     <string name="once_in_two_days">1 time in 2 days</string>

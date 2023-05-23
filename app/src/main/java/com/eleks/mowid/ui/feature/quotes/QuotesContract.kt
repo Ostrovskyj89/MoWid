@@ -23,7 +23,7 @@ sealed class QuotesEvent : UiEvent {
     object BackButtonClicked : QuotesEvent()
     data class AddQuoteClicked(val quote: String, val author: String) : QuotesEvent()
     data class OnItemDeleted(val id: String, val isSelected: Boolean) : QuotesEvent()
-    data class OnEditeClicked(
+    data class OnEditClicked(
         val id: String,
         val editedQuote: String,
         val editedAuthor: String
