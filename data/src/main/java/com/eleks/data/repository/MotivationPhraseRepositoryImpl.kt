@@ -4,15 +4,21 @@ import com.eleks.data.firebase.source.FirebaseDataSource
 import com.eleks.data.firebase.source.impl.FirebaseDataSourceImpl
 import com.eleks.data.mapper.mapToDomain
 import com.eleks.data.mapper.toDomain
-import com.eleks.data.model.*
+import com.eleks.data.model.GroupDataModel
+import com.eleks.data.model.QuoteDataModel
+import com.eleks.data.model.SelectedQuoteDataModel
+import com.eleks.data.model.Status
+import com.eleks.data.model.merge
+import com.eleks.domain.model.FrequenciesModel
 import com.eleks.domain.model.GroupPhraseModel
 import com.eleks.domain.model.QuoteModel
-import com.eleks.domain.model.FrequenciesModel
 import com.eleks.domain.repository.MotivationPhraseRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import timber.log.Timber
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,6 +32,11 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
         firebaseDataSource.groupsFlow,
         firebaseDataSource.selectedGroupsFlow
     ) { groups, userGroups, selectedGroups ->
+
+        Timber.tag(TAG).i(
+            "getGroupsFlow. Groups: ${groups.data?.size}. userGroups: ${userGroups.data?.size} " +
+                    "selectedGroups: ${selectedGroups.data?.size}"
+        )
         val allGroups = groups.merge(userGroups)
         if (selectedGroups.status == Status.ERROR) {
             throw selectedGroups.error ?: Exception("Unknown exception")
@@ -34,6 +45,7 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
             Status.SUCCESS -> allGroups.data?.distinctBy { it.id }
                 ?.map { model -> model.mapToDomain(selectedGroups.data.orEmpty()) }
                 ?: emptyList()
+
             Status.ERROR -> throw allGroups.error ?: Exception("Unknown exception")
         }
     }
@@ -45,6 +57,10 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
             firebaseDataSource.userQuotesFlow,
             firebaseDataSource.selectedQuotesFlow
         ) { quotes, userQuotes, selectedQuotes ->
+            Timber.tag(TAG).i(
+                "getQuotesFlow. Quotes: ${quotes.data?.size}. userQuotes: ${userQuotes.data?.size} " +
+                        " selectedQuotes: ${selectedQuotes.data?.size}"
+            )
             val allQuotes = quotes.merge(userQuotes)
             if (selectedQuotes.status == Status.ERROR) {
                 throw selectedQuotes.error ?: Exception("Unknown exception")
@@ -52,6 +68,7 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
             when (allQuotes.status) {
                 Status.SUCCESS -> allQuotes.data?.map { model -> model.mapToDomain(selectedQuotes.data.orEmpty()) }
                     ?: emptyList()
+
                 Status.ERROR -> throw allQuotes.error ?: Exception("Unknown exception")
             }
         }
@@ -69,7 +86,8 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
             if (userSettings.status == Status.ERROR) {
                 throw userSettings.error ?: Exception("Unknown exception")
             }
-            settings.data?.toDomain(userSettings.data ?: FirebaseDataSourceImpl.DEFAULT_FREQUENCY_VALUE) ?: throw Exception("Unknown exception")
+            settings.data?.toDomain(userSettings.data ?: FirebaseDataSourceImpl.DEFAULT_FREQUENCY_VALUE)
+                ?: throw Exception("Unknown exception")
         }
     }
 
@@ -150,5 +168,9 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
             editedName = editedName,
             editedDescription = editedDescription
         )
+    }
+
+    companion object {
+        const val TAG = "MotivationPhraseRepository"
     }
 }

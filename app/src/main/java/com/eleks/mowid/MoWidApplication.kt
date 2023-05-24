@@ -6,6 +6,7 @@ import androidx.work.Configuration
 import com.eleks.mowid.ui.worker.ExecutionOption
 import com.eleks.mowid.ui.worker.QuotesWorkerManager
 import dagger.hilt.android.HiltAndroidApp
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -25,5 +26,8 @@ class MoWidApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         workerManager.execute(ExecutionOption.REGULAR)
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
     }
 }

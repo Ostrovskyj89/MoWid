@@ -11,8 +11,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -23,7 +31,10 @@ import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.EFFECTS_KEY
 import com.eleks.mowid.base.ui.EVENTS_KEY
 import com.eleks.mowid.model.GroupPhraseUIModel
-import com.eleks.mowid.ui.composable.*
+import com.eleks.mowid.ui.composable.AppCenterAlignedTopAppBar
+import com.eleks.mowid.ui.composable.AppDropDownMenu
+import com.eleks.mowid.ui.composable.AppFloatingActionButton
+import com.eleks.mowid.ui.composable.AppProgress
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffold
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
@@ -85,8 +96,9 @@ fun HomeScreen(
                 is HomeEvent.AddGroupClicked -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
+
                 is HomeEvent.OnItemDeleted -> {}
-                is HomeEvent.OnEditeClicked -> {
+                is HomeEvent.OnEditClicked -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
             }
@@ -120,7 +132,7 @@ fun ScreenContent(
                 onButtonClick = { id, name, description ->
                     if (id != null) {
                         sendEvent(
-                            HomeEvent.OnEditeClicked(
+                            HomeEvent.OnEditClicked(
                                 id = id,
                                 editedName = name,
                                 editedDescription = description

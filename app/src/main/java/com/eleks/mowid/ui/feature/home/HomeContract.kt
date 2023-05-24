@@ -16,7 +16,7 @@ sealed class HomeEvent : UiEvent {
     object ShowGroupModal : HomeEvent()
     object HideGroupModal : HomeEvent()
     data class AddGroupClicked(val name: String, val description: String) : HomeEvent()
-    data class OnEditeClicked(
+    data class OnEditClicked(
         val id: String,
         val editedName: String,
         val editedDescription: String

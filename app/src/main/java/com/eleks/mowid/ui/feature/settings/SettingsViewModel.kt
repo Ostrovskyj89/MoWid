@@ -1,8 +1,8 @@
 package com.eleks.mowid.ui.feature.settings
 
 import androidx.lifecycle.viewModelScope
-import com.eleks.domain.intearactor.MotivationPhraseInteractor
-import com.eleks.domain.intearactor.UserInteractor
+import com.eleks.domain.interactor.MotivationPhraseInteractor
+import com.eleks.domain.interactor.UserInteractor
 import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.BaseViewModel
 import com.eleks.mowid.model.toUIModel
@@ -10,7 +10,13 @@ import com.eleks.mowid.ui.worker.ExecutionOption
 import com.eleks.mowid.ui.worker.QuotesWorkerManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

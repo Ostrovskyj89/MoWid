@@ -1,8 +1,8 @@
-package com.eleks.domain.intearactor
+package com.eleks.domain.interactor
 
+import com.eleks.domain.model.FrequenciesModel
 import com.eleks.domain.model.GroupPhraseModel
 import com.eleks.domain.model.QuoteModel
-import com.eleks.domain.model.FrequenciesModel
 import com.eleks.domain.repository.MotivationPhraseRepository
 import kotlinx.coroutines.flow.Flow
 

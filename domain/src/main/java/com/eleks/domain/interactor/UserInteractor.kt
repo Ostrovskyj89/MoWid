@@ -1,4 +1,4 @@
-package com.eleks.domain.intearactor
+package com.eleks.domain.interactor
 
 import com.eleks.domain.repository.UserRepository
 

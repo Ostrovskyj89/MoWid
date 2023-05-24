@@ -2,8 +2,8 @@ package com.eleks.mowid.di
 
 import com.eleks.data.repository.MotivationPhraseRepositoryImpl
 import com.eleks.data.repository.UserRepositoryImpl
-import com.eleks.domain.intearactor.MotivationPhraseInteractor
-import com.eleks.domain.intearactor.UserInteractor
+import com.eleks.domain.interactor.MotivationPhraseInteractor
+import com.eleks.domain.interactor.UserInteractor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
