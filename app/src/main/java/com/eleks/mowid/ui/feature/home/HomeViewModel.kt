@@ -1,12 +1,17 @@
 package com.eleks.mowid.ui.feature.home
 
 import androidx.lifecycle.viewModelScope
-import com.eleks.domain.intearactor.MotivationPhraseInteractor
+import com.eleks.domain.interactor.MotivationPhraseInteractor
 import com.eleks.mowid.base.ui.BaseViewModel
 import com.eleks.mowid.model.toUIModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -51,12 +56,15 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.GroupItemClicked -> {
                 // handle directly on UI
             }
+
             HomeEvent.ShowGroupModal -> {
                 // handle directly on UI
             }
+
             HomeEvent.HideGroupModal -> {
                 // handle directly on UI
             }
+
             is HomeEvent.AddGroupClicked -> {
                 viewModelScope.launch {
                     motivationPhraseInteractor.addGroup(
@@ -65,8 +73,9 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
+
             is HomeEvent.OnItemDeleted -> deleteGroup((event.id))
-            is HomeEvent.OnEditeClicked -> {
+            is HomeEvent.OnEditClicked -> {
                 viewModelScope.launch {
                     motivationPhraseInteractor.editGroup(
                         groupId = event.id,
@@ -75,6 +84,7 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
+
         }
     }
 

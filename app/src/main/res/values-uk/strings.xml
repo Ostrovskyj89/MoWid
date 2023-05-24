@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">MoWid</string>
 
-    <string name="title_home">Mowid</string>
+    <string name="title_home">MoWid</string>
     <string name="label_add">Додати</string>
     <string name="label_edit">Редагувати</string>
 
@@ -30,13 +30,13 @@
     <string name="label_cancel">Відмінити</string>
     <string name="sign_in_alert_dialog_text">Що б продовжити ви повинні авторизуватися</string>
 
-    // Settings
+    <!--     Settings-->
     <string name="title_settings">Налаштування</string>
     <string name="label_apply">Застосувати</string>
     <string name="label_frequency">Частота оновлення</string>
     <string name="label_applied">Застосовано</string>
 
-    //Frequencies
+    <!--    Frequencies-->
     <string name="once_a_week">1 раз на тиждень</string>
     <string name="once_in_a_five_days">1 раз у 5 днів</string>
     <string name="once_in_two_days">1 раз у 2 дні</string>

@@ -2,12 +2,17 @@ package com.eleks.mowid.ui.feature.quotes
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.eleks.domain.intearactor.MotivationPhraseInteractor
+import com.eleks.domain.interactor.MotivationPhraseInteractor
 import com.eleks.mowid.base.ui.BaseViewModel
 import com.eleks.mowid.model.toUIModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

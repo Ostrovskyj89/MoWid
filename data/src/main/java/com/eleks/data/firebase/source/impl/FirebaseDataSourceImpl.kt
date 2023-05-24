@@ -12,6 +12,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -532,6 +533,7 @@ class FirebaseDataSourceImpl @Inject constructor(
         launch {
             var subscription: ListenerRegistration? = null
             _groupsFlow.subscriptionCount.collect {
+                Timber.tag(TAG).i("subscribeGroups: subscribers: $it")
                 if (it > 0) {
                     subscription = dbInstance.collection(COLLECTION_GROUPS)
                         .addSnapshotListener { value, error ->
@@ -551,7 +553,6 @@ class FirebaseDataSourceImpl @Inject constructor(
                     subscription?.let { listener ->
                         listener.remove()
                         _groupsFlow.resetReplayCache()
-                        cancel()
                     }
                 }
             }
@@ -563,6 +564,7 @@ class FirebaseDataSourceImpl @Inject constructor(
         launch {
             var subscription: ListenerRegistration? = null
             _userGroupsFlow.subscriptionCount.collect { subscribers ->
+                Timber.tag(TAG).i("subscribeUserGroups: subscribers: $subscribers")
                 if (subscribers > 0) {
                     subscription = dbInstance.collection(COLLECTION_PERSONAL)
                         .document(localDataSource.token).collection(COLLECTION_GROUPS)
@@ -584,7 +586,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                     subscription?.let { listener ->
                         listener.remove()
                         _userGroupsFlow.resetReplayCache()
-                        cancel()
+//                        cancel()
                     }
                 }
             }
@@ -596,6 +598,7 @@ class FirebaseDataSourceImpl @Inject constructor(
         launch {
             var subscription: ListenerRegistration? = null
             _quotesFlow.subscriptionCount.collect { subscribers ->
+                Timber.tag(TAG).i("subscribeQuotes: subscribers: $subscribers")
                 if (subscribers > 0) {
                     subscription = dbInstance.collection(COLLECTION_GROUPS).document(groupId)
                         .collection(COLLECTION_QUOTES)
@@ -629,6 +632,7 @@ class FirebaseDataSourceImpl @Inject constructor(
         launch {
             var subscription: ListenerRegistration? = null
             _userQuotesFlow.subscriptionCount.collect { subscribers ->
+                Timber.tag(TAG).i("subscribeUserQuotes: subscribers: $subscribers")
                 if (subscribers > 0) {
                     subscription = dbInstance.collection(COLLECTION_PERSONAL)
                         .document(localDataSource.token).collection(COLLECTION_GROUPS)
@@ -664,6 +668,7 @@ class FirebaseDataSourceImpl @Inject constructor(
         launch {
             var subscription: ListenerRegistration? = null
             _frequenciesFlow.subscriptionCount.collect { subscribers ->
+                Timber.tag(TAG).i("subscribeFrequencies: subscribers: $subscribers")
                 if (subscribers > 0) {
                     subscription = dbInstance.collection(COLLECTION_FREQUENCY)
                         .addSnapshotListener { value, error ->
@@ -695,6 +700,7 @@ class FirebaseDataSourceImpl @Inject constructor(
         launch {
             var subscription: ListenerRegistration? = null
             _userFrequencyFlow.subscriptionCount.collect { subscribers ->
+                Timber.tag(TAG).i("subscribeUserFrequency: subscribers: $subscribers")
                 if (subscribers > 0) {
                     subscription = dbInstance.collection(COLLECTION_PERSONAL)
                         .document(localDataSource.token)
@@ -750,7 +756,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                     subscription?.let { listener ->
                         listener.remove()
                         _selectedGroupsFlow.resetReplayCache()
-                        cancel()
+//                        cancel()
                     }
                 }
             }
@@ -797,6 +803,7 @@ class FirebaseDataSourceImpl @Inject constructor(
     }
 
     companion object {
+        const val TAG = "FirebaseDataSourceImpl"
         const val DEFAULT_FREQUENCY_VALUE = 24L
         private const val COLLECTION_PERSONAL = "personal"
         private const val COLLECTION_USER = "users"

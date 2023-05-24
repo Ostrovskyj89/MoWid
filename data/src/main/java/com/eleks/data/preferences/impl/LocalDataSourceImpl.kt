@@ -8,7 +8,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class LocalDataSourceImpl @Inject constructor(val sharedPreferences: SharedPreferences) :
+class LocalDataSourceImpl @Inject constructor(private val sharedPreferences: SharedPreferences) :
     LocalDataSource {
 
     override var testValue: Boolean

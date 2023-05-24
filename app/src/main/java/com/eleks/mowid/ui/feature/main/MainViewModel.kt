@@ -1,7 +1,7 @@
 package com.eleks.mowid.ui.feature.main
 
 import androidx.core.app.ComponentActivity
-import com.eleks.domain.intearactor.UserInteractor
+import com.eleks.domain.interactor.UserInteractor
 import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.BaseViewModel
 import com.eleks.mowid.ui.worker.ExecutionOption
