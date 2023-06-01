@@ -5,5 +5,6 @@ data class SelectedQuoteDataModel(
     val groupId: String? = null,
     val quote: String? = null,
     val author: String? = null,
-    val shownAt: Long? = null
+    val shownAt: Long? = null,
+    var selectedBy: String? = null
 )
