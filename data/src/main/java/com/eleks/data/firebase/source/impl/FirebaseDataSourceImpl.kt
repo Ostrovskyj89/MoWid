@@ -334,8 +334,9 @@ class FirebaseDataSourceImpl @Inject constructor(
                     if (it.result.exists()) {
                         if (isSelected) {
                             currentDocument
-                                .collection("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
-                                .document(quote.id ?: "").set(quote)
+                                .collection(COLLECTION_SELECTED_QUOTES)
+                                .document(quote.id ?: "")
+                                .set(quote.apply { selectedBy = localDataSource.token })
                                 .addOnSuccessListener {
                                     continuation.resume(ResultDataModel.success(quote)) {}
                                 }
@@ -348,7 +349,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                             )
                         } else {
                             currentDocument
-                                .collection("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
+                                .collection(COLLECTION_SELECTED_QUOTES)
                                 .document(quote.id ?: "")
                                 .delete()
                             currentDocument.update(
@@ -364,8 +365,9 @@ class FirebaseDataSourceImpl @Inject constructor(
                             )
                         ).addOnCompleteListener {
                             currentDocument
-                                .collection("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
-                                .document(quote.id ?: "").set(quote)
+                                .collection(COLLECTION_SELECTED_QUOTES)
+                                .document(quote.id ?: "")
+                                .set(quote.apply { selectedBy = localDataSource.token })
                         }
                     }
                 }
@@ -376,7 +378,8 @@ class FirebaseDataSourceImpl @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun getSelectedQuotes(): ResultDataModel<List<SelectedQuoteDataModel>> =
         suspendCancellableCoroutine { continuation ->
-            dbInstance.collectionGroup("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
+            dbInstance.collectionGroup(COLLECTION_SELECTED_QUOTES)
+                .whereEqualTo("selectedBy", localDataSource.token)
                 .get()
                 .addOnSuccessListener { task ->
                     val quotes = mutableListOf<SelectedQuoteDataModel>()
@@ -402,7 +405,7 @@ class FirebaseDataSourceImpl @Inject constructor(
             .document(localDataSource.token)
             .collection(COLLECTION_SELECTION)
             .document(groupId)
-            .collection("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
+            .collection(COLLECTION_SELECTED_QUOTES)
             .document(quoteId)
             .update(SHOWN_AT_FIELD, shownTime)
     }
@@ -467,7 +470,7 @@ class FirebaseDataSourceImpl @Inject constructor(
             .document(localDataSource.token)
             .collection(COLLECTION_SELECTION)
             .document(groupId)
-        currentDocument.collection("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
+        currentDocument.collection(COLLECTION_SELECTED_QUOTES)
             .document(quoteId)
             .delete()
             .addOnSuccessListener {
@@ -774,7 +777,7 @@ class FirebaseDataSourceImpl @Inject constructor(
                             .document(localDataSource.token)
                             .collection(COLLECTION_SELECTION)
                             .document(groupId)
-                            .collection("${COLLECTION_SELECTED_QUOTES}user${localDataSource.token}")
+                            .collection(COLLECTION_SELECTED_QUOTES)
                             .addSnapshotListener { value, error ->
                                 if (error != null) {
                                     _selectedQuotesFlow.tryEmit(ResultDataModel.error(error))
