@@ -17,6 +17,9 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
     fun getFrequencySettingsFlow(): Flow<FrequenciesModel> =
         motivationPhraseRepository.getFrequencySettingsFlow()
 
+    fun getRandomMeme(): Flow<String> =
+        motivationPhraseRepository.getRandomMeme()
+
     suspend fun addGroup(name: String, description: String) {
         motivationPhraseRepository.addGroup(name, description)
     }
@@ -40,8 +43,9 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
     suspend fun saveSelection(
         groupId: String,
         quoteId: String,
-        quote: String,
+        quote: String?,
         author: String?,
+        memeUrl: String?,
         isSelected: Boolean
     ) {
         motivationPhraseRepository.saveSelection(
@@ -49,6 +53,7 @@ class MotivationPhraseInteractor(private val motivationPhraseRepository: Motivat
             quoteId = quoteId,
             quote = quote,
             author = author,
+            memeUrl = memeUrl,
             isSelected = isSelected
         )
     }

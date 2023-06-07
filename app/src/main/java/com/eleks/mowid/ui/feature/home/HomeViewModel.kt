@@ -44,6 +44,24 @@ class HomeViewModel @Inject constructor(
             }
             .launchIn(viewModelScope)
 
+        viewModelScope.launch {
+            motivationPhraseInteractor.getRandomMeme()
+                .catch {
+                    HomeEffect.ShowError(
+                        message = it.message.toString()
+                    ).sendEffect()
+                }
+                .collect {
+                    motivationPhraseInteractor.saveSelection(
+                        groupId = "memesGroup",
+                        quoteId = "memeId",
+                        quote = null,
+                        author = null,
+                        memeUrl = it,
+                        isSelected = true
+                    )
+                }
+        }
     }
 
     override fun createInitialState(): HomeState = HomeState(

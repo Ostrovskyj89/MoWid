@@ -48,8 +48,9 @@ class QuotesWorker @AssistedInject constructor(
     private suspend fun showRegularQuote(quotes: List<SelectedQuoteDataModel>) {
         quotes.sortedBy { it.shownAt }.firstOrNull()?.let {
             QuotesWidgetReceiver.updateWidget(
-                quote = it.quote ?: "",
-                author = it.author ?: "",
+                quote = it.quote,
+                author = it.author,
+                memeUrl = it.memeUrl,
                 context = context
             )
             updateShownQuote(it)
@@ -66,8 +67,9 @@ class QuotesWorker @AssistedInject constructor(
         }
         nextQuote?.let {
             QuotesWidgetReceiver.updateWidget(
-                quote = it.quote ?: "",
-                author = it.author ?: "",
+                quote = it.quote,
+                author = it.author,
+                memeUrl = it.memeUrl,
                 context = context
             )
             updateShownQuote(it)
@@ -85,8 +87,9 @@ class QuotesWorker @AssistedInject constructor(
         }
         previousQuote?.let {
             QuotesWidgetReceiver.updateWidget(
-                quote = it.quote ?: "",
-                author = it.author ?: "",
+                quote = it.quote,
+                author = it.author,
+                memeUrl = it.memeUrl,
                 context = context
             )
             updateShownQuote(it)

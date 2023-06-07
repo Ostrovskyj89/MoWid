@@ -13,6 +13,8 @@ interface MotivationPhraseRepository {
 
     fun getFrequencySettingsFlow() : Flow<FrequenciesModel>
 
+    fun getRandomMeme() : Flow<String>
+
     suspend fun addGroup(name: String, description: String)
 
     suspend fun addQuote(groupId: String, quote: String, author: String)
@@ -26,8 +28,9 @@ interface MotivationPhraseRepository {
     suspend fun saveSelection(
         groupId: String,
         quoteId: String,
-        quote: String,
+        quote: String?,
         author: String?,
+        memeUrl: String?,
         isSelected: Boolean
     )
 

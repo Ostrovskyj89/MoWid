@@ -1,5 +1,6 @@
 package com.eleks.data.firebase.source.impl
 
+import android.util.Log
 import com.eleks.data.firebase.source.FirebaseDataSource
 import com.eleks.data.model.*
 import com.eleks.data.preferences.LocalDataSource
@@ -370,6 +371,8 @@ class FirebaseDataSourceImpl @Inject constructor(
                                 .set(quote.apply { selectedBy = localDataSource.token })
                         }
                     }
+                }.addOnFailureListener {
+                    Log.d("FirebaseDataSource", "exception = ${it.message}")
                 }
             }
         }

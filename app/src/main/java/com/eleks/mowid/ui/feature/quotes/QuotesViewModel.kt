@@ -74,6 +74,7 @@ class QuotesViewModel @Inject constructor(
                         quoteId = event.quoteId,
                         quote = event.quote,
                         author = event.author,
+                        memeUrl = null,
                         isSelected = event.checked
                     )
                 }

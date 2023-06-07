@@ -15,6 +15,8 @@ import com.eleks.domain.model.QuoteModel
 import com.eleks.domain.repository.MotivationPhraseRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import com.eleks.data.network.NetworkDataSource
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -24,7 +26,8 @@ import javax.inject.Singleton
 
 @Singleton
 class MotivationPhraseRepositoryImpl @Inject constructor(
-    private val firebaseDataSource: FirebaseDataSource
+    private val firebaseDataSource: FirebaseDataSource,
+    private val networkDataSource: NetworkDataSource
 ) : MotivationPhraseRepository {
 
     override fun getGroupsFlow(): Flow<List<GroupPhraseModel>> = combine(
@@ -91,6 +94,10 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getRandomMeme(): Flow<String> =
+        networkDataSource.getRandomMeme().map { it.url }
+
+
     override suspend fun addGroup(name: String, description: String) {
         firebaseDataSource.saveNewGroup(
             GroupDataModel(
@@ -129,8 +136,9 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
     override suspend fun saveSelection(
         groupId: String,
         quoteId: String,
-        quote: String,
+        quote: String?,
         author: String?,
+        memeUrl: String?,
         isSelected: Boolean
     ) {
         firebaseDataSource.saveSelection(
@@ -138,6 +146,7 @@ class MotivationPhraseRepositoryImpl @Inject constructor(
                 id = quoteId,
                 groupId = groupId,
                 quote = quote,
+                memeUrl = memeUrl,
                 author = author
             ),
             isSelected = isSelected

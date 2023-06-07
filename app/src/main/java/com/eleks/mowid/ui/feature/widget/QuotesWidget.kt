@@ -35,10 +35,12 @@ class QuotesWidget : GlanceAppWidget() {
     companion object {
         private const val QUOTE_PREFS_KEY = "QUOTE_PREFS_KEY"
         private const val AUTHOR_PREFS_KEY = "AUTHOR_PREFS_KEY"
+        private const val MEME_PREFS_KEY = "MEME_PREFS_KEY"
         private const val TAG = "QuotesWidget"
 
         val quotePreference = stringPreferencesKey(QUOTE_PREFS_KEY)
         val authorPreference = stringPreferencesKey(AUTHOR_PREFS_KEY)
+        val memePreference = stringPreferencesKey(MEME_PREFS_KEY)
     }
 }
 
@@ -46,12 +48,18 @@ class QuotesWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = QuotesWidget()
 
     companion object {
-        suspend fun updateWidget(quote: String, author: String, context: Context) {
+        suspend fun updateWidget(
+            quote: String?,
+            author: String?,
+            memeUrl: String?,
+            context: Context
+        ) {
             val glanceId =
                 GlanceAppWidgetManager(context).getGlanceIds(QuotesWidget::class.java).last()
             updateAppWidgetState(context, glanceId) { prefs ->
-                prefs[QuotesWidget.quotePreference] = quote
-                prefs[QuotesWidget.authorPreference] = author
+                prefs[QuotesWidget.quotePreference] = quote ?: ""
+                prefs[QuotesWidget.authorPreference] = author ?: ""
+                prefs[QuotesWidget.memePreference] = memeUrl ?: ""
             }
             QuotesWidget().updateAll(context)
         }
