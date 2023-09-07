@@ -1,6 +1,7 @@
 package com.eleks.mowid.ui.feature.quotes.composable
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -21,7 +22,9 @@ fun QuotesList(
     onItemDeleted: (String, Boolean) -> Unit,
     onEdit: (id: String, quote: String, author: String) -> Unit
 ) {
-    LazyColumn {
+    LazyColumn(
+        contentPadding = PaddingValues(bottom = 48.dp)
+    ) {
         items(
             items = quotes,
             key = { quoteModel -> quoteModel.id }

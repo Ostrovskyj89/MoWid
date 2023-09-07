@@ -6,9 +6,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.eleks.mowid.ui.navigation.Navigation.Args.GROUP_ID
-import com.eleks.mowid.ui.navigation.Navigation.Args.GROUP_NAME
 import com.eleks.mowid.ui.feature.main.MainViewModel
+import com.eleks.mowid.ui.navigation.Navigation.Args.GROUP_ID
+import com.eleks.mowid.ui.navigation.Navigation.Args.QUOTE_ID
 
 @Composable
 fun AppNavigation(activityViewModel: MainViewModel) {
@@ -16,14 +16,14 @@ fun AppNavigation(activityViewModel: MainViewModel) {
 
     NavHost(
         navController = navController,
-        startDestination = Navigation.Route.HOME.route
+        startDestination = Navigation.Route.Home.route
     ) {
         composable(
-            route = Navigation.Route.HOME.route
+            route = Navigation.Route.Home.route
         ) {
             HomeScreenDestination(
-                onNavigateToQuotes = { groupId, groupName ->
-                    navController.navigate(Navigation.Route.Quotes.createRoute(groupId, groupName))
+                onNavigateToQuotes = { groupId ->
+                    navController.navigate(route = Navigation.Route.Quotes.createRoute(groupId))
                 },
                 onNavigateToSettings = { navController.navigate(Navigation.Route.Settings.route) }
             )
@@ -34,15 +34,12 @@ fun AppNavigation(activityViewModel: MainViewModel) {
             arguments = listOf(
                 navArgument(name = GROUP_ID) {
                     type = NavType.StringType
-                },
-                navArgument(name = GROUP_NAME) {
-                    type = NavType.StringType
                 }
             )
         ) { backStackEntry ->
-            val groupName = requireNotNull(backStackEntry.arguments?.getString(GROUP_NAME))
+//            val groupName = requireNotNull(backStackEntry.arguments?.getString(GROUP_NAME))
             QuotesScreenDestination(
-                groupName = groupName,
+                groupName = "",
                 onBackClicked = { navController.navigateUp() },
                 onNavigateToSettings = { navController.navigate(Navigation.Route.Settings.route) }
             )
@@ -60,12 +57,19 @@ object Navigation {
     object Args {
         const val GROUP_ID = "group_id"
         const val GROUP_NAME = "group_name"
+        const val QUOTE_ID = "quote_id"
     }
 
     sealed class Route(val route: String) {
-        object HOME : Route("Home")
-        object Quotes : Route("Quotes/{$GROUP_ID}/{$GROUP_NAME}") {
-            fun createRoute(groupId: String, groupName: String) = "Quotes/$groupId/$groupName"
+        object Home : Route("Home")
+        object Quotes : Route("Quotes/{$GROUP_ID}") {
+
+            fun createRoute(groupId: String) = "Quotes/$groupId"
+        }
+
+        object Quote : Route("Quotes/{$GROUP_ID}/{$QUOTE_ID}") {
+
+            fun createRoute(groupId: String, quoteId: String) = "Quotes/$groupId/$quoteId"
         }
 
         object Settings : Route("Settings")

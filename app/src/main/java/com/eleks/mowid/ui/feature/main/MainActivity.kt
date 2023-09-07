@@ -1,5 +1,7 @@
 package com.eleks.mowid.ui.feature.main
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -22,6 +24,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewModel>() {
+
     override val viewModel: MainViewModel by viewModels()
 
     private val signInLauncher = registerForActivityResult(
@@ -58,8 +61,14 @@ class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewMode
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.event.collect {
                     when (it) {
-                        MainEvent.SignIn -> createSignInIntent()
-                        MainEvent.SignOut -> signOut()
+                        is MainEvent.SignIn -> createSignInIntent()
+                        is MainEvent.SignOut -> signOut()
+                        is MainEvent.NavigateToQuote -> {
+
+                            val groupId = intent.getStringExtra(GROUP_ID)
+                            val quoteId = intent.getStringExtra(QUOTE_ID)
+//                            viewModel.navigateToQuote(groupId, quoteId)
+                        }
                     }
                 }
             }
@@ -86,5 +95,21 @@ class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewMode
                 viewModel.signOutSuccess()
                 Toast.makeText(this, getString(R.string.label_sign_out_success), Toast.LENGTH_LONG).show()
             }
+    }
+
+    companion object {
+
+        private const val TAG = "MainActivity"
+        private const val GROUP_ID = "groupId"
+        private const val QUOTE_ID = "quoteId"
+
+        fun start(context: Context, groupId: String, quoteId: String) {
+            val intent = Intent(context, MainActivity::class.java)
+                .apply {
+                    putExtra(GROUP_ID, groupId)
+                    putExtra(QUOTE_ID, quoteId)
+                }
+            context.startActivity(intent)
+        }
     }
 }

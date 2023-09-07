@@ -2,25 +2,12 @@ package com.eleks.mowid.ui.feature.home
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -31,10 +18,7 @@ import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.EFFECTS_KEY
 import com.eleks.mowid.base.ui.EVENTS_KEY
 import com.eleks.mowid.model.GroupPhraseUIModel
-import com.eleks.mowid.ui.composable.AppCenterAlignedTopAppBar
-import com.eleks.mowid.ui.composable.AppDropDownMenu
-import com.eleks.mowid.ui.composable.AppFloatingActionButton
-import com.eleks.mowid.ui.composable.AppProgress
+import com.eleks.mowid.ui.composable.*
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffold
 import com.eleks.mowid.ui.composable.bottomsheet.BottomSheetScaffoldState
 import com.eleks.mowid.ui.composable.bottomsheet.rememberBottomSheetScaffoldState
@@ -48,7 +32,7 @@ import kotlinx.coroutines.flow.onEach
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
-    onNavigateToQuotes: (String, String) -> Unit,
+    onNavigateToQuotes: (id: String) -> Unit,
     onNavigateToSettings: () -> Unit,
 ) {
     val state: HomeState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -79,20 +63,19 @@ fun HomeScreen(
     LaunchedEffect(EVENTS_KEY) {
         viewModel.event.onEach { event ->
             when (event) {
-                HomeEvent.ShowGroupModal -> {
+                is HomeEvent.ShowGroupModal -> {
                     if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                         bottomSheetScaffoldState.bottomSheetState.expand()
                     } else {
                         bottomSheetScaffoldState.bottomSheetState.collapse()
                     }
                 }
-                is HomeEvent.GroupItemClicked -> onNavigateToQuotes(
-                    event.groupPhrase.id,
-                    event.groupPhrase.name
-                )
-                HomeEvent.HideGroupModal -> {
+
+                is HomeEvent.GroupItemClicked -> onNavigateToQuotes(event.groupPhrase.id)
+                is HomeEvent.HideGroupModal -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
+
                 is HomeEvent.AddGroupClicked -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
@@ -119,16 +102,16 @@ fun ScreenContent(
     state: HomeState,
     sendEvent: (HomeEvent) -> Unit,
     bottomSheetState: BottomSheetScaffoldState,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
 ) {
 
-    var showMenu by remember { mutableStateOf(false) }
-    var bottomSheetUIState: BottomSheetUIState by remember { mutableStateOf(BottomSheetUIState.AddGroupBottomSheet) }
+    val showMenu = remember { mutableStateOf(false) }
+    val bottomSheetUIState = remember { mutableStateOf<BottomSheetUIState>(BottomSheetUIState.AddGroupBottomSheet) }
 
     BottomSheetScaffold(
         sheetContent = {
             BottomSheet(
-                bottomSheetUIState = bottomSheetUIState,
+                bottomSheetUIState = bottomSheetUIState.value,
                 onButtonClick = { id, name, description ->
                     if (id != null) {
                         sendEvent(
@@ -147,7 +130,8 @@ fun ScreenContent(
                         )
                     }
                 },
-                clearSavedStates = bottomSheetState.bottomSheetState.isCollapsed
+                clearSavedStates = bottomSheetState.bottomSheetState.isCollapsed,
+                isExpanded = bottomSheetState.bottomSheetState.isExpanded,
             )
         },
         scaffoldState = bottomSheetState,
@@ -155,79 +139,75 @@ fun ScreenContent(
         sheetBackgroundColor = MaterialTheme.colorScheme.secondaryContainer,
         sheetPeekHeight = 0.dp,
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Scaffold(
-                topBar = {
-                    AppCenterAlignedTopAppBar(
-                        title = stringResource(id = R.string.title_home),
-                        actions = {
-                            IconButton(onClick = { showMenu = !showMenu }) {
-                                Icon(
-                                    imageVector = Icons.Filled.MoreVert,
-                                    contentDescription = "TODO: description"
-                                )
-                            }
-                            AppDropDownMenu(
-                                expanded = showMenu,
-                                onDismissRequest = { showMenu = false },
-                                onSettingsClicked = onNavigateToSettings
-                            )
-                        }
-                    )
-                },
-                floatingActionButton = {
-                    if (state.isLoading.not()) AppFloatingActionButton(
-                        onClick = {
-                            bottomSheetUIState = BottomSheetUIState.AddGroupBottomSheet
-                            sendEvent(HomeEvent.ShowGroupModal)
-                        }
-                    ) else Unit
-                }
-            ) { padding ->
-                Column(
-                    modifier = Modifier.padding(padding)
-                ) {
-                    when {
-                        state.isLoading -> AppProgress()
-                        else -> HomeList(
-                            groupPhraseList = state.groupPhraseList,
-                            onClick = {
-                                sendEvent(HomeEvent.GroupItemClicked(it))
-                            },
-                            onDelete = {
-                                sendEvent(HomeEvent.OnItemDeleted(it))
-                            },
-                            onEdit = { id, name, description ->
-                                bottomSheetUIState = BottomSheetUIState.EditGroupBottomSheet(
-                                    id = id,
-                                    textField1 = name,
-                                    textField2 = description
-                                )
-                                sendEvent(HomeEvent.ShowGroupModal)
-                            }
-                        )
-                    }
-                }
-            }
-            if (bottomSheetState.bottomSheetState.isExpanded) {
-                Box(
-                    modifier = Modifier
-                        .clickable {
-                            sendEvent(HomeEvent.HideGroupModal)
-                        }
-                        .background(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.20F))
-                        .fillMaxSize(),
-                ) {
-
-                }
-            }
-        }
-
+        HomeScreenContent(showMenu, onNavigateToSettings, state, bottomSheetUIState, sendEvent)
     }
+}
 
+@Composable
+private fun HomeScreenContent(
+    showMenu: MutableState<Boolean>,
+    onNavigateToSettings: () -> Unit,
+    state: HomeState,
+    bottomSheetUIState: MutableState<BottomSheetUIState>,
+    sendEvent: (HomeEvent) -> Unit,
+) {
+    Scaffold(
+        topBar = { TopBar(showMenu, onNavigateToSettings) },
+        floatingActionButton = {
+            if (state.isLoading.not()) AppFloatingActionButton(
+                onClick = {
+                    bottomSheetUIState.value = BottomSheetUIState.AddGroupBottomSheet
+                    sendEvent(HomeEvent.ShowGroupModal)
+                }
+            ) else Unit
+        }
+    ) { padding ->
+//        Column(
+//            modifier = Modifier.padding(padding)
+//        ) {
+        when {
+            state.isLoading -> AppProgress()
+            else -> HomeList(
+                groupPhraseList = state.groupPhraseList,
+                modifier = Modifier.padding(padding),
+                onClick = {
+                    sendEvent(HomeEvent.GroupItemClicked(it))
+                },
+                onDelete = {
+                    sendEvent(HomeEvent.OnItemDeleted(it))
+                },
+                onEdit = { id, name, description ->
+                    bottomSheetUIState.value = BottomSheetUIState.EditGroupBottomSheet(
+                        id = id,
+                        textField1 = name,
+                        textField2 = description
+                    )
+                    sendEvent(HomeEvent.ShowGroupModal)
+                }
+            )
+        }
+//        }
+    }
+}
+
+@Composable
+private fun TopBar(showMenu: MutableState<Boolean>, onNavigateToSettings: () -> Unit) {
+    AppCenterAlignedTopAppBar(
+        title = stringResource(id = R.string.title_home),
+        actions = {
+            IconButton(onClick = { showMenu.value = !showMenu.value }) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = "TODO: description"
+                )
+            }
+            AppDropDownMenu(
+                expanded = showMenu.value,
+                onDismissRequest = { showMenu.value = false },
+                onSettingsClicked = onNavigateToSettings
+            )
+        }
+    )
 }
 
 @Preview(showBackground = true)

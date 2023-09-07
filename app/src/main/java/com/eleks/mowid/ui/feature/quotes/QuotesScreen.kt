@@ -4,10 +4,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -16,9 +13,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.eleks.mowid.R
 import com.eleks.mowid.base.ui.EFFECTS_KEY
 import com.eleks.mowid.base.ui.EVENTS_KEY
 import com.eleks.mowid.model.QuoteUIModel
@@ -40,7 +39,7 @@ fun QuotesScreen(
     viewModel: QuotesViewModel,
     groupName: String,
     onBackClicked: () -> Unit,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
 ) {
     val state: QuotesState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -70,25 +69,31 @@ fun QuotesScreen(
     LaunchedEffect(EVENTS_KEY) {
         viewModel.event.onEach { event ->
             when (event) {
-                QuotesEvent.ShowQuoteModal -> {
+                is QuotesEvent.ShowQuoteModal -> {
                     if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                         bottomSheetScaffoldState.bottomSheetState.expand()
                     } else {
                         bottomSheetScaffoldState.bottomSheetState.collapse()
                     }
                 }
+
                 is QuotesEvent.QuoteItemChecked -> {}
-                QuotesEvent.HideQuoteModal -> {
+                is QuotesEvent.HideQuoteModal -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
+
                 is QuotesEvent.AddQuoteClicked -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
-                QuotesEvent.BackButtonClicked -> onBackClicked()
+
+                is QuotesEvent.BackButtonClicked -> onBackClicked()
                 is QuotesEvent.OnItemDeleted -> {}
                 is QuotesEvent.OnEditClicked -> {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
+
+                is QuotesEvent.ShowDeleteConfirmationDialog -> {}
+                is QuotesEvent.HideDeleteConfirmationDialog -> {}
             }
         }.collect()
     }
@@ -100,6 +105,31 @@ fun QuotesScreen(
         bottomSheetState = bottomSheetScaffoldState,
         onNavigateToSettings = onNavigateToSettings
     )
+
+    if (state.deleteDialogInfo != null) {
+        val info = state.deleteDialogInfo!!
+        AlertDialog(
+            onDismissRequest = {},
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.setEvent(
+                        QuotesEvent.OnItemDeleted(
+                            id = info.id,
+                            isSelected = info.isSelected
+                        )
+                    )
+                }) {
+                    Text(text = stringResource(id = R.string.label_delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.setEvent(QuotesEvent.HideDeleteConfirmationDialog) }) {
+                    Text(text = stringResource(id = R.string.label_cancel))
+                }
+            },
+            text = { Text(text = stringResource(id = R.string.label_delete_quote_message)) }
+        )
+    }
 }
 
 @Composable
@@ -108,7 +138,7 @@ fun ScreenContent(
     state: QuotesState,
     sendEvent: (QuotesEvent) -> Unit,
     bottomSheetState: BottomSheetScaffoldState,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
 ) {
 
     var showMenu by remember { mutableStateOf(false) }
@@ -136,7 +166,8 @@ fun ScreenContent(
                         )
                     }
                 },
-                clearSavedStates = bottomSheetState.bottomSheetState.isCollapsed
+                clearSavedStates = bottomSheetState.bottomSheetState.isCollapsed,
+                isExpanded = bottomSheetState.bottomSheetState.isExpanded,
             )
         },
         scaffoldState = bottomSheetState,
@@ -193,6 +224,7 @@ fun ScreenContent(
                         state.quotes.isEmpty() -> EmptyState {
                             sendEvent(QuotesEvent.ShowQuoteModal)
                         }
+
                         else -> QuotesList(
                             quotes = state.quotes,
                             onCheckedChange = { id, checked ->
@@ -207,7 +239,7 @@ fun ScreenContent(
                                 )
                             },
                             onItemDeleted = { id, isSelected ->
-                                sendEvent(QuotesEvent.OnItemDeleted(id, isSelected))
+                                sendEvent(QuotesEvent.ShowDeleteConfirmationDialog(id, isSelected))
                             },
                             onEdit = { id, editedQuote, editedAuthor ->
                                 bottomSheetUIState = BottomSheetUIState.EditQuoteBottomSheet(
@@ -229,9 +261,7 @@ fun ScreenContent(
                         }
                         .background(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.20F))
                         .fillMaxSize(),
-                ) {
-
-                }
+                )
             }
         }
 

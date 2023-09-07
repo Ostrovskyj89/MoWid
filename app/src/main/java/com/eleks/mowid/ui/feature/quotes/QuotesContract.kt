@@ -7,27 +7,36 @@ import com.eleks.mowid.model.QuoteUIModel
 
 data class QuotesState(
     val isLoading: Boolean,
-    val quotes: List<QuoteUIModel>
+    val deleteDialogInfo: DeleteDialogInfo? = null,
+    val quotes: List<QuoteUIModel>,
 ) : UiState
 
-sealed class QuotesEvent : UiEvent {
+data class DeleteDialogInfo(
+    val id: String,
+    val isSelected: Boolean,
+)
+
+sealed interface QuotesEvent : UiEvent {
     data class QuoteItemChecked(
         val quoteId: String,
         val checked: Boolean,
         val quote: String,
-        val author: String?
-    ) : QuotesEvent()
+        val author: String?,
+    ) : QuotesEvent
 
-    object ShowQuoteModal : QuotesEvent()
-    object HideQuoteModal : QuotesEvent()
-    object BackButtonClicked : QuotesEvent()
-    data class AddQuoteClicked(val quote: String, val author: String) : QuotesEvent()
-    data class OnItemDeleted(val id: String, val isSelected: Boolean) : QuotesEvent()
+    object ShowQuoteModal : QuotesEvent
+    object HideQuoteModal : QuotesEvent
+    object BackButtonClicked : QuotesEvent
+    data class AddQuoteClicked(val quote: String, val author: String) : QuotesEvent
+    data class OnItemDeleted(val id: String, val isSelected: Boolean) : QuotesEvent
+    data class ShowDeleteConfirmationDialog(val id: String, val isSelected: Boolean) : QuotesEvent
     data class OnEditClicked(
         val id: String,
         val editedQuote: String,
-        val editedAuthor: String
-    ) : QuotesEvent()
+        val editedAuthor: String,
+    ) : QuotesEvent
+
+    object HideDeleteConfirmationDialog : QuotesEvent
 }
 
 sealed class QuotesEffect : UiEffect {

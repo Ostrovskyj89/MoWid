@@ -5,6 +5,9 @@
     <string name="label_add">Add</string>
     <string name="label_edit">Edit</string>
 
+    <!--    Common actions-->
+    <string name="label_cancel">Cancel</string>
+
     <!--     Groups screen-->
     <string name="title_add_group">Add group</string>
     <string name="title_edit_group">Edit group</string>
@@ -18,6 +21,11 @@
     <string name="label_author">Author (optional)</string>
     <string name="label_empty_state">There are no quotes yet.. Click this button below to add the first one</string>
 
+    <!--    Delete quote-->
+    <string name="label_delete_quote">Delete quote?</string>
+    <string name="label_delete_quote_message">Are you sure you want to delete this quote?</string>
+    <string name="label_delete">Delete</string>
+
     <!--     SignIn, SignOut-->
     <string name="label_sign_in_success">Signing in complete</string>
     <string name="label_sign_in_error">Signing in error</string>
@@ -27,7 +35,6 @@
 
     <string name="label_sign_in">SignIn</string>
     <string name="label_sign_out">SignOut</string>
-    <string name="label_cancel">Cancel</string>
     <string name="sign_in_alert_dialog_text">To continue you should SignIn</string>
 
     <!--    Settings-->
@@ -43,5 +50,6 @@
     <string name="once_a_day">1 time a day</string>
     <string name="twice_a_day">2 times a day</string>
     <string name="fours_a_day">4 times a day</string>
+
 
 </resources>

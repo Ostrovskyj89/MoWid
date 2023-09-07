@@ -1,16 +1,18 @@
 package com.eleks.mowid.ui.composable
 
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.eleks.mowid.ui.theme.MoWidTheme
 import com.eleks.mowid.R
+import com.eleks.mowid.ui.theme.MoWidTheme
 
 @Composable
-fun AppAlertDialog(
+fun SignInAlertDialog(
     onConfirmButtonClicked: () -> Unit,
-    onDismissButtonClicked: () -> Unit
+    onDismissButtonClicked: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = {},
@@ -32,6 +34,6 @@ fun AppAlertDialog(
 @Composable
 fun AppAlertDialogPreview() {
     MoWidTheme {
-        AppAlertDialog({}, {})
+        SignInAlertDialog({}, {})
     }
 }

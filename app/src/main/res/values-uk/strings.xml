@@ -5,11 +5,19 @@
     <string name="label_add">Додати</string>
     <string name="label_edit">Редагувати</string>
 
+    <!--    Common actions-->
+    <string name="label_cancel">Відмінити</string>
+
     <!--   Groups screen-->
     <string name="title_add_group">Додати групу</string>
     <string name="title_edit_group">Редагувати групу</string>
     <string name="label_group">Група</string>
     <string name="label_description">Опис</string>
+
+    <!--    Delete quote-->
+    <string name="label_delete_quote">Видалити цитату?</string>
+    <string name="label_delete_quote_message">Ви впевнені, що хочете видалити цитату?</string>
+    <string name="label_delete">Видалити</string>
 
     <!--   Quotes screen-->
     <string name="title_add_quote">Додати цитату</string>
@@ -27,7 +35,6 @@
 
     <string name="label_sign_in">Авторизуйтеся</string>
     <string name="label_sign_out">Вихід з акаунту</string>
-    <string name="label_cancel">Відмінити</string>
     <string name="sign_in_alert_dialog_text">Що б продовжити ви повинні авторизуватися</string>
 
     <!--     Settings-->

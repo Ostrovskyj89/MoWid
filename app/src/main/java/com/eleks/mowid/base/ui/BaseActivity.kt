@@ -25,7 +25,7 @@ abstract class BaseActivity<
 
     private fun subscribeOnEffect() {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.effect.collect {
                     handleEffect(it)
                 }

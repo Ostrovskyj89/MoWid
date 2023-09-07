@@ -7,8 +7,8 @@ import com.eleks.mowid.ui.feature.home.HomeViewModel
 
 @Composable
 fun HomeScreenDestination(
-    onNavigateToQuotes: (String, String) -> Unit,
-    onNavigateToSettings: () -> Unit
+    onNavigateToQuotes: (String) -> Unit,
+    onNavigateToSettings: () -> Unit,
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
     HomeScreen(

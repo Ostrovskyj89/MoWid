@@ -3,16 +3,16 @@ package com.eleks.mowid.ui.feature.bottomsheet
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -27,9 +27,10 @@ import com.eleks.mowid.ui.theme.MoWidTheme
 fun BottomSheet(
     bottomSheetUIState: BottomSheetUIState,
     onButtonClick: (id: String?, text1: String, text2: String) -> Unit,
-    clearSavedStates: Boolean = false
+    isExpanded: Boolean,
+    clearSavedStates: Boolean = false,
 ) {
-
+    val focusRequester = remember { FocusRequester() }
 
     with(bottomSheetUIState) {
         var textState1 by rememberSaveable(stateSaver = TextFieldValue.Saver) {
@@ -67,6 +68,7 @@ fun BottomSheet(
             TextField(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .focusRequester(focusRequester)
                     .padding(16.dp),
                 value = textState1,
                 onValueChange = { textState1 = it },
@@ -99,6 +101,18 @@ fun BottomSheet(
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done,
                     capitalization = KeyboardCapitalization.Sentences
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        // TODO extract into property of the state
+                        if (textState1.text.isNotEmpty() && (textState2.text.isNotEmpty() || !isSecondFieldMandatory)) {
+                            onButtonClick(
+                                id,
+                                textState1.text,
+                                textState2.text
+                            )
+                        }
+                    }
                 )
             )
 
@@ -119,6 +133,12 @@ fun BottomSheet(
             }
         }
     }
+
+    if (isExpanded) {
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
+    }
 }
 
 @Preview(showBackground = true)
@@ -127,7 +147,8 @@ fun HomeBottomSheetPreview() {
     MoWidTheme {
         BottomSheet(
             bottomSheetUIState = BottomSheetUIState.AddGroupBottomSheet,
-            onButtonClick = { _, _, _ -> }
+            onButtonClick = { _, _, _ -> },
+            isExpanded = true
         )
     }
 }

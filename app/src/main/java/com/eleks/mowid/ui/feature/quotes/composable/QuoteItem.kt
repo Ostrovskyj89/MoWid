@@ -1,14 +1,20 @@
 package com.eleks.mowid.ui.feature.quotes.composable
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,7 +25,7 @@ import com.eleks.mowid.ui.theme.MoWidTheme
 fun QuoteListItem(
     quote: QuoteUIModel,
     onCheckChanged: (String, Boolean) -> Unit,
-    onEdit: (id: String, quote: String, author: String) -> Unit
+    onEdit: (id: String, quote: String, author: String) -> Unit,
 ) {
     var checkedState by rememberSaveable { mutableStateOf(quote.isSelected) }
 
@@ -39,16 +45,17 @@ fun QuoteListItem(
     quote: QuoteUIModel,
     checked: Boolean,
     onCheckChanged: (String, Boolean) -> Unit,
-    onEdit: (id: String, quote: String, author: String) -> Unit
+    onEdit: (id: String, quote: String, author: String) -> Unit,
 ) {
 
     Row(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.onPrimary)
+            .clickable(enabled = !quote.canBeDeleted, onClick = { onCheckChanged(quote.id, !checked) })
             .pointerInput(quote) {
                 if (quote.canBeDeleted) {
                     detectTapGestures(
-                        onLongPress = {
+                        onTap = {
                             onEdit(quote.id, quote.quote, quote.author)
                         }
                     )
@@ -60,7 +67,8 @@ fun QuoteListItem(
                 .weight(1f)
                 .padding(vertical = 12.dp)
                 .padding(start = 16.dp)
-        ) {
+        )
+        {
             Text(
                 text = quote.quote,
                 fontSize = 16.sp,
@@ -68,23 +76,21 @@ fun QuoteListItem(
             )
             Text(
                 modifier = Modifier.align(Alignment.End),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 text = quote.author,
                 fontSize = 14.sp,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
-        Column(
+        Checkbox(
             modifier = Modifier
-                .padding(vertical = 12.dp)
-                .padding(end = 16.dp)
-        ) {
-            Checkbox(
-                checked = checked,
-                onCheckedChange = { isChecked ->
-                    onCheckChanged(quote.id, isChecked)
-                }
-            )
-        }
+                .align(Alignment.CenterVertically),
+            checked = checked,
+            onCheckedChange = { isChecked ->
+                onCheckChanged(quote.id, isChecked)
+            }
+        )
     }
 }
 
@@ -99,6 +105,26 @@ fun QuoteListItemPreview() {
                 created = "",
                 quote = "Quote",
                 isSelected = true,
+                canBeDeleted = true
+            ),
+            checked = true,
+            onCheckChanged = { _, _ -> },
+            onEdit = { _, _, _ -> }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun QuoteListItemLongPreview() {
+    MoWidTheme {
+        QuoteListItem(
+            QuoteUIModel(
+                id = "1",
+                author = "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore ",
+                created = "",
+                quote = "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea",
+                isSelected = false,
                 canBeDeleted = true
             ),
             checked = true,

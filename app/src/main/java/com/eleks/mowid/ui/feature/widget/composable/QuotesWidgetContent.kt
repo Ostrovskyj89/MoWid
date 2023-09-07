@@ -11,13 +11,11 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.layout.*
-import androidx.glance.text.FontWeight
-import androidx.glance.text.Text
-import androidx.glance.text.TextAlign
-import androidx.glance.text.TextStyle
+import androidx.glance.text.*
 import androidx.glance.unit.ColorProvider
-import com.eleks.mowid.ui.feature.widget.LeftArrowClickAction
 import com.eleks.mowid.R
+import com.eleks.mowid.ui.feature.main.MainActivity
+import com.eleks.mowid.ui.feature.widget.LeftArrowClickAction
 import com.eleks.mowid.ui.feature.widget.QuotesWidget
 import com.eleks.mowid.ui.feature.widget.RightArrowClickAction
 
@@ -32,11 +30,18 @@ fun QuotesWidgetContent(
     // TODO remove predefined strings
     val quote = prefs[QuotesWidget.quotePreference] ?: "Quote"
     val author = prefs[QuotesWidget.authorPreference] ?: "Author"
+    val quoteId = prefs[QuotesWidget.quoteIdPreference] ?: "0"
+    val groupId = prefs[QuotesWidget.groupIdPreference] ?: "0"
 
     WidgetContent(
         modifier = modifier,
         quote = quote,
-        author = author
+        author = author,
+        quoteId = quoteId,
+        groupId = groupId,
+        onClick = { groupId, quoteId ->
+            MainActivity.start(context, groupId, quoteId)
+        }
     )
 }
 
@@ -44,14 +49,19 @@ fun QuotesWidgetContent(
 fun WidgetContent(
     modifier: GlanceModifier,
     quote: String,
-    author: String
+    author: String,
+    groupId: String,
+    quoteId: String,
+    onClick: (groupId: String, quoteId: String) -> Unit = { _, _ -> },
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.Horizontal.Start
     ) {
         Text(
-            modifier = GlanceModifier.padding(start = 8.dp, end = 8.dp),
+            modifier = GlanceModifier
+                .clickable { onClick(groupId, quoteId) }
+                .padding(start = 8.dp, end = 8.dp),
             style = TextStyle(
                 textAlign = TextAlign.Center,
                 color = ColorProvider(color = Color.White),
@@ -126,6 +136,8 @@ fun QuotesWidgetContentPreview() {
             .appWidgetBackground()
             .padding(8.dp),
         quote = "Empty quote",
-        author = "Author"
+        author = "Author",
+        groupId = "groupId",
+        quoteId = "quoteId",
     )
 }

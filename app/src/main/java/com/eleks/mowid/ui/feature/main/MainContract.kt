@@ -12,6 +12,7 @@ sealed class MainState : UiState {
 sealed class MainEvent : UiEvent {
     object SignIn : MainEvent()
     object SignOut : MainEvent()
+    data class NavigateToQuote(val groupId: String, val quoteId: String) : MainEvent()
 }
 
 sealed class MainEffect : UiEffect {

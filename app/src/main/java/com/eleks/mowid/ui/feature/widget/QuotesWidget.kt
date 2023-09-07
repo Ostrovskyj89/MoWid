@@ -6,13 +6,8 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.appWidgetBackground
-import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.*
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.appwidget.updateAll
 import androidx.glance.background
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
@@ -33,12 +28,17 @@ class QuotesWidget : GlanceAppWidget() {
     }
 
     companion object {
+
         private const val QUOTE_PREFS_KEY = "QUOTE_PREFS_KEY"
         private const val AUTHOR_PREFS_KEY = "AUTHOR_PREFS_KEY"
+        private const val QUOTE_ID_PREFS_KEY = "QUOTE_ID_PREFS_KEY"
+        private const val GROUP_ID_PREFS_KEY = "GROUP_ID_PREFS_KEY"
         private const val TAG = "QuotesWidget"
 
         val quotePreference = stringPreferencesKey(QUOTE_PREFS_KEY)
         val authorPreference = stringPreferencesKey(AUTHOR_PREFS_KEY)
+        val quoteIdPreference = stringPreferencesKey(QUOTE_ID_PREFS_KEY)
+        val groupIdPreference = stringPreferencesKey(GROUP_ID_PREFS_KEY)
     }
 }
 

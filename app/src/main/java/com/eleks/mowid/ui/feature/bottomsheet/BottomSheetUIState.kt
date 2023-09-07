@@ -36,7 +36,7 @@ sealed class BottomSheetUIState(
     data class EditGroupBottomSheet(
         override val id: String,
         override val textField1: String,
-        override val textField2: String
+        override val textField2: String,
     ) : BottomSheetUIState(
         header = R.string.title_edit_group,
         hint1 = R.string.label_group,
@@ -52,7 +52,7 @@ sealed class BottomSheetUIState(
     data class EditQuoteBottomSheet(
         override val id: String,
         override val textField1: String,
-        override val textField2: String
+        override val textField2: String,
     ) : BottomSheetUIState(
         header = R.string.title_edit_quote,
         hint1 = R.string.label_quote,
