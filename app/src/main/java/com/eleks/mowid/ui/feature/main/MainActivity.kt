@@ -27,6 +27,9 @@ class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewMode
 
     override val viewModel: MainViewModel by viewModels()
 
+    private val groupId = intent.getStringExtra(GROUP_ID)
+    private val quoteId = intent.getStringExtra(QUOTE_ID)
+
     private val signInLauncher = registerForActivityResult(
         FirebaseAuthUIActivityResultContract()
     ) { res ->
@@ -46,6 +49,10 @@ class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewMode
             }
         }
         subscribeOnEvent()
+
+        if (groupId != null && quoteId != null) {
+            viewModel.navigateToQuote(groupId, quoteId)
+        }
     }
 
     override fun handleEffect(effect: MainEffect) {
@@ -64,10 +71,7 @@ class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewMode
                         is MainEvent.SignIn -> createSignInIntent()
                         is MainEvent.SignOut -> signOut()
                         is MainEvent.NavigateToQuote -> {
-
-                            val groupId = intent.getStringExtra(GROUP_ID)
-                            val quoteId = intent.getStringExtra(QUOTE_ID)
-//                            viewModel.navigateToQuote(groupId, quoteId)
+                            // do nothing. It is handled in AppNavigation
                         }
                     }
                 }

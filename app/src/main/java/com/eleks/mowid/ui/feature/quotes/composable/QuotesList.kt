@@ -39,6 +39,7 @@ fun QuotesList(
                 },
                 positionalThreshold = { 200.dp.toPx() }
             )
+
             if (item.canBeDeleted) {
                 SwipeToDismiss(
                     modifier = Modifier.animateItemPlacement(),

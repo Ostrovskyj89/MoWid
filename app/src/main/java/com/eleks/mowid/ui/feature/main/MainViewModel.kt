@@ -33,4 +33,9 @@ class MainViewModel @Inject constructor(
     fun signOutSuccess() {
         interactor.signOutSuccess()
     }
+
+    fun navigateToQuote(groupId: String, quoteId: String) {
+        setEvent(MainEvent.NavigateToQuote(groupId, quoteId))
+    }
+
 }

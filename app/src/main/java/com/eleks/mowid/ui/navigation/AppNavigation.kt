@@ -1,14 +1,18 @@
 package com.eleks.mowid.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.eleks.mowid.base.ui.EVENTS_KEY
+import com.eleks.mowid.ui.feature.main.MainEvent
 import com.eleks.mowid.ui.feature.main.MainViewModel
 import com.eleks.mowid.ui.navigation.Navigation.Args.GROUP_ID
 import com.eleks.mowid.ui.navigation.Navigation.Args.QUOTE_ID
+import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun AppNavigation(activityViewModel: MainViewModel) {
@@ -28,7 +32,6 @@ fun AppNavigation(activityViewModel: MainViewModel) {
                 onNavigateToSettings = { navController.navigate(Navigation.Route.Settings.route) }
             )
         }
-
         composable(
             route = Navigation.Route.Quotes.route,
             arguments = listOf(
@@ -37,7 +40,6 @@ fun AppNavigation(activityViewModel: MainViewModel) {
                 }
             )
         ) { backStackEntry ->
-//            val groupName = requireNotNull(backStackEntry.arguments?.getString(GROUP_NAME))
             QuotesScreenDestination(
                 groupName = "",
                 onBackClicked = { navController.navigateUp() },
@@ -51,10 +53,29 @@ fun AppNavigation(activityViewModel: MainViewModel) {
             SettingsScreenDestination(activityViewModel) { navController.navigateUp() }
         }
     }
+
+    LaunchedEffect(EVENTS_KEY) {
+        activityViewModel.event.onEach { event ->
+            when (event) {
+                is MainEvent.NavigateToQuote -> {
+                    navController.navigate(
+                        route = Navigation.Route.Quote.createRoute(event.groupId, event.quoteId)
+                    )
+                }
+
+                MainEvent.SignIn,
+                MainEvent.SignOut,
+                -> {
+                }
+            }
+        }
+    }
+
 }
 
 object Navigation {
     object Args {
+
         const val GROUP_ID = "group_id"
         const val GROUP_NAME = "group_name"
         const val QUOTE_ID = "quote_id"
