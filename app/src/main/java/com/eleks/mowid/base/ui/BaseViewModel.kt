@@ -2,11 +2,9 @@ package com.eleks.mowid.base.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 const val EFFECTS_KEY = "effects_key"
 const val EVENTS_KEY = "event_key"
@@ -14,7 +12,8 @@ const val EVENTS_KEY = "event_key"
 abstract class BaseViewModel<
     State : UiState,
     Event : UiEvent,
-    Effect : UiEffect> : ViewModel() {
+    Effect : UiEffect,
+    > : ViewModel() {
 
     private var eventJob: Job? = null
 
@@ -37,7 +36,31 @@ abstract class BaseViewModel<
         subscribeOnEvent()
     }
 
-    fun setEvent(event: Event) {
+    suspend fun main(): Unit = coroutineScope {
+        val flow = MutableSharedFlow<String>()
+
+        launch {
+            flow.collect {
+                println("First listener: $it")
+            }
+        }
+        launch {
+            flow.collect {
+                println("Second listener: $it")
+            }
+        }
+
+        launch {
+            delay(1000)
+            flow.emit("First")
+            flow.emit("Second")
+
+        }
+
+    }
+
+
+    fun publishEvent(event: Event) {
         val newEvent = event
         if (eventJob?.isActive != true) {
             eventJob = viewModelScope.launch {

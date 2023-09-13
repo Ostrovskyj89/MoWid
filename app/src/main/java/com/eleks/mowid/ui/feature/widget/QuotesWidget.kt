@@ -43,20 +43,31 @@ class QuotesWidget : GlanceAppWidget() {
 }
 
 class QuotesWidgetReceiver : GlanceAppWidgetReceiver() {
+
     override val glanceAppWidget: GlanceAppWidget = QuotesWidget()
 
     companion object {
-        suspend fun updateWidget(quote: String, author: String, context: Context) {
+
+        suspend fun updateWidget(context: Context, info: WidgetQuoteInfo) {
             val glanceId =
                 GlanceAppWidgetManager(context).getGlanceIds(QuotesWidget::class.java).last()
             updateAppWidgetState(context, glanceId) { prefs ->
-                prefs[QuotesWidget.quotePreference] = quote
-                prefs[QuotesWidget.authorPreference] = author
+                prefs[QuotesWidget.groupIdPreference] = info.groupId
+                prefs[QuotesWidget.quoteIdPreference] = info.quoteId
+                prefs[QuotesWidget.quotePreference] = info.quote
+                prefs[QuotesWidget.authorPreference] = info.author
             }
             QuotesWidget().updateAll(context)
         }
     }
 }
+
+data class WidgetQuoteInfo(
+    val quote: String,
+    val author: String,
+    val quoteId: String,
+    val groupId: String,
+)
 
 @Composable
 private fun Content() {

@@ -44,7 +44,7 @@ fun HomeScreen(
         enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded
     ) {
         if (bottomSheetScaffoldState.bottomSheetState.isExpanded) {
-            viewModel.setEvent(HomeEvent.HideGroupModal)
+            viewModel.publishEvent(HomeEvent.HideGroupModal)
         }
     }
 
@@ -91,7 +91,7 @@ fun HomeScreen(
 
     ScreenContent(
         state = state,
-        sendEvent = viewModel::setEvent,
+        sendEvent = viewModel::publishEvent,
         bottomSheetState = bottomSheetScaffoldState,
         onNavigateToSettings = onNavigateToSettings
     )

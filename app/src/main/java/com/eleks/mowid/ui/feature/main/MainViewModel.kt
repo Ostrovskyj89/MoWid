@@ -35,7 +35,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun navigateToQuote(groupId: String, quoteId: String) {
-        setEvent(MainEvent.NavigateToQuote(groupId, quoteId))
+        publishEvent(MainEvent.NavigateToQuote(groupId, quoteId))
     }
 
 }

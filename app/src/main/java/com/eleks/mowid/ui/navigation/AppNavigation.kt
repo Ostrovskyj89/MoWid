@@ -11,8 +11,6 @@ import com.eleks.mowid.base.ui.EVENTS_KEY
 import com.eleks.mowid.ui.feature.main.MainEvent
 import com.eleks.mowid.ui.feature.main.MainViewModel
 import com.eleks.mowid.ui.navigation.Navigation.Args.GROUP_ID
-import com.eleks.mowid.ui.navigation.Navigation.Args.QUOTE_ID
-import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun AppNavigation(activityViewModel: MainViewModel) {
@@ -55,11 +53,11 @@ fun AppNavigation(activityViewModel: MainViewModel) {
     }
 
     LaunchedEffect(EVENTS_KEY) {
-        activityViewModel.event.onEach { event ->
+        activityViewModel.event.collect { event ->
             when (event) {
                 is MainEvent.NavigateToQuote -> {
                     navController.navigate(
-                        route = Navigation.Route.Quote.createRoute(event.groupId, event.quoteId)
+                        route = Navigation.Route.Quotes.createRoute(event.groupId)
                     )
                 }
 
@@ -86,11 +84,6 @@ object Navigation {
         object Quotes : Route("Quotes/{$GROUP_ID}") {
 
             fun createRoute(groupId: String) = "Quotes/$groupId"
-        }
-
-        object Quote : Route("Quotes/{$GROUP_ID}/{$QUOTE_ID}") {
-
-            fun createRoute(groupId: String, quoteId: String) = "Quotes/$groupId/$quoteId"
         }
 
         object Settings : Route("Settings")

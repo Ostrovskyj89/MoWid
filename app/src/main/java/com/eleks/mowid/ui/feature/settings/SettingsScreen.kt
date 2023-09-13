@@ -68,7 +68,7 @@ fun SettingsScreen(
     }
 
     ScreenContent(
-        state = state, sendMainEvent = activityViewModel::setEvent, sendEvent = viewModel::setEvent
+        state = state, sendMainEvent = activityViewModel::publishEvent, sendEvent = viewModel::publishEvent
     )
 }
 

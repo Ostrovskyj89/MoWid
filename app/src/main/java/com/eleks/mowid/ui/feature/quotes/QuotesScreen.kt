@@ -50,7 +50,7 @@ fun QuotesScreen(
         enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded
     ) {
         if (bottomSheetScaffoldState.bottomSheetState.isExpanded) {
-            viewModel.setEvent(QuotesEvent.HideQuoteModal)
+            viewModel.publishEvent(QuotesEvent.HideQuoteModal)
         }
     }
 
@@ -101,7 +101,7 @@ fun QuotesScreen(
     ScreenContent(
         groupName = groupName,
         state = state,
-        sendEvent = viewModel::setEvent,
+        sendEvent = viewModel::publishEvent,
         bottomSheetState = bottomSheetScaffoldState,
         onNavigateToSettings = onNavigateToSettings
     )
@@ -112,7 +112,7 @@ fun QuotesScreen(
             onDismissRequest = {},
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.setEvent(
+                    viewModel.publishEvent(
                         QuotesEvent.OnItemDeleted(
                             id = info.id,
                             isSelected = info.isSelected
@@ -123,7 +123,7 @@ fun QuotesScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.setEvent(QuotesEvent.HideDeleteConfirmationDialog) }) {
+                TextButton(onClick = { viewModel.publishEvent(QuotesEvent.HideDeleteConfirmationDialog) }) {
                     Text(text = stringResource(id = R.string.label_cancel))
                 }
             },

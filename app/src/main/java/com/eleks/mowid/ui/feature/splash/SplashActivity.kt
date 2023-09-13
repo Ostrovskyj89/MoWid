@@ -1,6 +1,7 @@
 package com.eleks.mowid.ui.feature.splash
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -16,6 +17,9 @@ import kotlinx.coroutines.launch
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
 
+    private val groupId = intent?.getStringExtra(GROUP_ID)
+    private val quoteId = intent?.getStringExtra(QUOTE_ID)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val splashScreen = installSplashScreen()
@@ -29,6 +33,22 @@ class SplashActivity : ComponentActivity() {
                 startActivity(intent)
                 finish()
             }
+        }
+
+    }
+
+    companion object {
+
+        private const val GROUP_ID = "groupId"
+        private const val QUOTE_ID = "quoteId"
+
+        fun start(context: Context, groupId: String?, quoteId: String?) {
+            val intent = Intent(context, MainActivity::class.java)
+                .apply {
+                    putExtra(GROUP_ID, groupId)
+                    putExtra(QUOTE_ID, quoteId)
+                }
+            context.startActivity(intent)
         }
     }
 }

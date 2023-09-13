@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -27,8 +28,11 @@ class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewMode
 
     override val viewModel: MainViewModel by viewModels()
 
-    private val groupId = intent.getStringExtra(GROUP_ID)
-    private val quoteId = intent.getStringExtra(QUOTE_ID)
+    private val groupId: String?
+        get() = intent?.getStringExtra(GROUP_ID)
+
+    private val quoteId: String?
+        get() = intent?.getStringExtra(QUOTE_ID)
 
     private val signInLauncher = registerForActivityResult(
         FirebaseAuthUIActivityResultContract()
@@ -38,6 +42,7 @@ class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewMode
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        subscribeOnEvent()
         setContent {
             MoWidTheme {
                 Surface(
@@ -47,11 +52,18 @@ class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewMode
                     AppNavigation(viewModel)
                 }
             }
-        }
-        subscribeOnEvent()
 
-        if (groupId != null && quoteId != null) {
-            viewModel.navigateToQuote(groupId, quoteId)
+            LaunchedEffect(Unit) {
+                lifecycleScope.launch {
+                    repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        val groupId = groupId
+                        val quoteId = quoteId
+                        if (groupId != null && quoteId != null) {
+                            viewModel.navigateToQuote(groupId, quoteId)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -112,6 +124,7 @@ class MainActivity : BaseActivity<MainState, MainEvent, MainEffect, MainViewMode
                 .apply {
                     putExtra(GROUP_ID, groupId)
                     putExtra(QUOTE_ID, quoteId)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }
             context.startActivity(intent)
         }

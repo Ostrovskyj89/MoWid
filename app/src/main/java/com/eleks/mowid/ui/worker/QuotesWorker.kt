@@ -10,20 +10,23 @@ import com.eleks.data.model.SelectedQuoteDataModel
 import com.eleks.data.model.Status
 import com.eleks.data.preferences.LocalDataSource
 import com.eleks.mowid.ui.feature.widget.QuotesWidgetReceiver
+import com.eleks.mowid.ui.feature.widget.WidgetQuoteInfo
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import java.util.*
+import java.util.Date
 
 @HiltWorker
 class QuotesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workParams: WorkerParameters,
     private val firebaseDataSource: FirebaseDataSource,
-    private val localDataSource: LocalDataSource
+    private val localDataSource: LocalDataSource,
 ) : CoroutineWorker(context, workParams) {
 
     override suspend fun doWork(): Result {
-        val option = ExecutionOption.valueOf(localDataSource.quoteChangeOption ?: ExecutionOption.REGULAR.name)
+        val option = ExecutionOption.valueOf(
+            localDataSource.quoteChangeOption ?: ExecutionOption.REGULAR.name
+        )
         Log.d("QuotesWorker", "doWork option = ${option.name}")
         val result = firebaseDataSource.getSelectedQuotes()
         return when (result.status) {
@@ -31,6 +34,7 @@ class QuotesWorker @AssistedInject constructor(
                 showNextQuote(result.data, option)
                 Result.success()
             }
+
             Status.ERROR -> Result.failure()
         }
     }
@@ -45,12 +49,20 @@ class QuotesWorker @AssistedInject constructor(
         }
     }
 
+    private fun SelectedQuoteDataModel.toWidgetInfo(): WidgetQuoteInfo {
+        return WidgetQuoteInfo(
+            quote = quote ?: "",
+            author = author ?: "",
+            quoteId = id ?: "",
+            groupId = groupId ?: ""
+        )
+    }
+
     private suspend fun showRegularQuote(quotes: List<SelectedQuoteDataModel>) {
         quotes.sortedBy { it.shownAt }.firstOrNull()?.let {
             QuotesWidgetReceiver.updateWidget(
-                quote = it.quote ?: "",
-                author = it.author ?: "",
-                context = context
+                context = context,
+                info = it.toWidgetInfo()
             )
             updateShownQuote(it)
         }
@@ -66,9 +78,8 @@ class QuotesWorker @AssistedInject constructor(
         }
         nextQuote?.let {
             QuotesWidgetReceiver.updateWidget(
-                quote = it.quote ?: "",
-                author = it.author ?: "",
-                context = context
+                context = context,
+                info = it.toWidgetInfo()
             )
             updateShownQuote(it)
         }
@@ -85,9 +96,8 @@ class QuotesWorker @AssistedInject constructor(
         }
         previousQuote?.let {
             QuotesWidgetReceiver.updateWidget(
-                quote = it.quote ?: "",
-                author = it.author ?: "",
-                context = context
+                context = context,
+                info = it.toWidgetInfo()
             )
             updateShownQuote(it)
         }
@@ -103,6 +113,7 @@ class QuotesWorker @AssistedInject constructor(
     }
 
     companion object {
+
         const val TAG = "quotes-worker"
     }
 }

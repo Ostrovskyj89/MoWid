@@ -1,6 +1,5 @@
 package com.eleks.mowid.ui.feature.widget.composable
 
-import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,7 +14,7 @@ import androidx.glance.layout.*
 import androidx.glance.text.*
 import androidx.glance.unit.ColorProvider
 import com.eleks.mowid.R
-import com.eleks.mowid.ui.feature.splash.SplashActivity
+import com.eleks.mowid.ui.feature.main.MainActivity
 import com.eleks.mowid.ui.feature.widget.LeftArrowClickAction
 import com.eleks.mowid.ui.feature.widget.QuotesWidget
 import com.eleks.mowid.ui.feature.widget.RightArrowClickAction
@@ -40,8 +39,8 @@ fun QuotesWidgetContent(
         author = author,
         quoteId = quoteId,
         groupId = groupId,
-        onClick = { group, quoteId ->
-            context.startActivity(Intent(context, SplashActivity::class.java))
+        onClick = { groupIdParam, quoteIdParam ->
+            MainActivity.start(context, groupIdParam, quoteIdParam)
         }
     )
 }
